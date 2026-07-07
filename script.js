@@ -291,7 +291,36 @@ function reanudarJuego() { juegoPausado = false; intervalCajas = setInterval(cre
 function ganarCubatas(cantidad) { cubatas += cantidad; if (cantidad > 0) estadisticasLogros.cubatasTotalesGanados += cantidad; contadorCubatas.innerText = cubatas; verificarLogro('tesorero_pena'); }
 function mostrarTextoFlotante(x, y, cantidad) { const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.innerText = `+${cantidad}`; texto.style.left = `${x}px`; texto.style.top = `${y}px`; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000); }
 function mostrarAvisoFlotante(x, y, mensaje) { const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.style.color = "#ff4444"; texto.innerText = mensaje; texto.style.left = `${x}px`; texto.style.top = `${y}px`; texto.style.zIndex = "400"; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000); }
+function actualizarInterfazRanking() {
+    const contenedor = document.getElementById('ranking-content');
+    contenedor.innerHTML = '<h3 style="color:#333;">Cargando... 📡</h3>';
 
+    db.collection("ranking")
+        .orderBy("nivelMaximo", "desc")
+        .limit(10)
+        .get()
+        .then((querySnapshot) => {
+            let html = '<h3 style="margin-bottom:10px;">TOP 10 JUERGAS</h3>';
+            html += '<div style="text-align:left; font-size: 14px;">';
+            
+            let i = 1;
+            querySnapshot.forEach((doc) => {
+                let p = doc.data();
+                html += `<div style="padding: 8px; border-bottom: 1px solid #ccc; display:flex; justify-content:space-between;">
+                            <span>${i}. ${p.nombre}</span>
+                            <span style="font-weight:bold; color:#ff0055;">Nvl ${p.nivelMaximo}</span>
+                         </div>`;
+                i++;
+            });
+            
+            html += '</div>';
+            contenedor.innerHTML = html;
+        })
+        .catch((error) => {
+            console.error("Error al cargar ranking: ", error);
+            contenedor.innerHTML = "Error al conectar. 🔌";
+        });
+}
 function actualizarCubatasPorSegundo() { const friends = document.querySelectorAll('.friend'); let ingresosTotales = 0; friends.forEach(f => { ingresosTotales += (parseInt(f.dataset.level) + 1); }); let cps = (ingresosPorBucle = ingresosTotales / (tiempoPasivo / 1000)) * multiplicadorPasivo; document.getElementById('cubatas-segundo').innerText = `${cps.toFixed(1)} cubatas/seg`; }
 
 function iniciarBuclePasivo() { 
