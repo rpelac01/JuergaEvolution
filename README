@@ -1,0 +1,32 @@
+# 🍻 Juerga Civil 2026 - El Juego Oficial
+
+Un juego web incremental multijugador creado en exclusiva para la peña **Juerga Civil** de Santa María del Páramo. ¡Genera cubatas, fusiona a tus colegas de la peña y compite en el ranking global en plenas fiestas!
+
+## 🎮 Características Principales
+
+*   **Mecánica Merge (Fusión):** Combina cajas sorpresa para desbloquear hasta 18 niveles distintos de juerguistas de la peña.
+*   **Economía Incremental:** Cada nivel genera una cantidad de "cubatas" por segundo. Usa tus ganancias para comprar mejoras (Frenesí de cajas, Hora Feliz, Recoge-Vómitos automático, etc.).
+*   **Ranking en Tiempo Real:** Base de datos conectada a la nube (Firebase Firestore) que actualiza el Top 15 de la peña en vivo. ¡Guerra total por el número 1!
+*   **Cupones Físicos:** Sistema integrado para reclamar chupitos reales en la barra durante los días de fiesta (3 al 7 de septiembre de 2026).
+*   **Sistema Offline:** El juego sigue farmeando cubatas y acumulando cajas aunque tengas el móvil en el bolsillo.
+
+## 🛠️ Tecnologías Utilizadas
+
+*   **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+).
+*   **Backend / Nube:** Firebase Cloud Firestore (Modo de prueba habilitado para lecturas/escrituras públicas del Leaderboard).
+*   **Despliegue:** Preparado para Vercel / Netlify.
+*   **Persistencia:** `localStorage` para guardar el progreso local del jugador (nivel, cubatas, mejoras) y Firestore para la puntuación máxima global.
+
+## 🚀 Instalación y Despliegue
+
+Este proyecto no requiere compilación local ni dependencias de Node.js. Para jugar en local:
+
+1. Clona este repositorio.
+2. Abre el archivo `index.html` directamente en cualquier navegador moderno.
+
+**Para desplegar en producción:**
+Conecta el repositorio a una plataforma de hosting estático (como Vercel). Asegúrate de que las reglas de Firestore están configuradas en `allow read, write: if true;` para que el ranking funcione correctamente.
+
+## 📜 Licencia
+
+Proyecto creado por y para la peña Juerga Civil 2026. ¡Prohibido rendirse antes de las 8 de la mañana!
