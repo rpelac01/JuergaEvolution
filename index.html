@@ -22,6 +22,7 @@
 
     <footer id="bottom-bar">
         <button class="btn-cuadrado boton-arcade" onclick="abrirTienda()">🛒</button>
+        <button class="btn-cuadrado boton-arcade" style="color: #ff00ff; border-color: #ff00ff;" onclick="abrirCasino()">🎰</button>
         <button class="btn-cuadrado boton-arcade" onclick="abrirMenuPrincipal()">📖</button>
     </footer>
 
@@ -42,25 +43,87 @@
                 <button class="btn-caro boton-arcade" onclick="comprarLimpieza()" style="grid-column: span 2;">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
                 
                 <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button class="boton-arcade" onclick="boostBajoRefresco()">🥤 Refresco Rápido<br><small>25 🥃 (+10 cubatas)</small></button>
-                <button class="boton-arcade" onclick="boostBajoTapa()">🧆 Tapa de Bravas<br><small>40 🥃 (Caja inmediata)</small></button>
+                <button class="boton-arcade" onclick="boostBajoRefresco()">🥤 Refresco Rápido<br><small>150 🥃 (Clic x3 por 10s)</small></button>
+                <button class="boton-arcade" onclick="boostBajoTapa()">🧆 Tapa de Bravas<br><small>250 🥃 (Abre 3 cajas)</small></button>
 
                 <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
-                <button class="boton-arcade" onclick="boostMedioCharanga()">🎷 La Charanga<br><small>300 🥃 (X2 pasivo 20s)</small></button>
-                <button class="boton-arcade" onclick="boostMedioBarril()">🛢️ Barril Cerveza<br><small>600 🥃 (Colega Nvl 3)</small></button>
+                <button class="boton-arcade" onclick="boostMedioCharanga()">🎷 La Charanga<br><small>1200 🥃 (Pasivo x3 por 30s)</small></button>
+                <button class="boton-arcade" onclick="boostMedioBarril()">🛢️ Barril Cerveza<br><small>2000 🥃 (Colega Nvl 4)</small></button>
 
                 <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
-                <button class="boton-arcade" onclick="comprarHoraLoca()">🌪️ LA HORA LOCA<br><small>1500 🥃 (Lluvia cajas)</small></button>
-                <button class="boton-arcade" onclick="comprarAmnesia()">⏳ LA AMNESIA<br><small>2500 🥃 (+1h Farmeo)</small></button>
-                <button class="boton-arcade" onclick="comprarAutobus()" style="grid-column: span 2;">🚌 AUTOBÚS DE LA PEÑA<br><small>5000 🥃 (3 colegas Nvl 4)</small></button>
+                <button class="boton-arcade" onclick="comprarHoraLoca()">🌪️ LA HORA LOCA<br><small>5000 🥃 (Lluvia cajas)</small></button>
+                <button class="boton-arcade" onclick="comprarAmnesia()">⏳ LA AMNESIA<br><small>8500 🥃 (+15m Farmeo)</small></button>
+                <button class="boton-arcade" onclick="comprarAutobus()" style="grid-column: span 2;">🚌 AUTOBÚS PEÑA<br><small>15000 🥃 (2 colegas Nvl 5)</small></button>
 
-                <div class="shop-seccion-titulo extremo">💀 BOOSTS EXTREMOS (REQ NVL 12)</div>
-                <!-- Fíjate que a estos que ya tenían btn-lock, se les pone al lado separado por un espacio -->
-                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" onclick="boostExtremoChupinazo()">💥 EL CHUPINAZO<br><small>15000 🥃 (Colega Nvl 9)</small></button>
-                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>35000 🥃 (X5 pasivo 30s)</small></button>
+                <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
+                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" onclick="boostExtremoChupinazo()">💥 EL CHUPINAZO<br><small>50000 🥃 (Colega Nvl 9)</small></button>
+                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>120000 🥃 (Pasivo x10 - 30s)</small></button>
             </div>
             
             <div id="tab-personajes" class="shop-items oculto"></div>
+        </div>
+    </div>
+
+    <div id="casino-modal" class="modal oculto" style="z-index: 550;">
+        <div class="modal-content tienda-arcade" style="border-color: #ff00ff; box-shadow: inset 0 0 25px rgba(50, 0, 50, 0.9), 0 0 15px rgba(255, 0, 255, 0.5);">
+            <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
+            
+            <h3 style="color: #ff00ff; text-shadow: 0px 0px 10px #ff00ff; border-bottom: 2px dashed #ff00ff;">🎰 CASINO VIP</h3>
+            
+            <div style="background: #110011; border: 2px solid #ff00ff; padding: 15px; text-align: center; margin-top: 15px;">
+                <p style="font-size: 10px; color: #fff; margin-bottom: 10px;">TUS FICHAS: <span id="contador-fichas" style="font-size: 16px; color: #ff00ff;">0</span> 🪙</p>
+                <button class="boton-arcade" style="border-color: #ff00ff; color: #ff00ff;" onclick="comprarFicha()">
+                    COMPRAR 1 FICHA<br><small style="color: #aa00aa;">500.000 🥃</small>
+                </button>
+            </div>
+
+            <div id="zona-juego-casino" style="margin-top: 20px; text-align: center; background: #0a000a; border: 3px solid #ff00ff; border-radius: 10px; padding: 15px;">
+                <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 45px; margin-bottom: 15px; background: #000; padding: 10px; border-radius: 8px; box-shadow: inset 0 0 15px #ff00ff;">
+                    <span id="slot1">🎰</span>
+                    <span id="slot2">🎰</span>
+                    <span id="slot3">🎰</span>
+                </div>
+                
+                <button id="btn-tirar-casino" class="boton-arcade" style="width: 100%; border-color: #ff00ff; color: #ff00ff; background: #1a001a; font-size: 14px;" onclick="tirarTragaperras()">
+                    TIRAR (1 🪙)
+                </button>
+                
+                <p id="mensaje-casino" style="margin-top: 15px; color: #fff; font-size: 11px; height: 15px; font-family: 'Press Start 2P', cursive; text-shadow: 0 0 5px #ff00ff;">
+                    ¡SUERTE, JUERGUISTA!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LA PUERTA DEL CASINO (PAGO 2€ EN EFECTIVO) ==================== -->
+    <div id="pago-casino-modal" class="modal oculto" style="z-index: 600;">
+        <div class="modal-content libreta" style="border-left-color: #ff00ff; text-align: center;">
+            <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
+            <h2 style="color:#ff00ff; margin-bottom: 10px; font-size: 22px; text-shadow: 0 0 5px #ff00ff;">🎰 ACCESO VIP</h2>
+            <p style="font-size: 14px; color: #333; margin-bottom: 15px; font-weight: bold;">
+                El Casino Clandestino requiere 2€ para el Bote de la Peña. Pago único de por vida.
+            </p>
+            
+            <div style="background: #111; padding:15px; border-radius:10px; border: 3px dashed #ff00ff; margin-bottom:15px;">
+                <p style="font-size: 16px; color: #00ff00; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
+                <p style="font-size: 12px; color: #ccc;">Ve a la barra de la peña, dale 2€ en mano al camarero y él tecleará la contraseña secreta en tu móvil.</p>
+            </div>
+            
+            <button onclick="verificarPagoCasino()" style="padding:15px; background:#ff00ff; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:15px; box-shadow: 2px 4px 0 #000;">
+                🔒 CAMARERO: INTRODUCIR CLAVE
+            </button>
+        </div>
+    </div>
+
+    <div id="camarero-modal" class="modal oculto" style="z-index: 999;">
+        <div class="modal-content libreta" style="background: #111; border: 4px solid #ff00ff; text-align: center;">
+            <button class="cerrar-btn" style="background: #ff00ff; color: black;" onclick="cerrarModales()">❌</button>
+            <h3 style="color: #ff00ff; border-bottom: 2px dashed #ff00ff;">🍸 STAFF PEÑA</h3>
+            <p style="font-size: 11px; color: #aaa; margin-top: 10px;">CÓDIGO VIP ACTUAL (Válido 20s):</p>
+            <div id="codigo-vivo" style="font-size: 45px; margin: 20px 0; font-family: 'Press Start 2P', cursive; color: #00ff00; text-shadow: 0 0 10px #00ff00;">
+                0000
+            </div>
+            <p style="font-size: 10px; color: #666;">Teclea este código en el móvil del jugador cuando te enseñe el pago de los 2€.</p>
         </div>
     </div>
 
@@ -70,24 +133,19 @@
             <div class="libreta-tab">MENU</div>
             <div class="menu-grid">
                 <button class="menu-card" onclick="abrirJuerguistas()">
-                    <div class="menu-icon bg-rojo">👥</div>
-                    <span>JUERGUISTAS</span>
+                    <div class="menu-icon bg-rojo">👥</div><span>JUERGUISTAS</span>
                 </button>
                 <button class="menu-card" onclick="abrirRanking()">
-                    <div class="menu-icon bg-amarillo">🏆</div>
-                    <span>RANKING</span>
+                    <div class="menu-icon bg-amarillo">🏆</div><span>RANKING</span>
                 </button>
                 <button class="menu-card" onclick="abrirLogros()">
-                    <div class="menu-icon bg-verde">🎯</div>
-                    <span>LOGROS</span>
+                    <div class="menu-icon bg-verde">🎯</div><span>LOGROS</span>
                 </button>
                 <button class="menu-card" onclick="abrirMenuChupitos()">
-                    <div class="menu-icon bg-calendario">🥂</div>
-                    <span>CHUPITO GRATIS</span>
+                    <div class="menu-icon bg-calendario">🥂</div><span>CHUPITO GRATIS</span>
                 </button>
                 <button class="menu-card" onclick="abrirOpciones()" style="grid-column: span 2;">
-                    <div class="menu-icon bg-azul" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">⚙️</div>
-                    <span>OPCIONES</span>
+                    <div class="menu-icon bg-azul" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">⚙️</div><span>OPCIONES</span>
                 </button>
             </div>
         </div>
@@ -104,23 +162,23 @@
         </div>
     </div>
 
+    <!-- ==================== EL BOTE PARA LOS CHUPITOS (PAGO 1€ EN EFECTIVO) ==================== -->
     <div id="pago-modal" class="modal oculto" style="z-index: 600;">
         <div class="modal-content libreta" style="border-left-color: #00c853; text-align: center;">
             <button class="cerrar-btn" onclick="cerrarPagoModal()">❌</button>
             <h2 style="color:#00c853; margin-bottom: 10px; font-size: 22px;">¡BOTE DE LA PEÑA! 🍻</h2>
-            <p style="font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold;">
-                Para desbloquear los chupitos gratis, debes donar 1 euro para las botellas. ¡Pago único para todas las fiestas!
+            <p style="font-size: 14px; color: #333; margin-bottom: 15px; font-weight: bold;">
+                Para desbloquear los chupitos gratis en el juego, debes donar 1 euro. ¡Pago único para todas las fiestas!
             </p>
-            <div style="background: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 8px; margin-bottom: 15px; font-size: 12px; color: #b71c1c; font-weight: bold; line-height: 1.3;">
-                ⚠️ ¡ATENCIÓN JUGADOR!<br>
-                El camarero te pedirá VER EL JUSTIFICANTE DE PAGO en la barra para darte la bebida.
+
+            <div style="background: #e8f5e9; padding:15px; border-radius:10px; border: 3px dashed #00c853; margin-bottom:15px;">
+                <p style="font-size: 16px; color: #1b5e20; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
+                <p style="font-size: 12px; color: #333;">Dale 1€ físico al camarero en la barra de la peña para que te autorice el pase.</p>
             </div>
-            <a href="https://buy.stripe.com/5kQcN4gSh6cD4H918igMw01" target="_blank" style="display:block; padding:15px; background:#000; color:white; font-weight:bold; border-radius:10px; text-decoration:none; margin-bottom:15px; font-size: 16px; box-shadow: 2px 4px 0 #555;">
-                💳 DONAR 1€ (Apple/Google Pay)
-            </a>
-            <p style="font-size: 11px; color: #777; margin-bottom: 5px;">¿Ya has pagado y tienes el justificante en el móvil?</p>
-            <button onclick="confirmarDonacion()" style="padding:12px; background:#00c853; color:white; font-weight:bold; border:3px solid #333; border-radius:8px; cursor:pointer; width:100%; font-size:14px; box-shadow: 2px 2px 0 #005500;">
-                ✅ YA HE DONADO (DESBLOQUEAR)
+
+            <!-- Como los chupitos no tienen segurata TOTP, aquí el camarero solo tiene que darle al botón y confiar, o podemos ponerle un prompt básico -->
+            <button onclick="confirmarDonacion()" style="padding:15px; background:#00c853; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:15px; box-shadow: 2px 4px 0 #005500;">
+                ✅ CAMARERO: DESBLOQUEAR
             </button>
         </div>
     </div>
@@ -130,7 +188,6 @@
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
             <div class="libreta-tab">LOGROS</div>
-            <h3 style="font-size:18px; margin-bottom:10px; color:#333; text-align:center;">🎯 RETOS DE LA JUERGA</h3>
             <div class="libro-grid" id="lista-logros-contenedor"></div>
         </div>
     </div>
@@ -140,7 +197,7 @@
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
             <div class="libreta-tab">PEÑA</div>
-            <div class="libro-grid">
+            <div class="libro-grid" id="juerguistas-contenedor">
                 <div class="libro-item"><img src="n1.png" alt="Foto"><div class="libro-info"><h4>Adrian Juan, AKA Parames</h4><p>Nivel 1</p></div></div>
                 <div class="libro-item"><img src="n2.png" alt="Foto"><div class="libro-info"><h4>Iñaki Gonzalez</h4><p>Nivel 2</p></div></div>
                 <div class="libro-item"><img src="n3.png" alt="Foto"><div class="libro-info"><h4>Ander Garmon</h4><p>Nivel 3</p></div></div>
@@ -169,12 +226,9 @@
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
             <div class="libreta-tab">RANKING</div>
-            
-            <!-- EL CONTENEDOR NUEVO VACÍO PARA QUE FIREBASE LO RELLENE -->
             <div id="ranking-content" style="text-align: center; margin-top: 15px;">
                 <h3 style="color:#333; margin-top:20px;">Conectando a la nube... 📡</h3>
             </div>
-            
         </div>
     </div>
 
@@ -184,8 +238,11 @@
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
             <div class="libreta-tab">OPCIONES</div>
             <div style="text-align:center; padding: 20px;">
-                <button onclick="cambiarNombre()" style="padding: 12px; font-weight: bold; width: 100%; margin-bottom:12px; border: 2px solid #333; border-radius:8px; cursor:pointer;">✏️ Cambiar mi Nombre / Trucos</button>
+                <button onclick="cambiarNombre()" style="padding: 12px; font-weight: bold; width: 100%; margin-bottom:12px; border: 2px solid #333; border-radius:8px; cursor:pointer;">✏️ Cambiar Nombre / Trucos</button>
                 <button onclick="borrarPartida()" style="padding: 12px; font-weight: bold; width: 100%; background: #ff4444; color: white; border: 2px solid #333; border-radius:8px; cursor:pointer;">🚨 Borrar Partida</button>
+                <button onclick="abrirPanelCamarero()" style="padding: 12px; font-weight: bold; width: 100%; margin-top: 15px; background: #000; color: #ff00ff; border: 2px dashed #ff00ff; border-radius:8px; cursor:pointer;">
+                    🕵️‍♂️ Panel de Staff
+                </button>
             </div>
         </div>
     </div>
@@ -193,21 +250,21 @@
     <div id="unlock-cinematic" class="oculto">
         <div class="cone-light"></div>
         <div class="cinematic-content">
-            <h2 class="unlock-title">¡NUEVO COLEGA DESCUBIERTO!</h2>
+            <h2 class="unlock-title">¡NUEVO COLEGA!</h2>
             <img id="unlock-img" src="n1.png" alt="Nuevo Colega">
             <div id="unlock-desc">¡NIVEL ALCANZADO!</div>
             <p class="tap-to-continue">Toca cualquier parte para continuar</p>
         </div>
     </div>
 
-    <div id="cupon-modal" class="modal oculto" style="z-index: 500;">
+    <div id="cupon-modal" class="modal oculto" style="z-index: 9999;">
         <div class="modal-content libreta" style="border-left-color: #ff0000; background: #ffebee; text-align: center;">
             <button class="cerrar-btn" onclick="cerrarCupon()">❌</button>
             <h2 style="color:#ff0000; margin-bottom: 5px; font-size: 24px;">🎟️ CUPÓN VÁLIDO</h2>
             <p id="cupon-desc" style="font-weight:bold; margin-bottom:15px; color:#333;">Premio</p>
             <div id="cupon-codigo" class="codigo-chupito" style="font-size: 32px; padding: 25px; margin-bottom: 20px;">CODIGO</div>
-            <p style="font-size: 13px; color: #555; margin-bottom: 15px; font-weight: bold;">⚠️ Enseña esta pantalla en la barra. Una vez te sirvan el chupito, el camarero debe pulsar el botón de abajo.</p>
-            <button onclick="quemarCupon()" style="padding:15px; background:#ff0000; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:16px; box-shadow: 2px 4px 0 #660000;">
+            <p style="font-size: 13px; color: #555; margin-bottom: 15px; font-weight: bold;">⚠️ Enseña esta pantalla en la barra.</p>
+            <button onclick="quemarCupon()" style="padding:15px; background:#ff0000; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:16px;">
                 🔥 CAMARERO: QUEMAR CUPÓN
             </button>
         </div>
@@ -215,7 +272,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>

@@ -73,67 +73,80 @@ html, body {
 .tienda-tabs { display: flex; border-bottom: 3px solid #333; margin-bottom: 15px; }
 .tienda-tabs button { flex: 1; padding: 12px; background: #f0f0f0; border: none; font-weight: bold; font-size: 14px; cursor: pointer; }
 .tienda-tabs button.tab-activa { background: #ff0055; color: white; }
-/* Contenedor de la tienda con un brillo sutil */
-/* Contenedor de la tienda tipo pantalla arcade */
+
+/* ==================== ESTILO ARCADE TÁCTICO ==================== */
 .tienda-arcade {
-    font-family: 'Press Start 2P', cursive;
-    background-color: #111111; /* Fondo muy oscuro */
-    border: 4px solid #ffcc00; /* Borde amarillo recreativa */
+    font-family: 'Press Start 2P', cursive; 
+    background-color: #000000; 
+    border: 4px solid #00ff00; 
     padding: 20px;
-    color: #00ffcc; /* Texto en cian brillante */
-    text-shadow: 3px 3px 0px #ff0055; /* Sombra fucsia para el 3D retro */
-    box-shadow: inset 0 0 20px #000000, 0 0 15px #ffcc00; /* Brillo de neón */
+    color: #00ff00; 
+    text-shadow: 0px 0px 8px rgba(0, 255, 0, 0.8); 
+    box-shadow: inset 0 0 25px rgba(0, 50, 0, 0.9), 0 0 15px rgba(0, 255, 0, 0.5); 
 }
 
-/* El botón gordo de máquina física */
 .boton-arcade {
     font-family: 'Press Start 2P', cursive;
-    background-color: #ff0055;
-    color: white;
-    border: 4px solid #ffffff;
+    background-color: #051405; 
+    color: #00ff00; 
+    border: 2px solid #00ff00; 
     padding: 15px 20px;
     font-size: 12px;
     text-transform: uppercase;
     cursor: pointer;
     margin: 10px;
-    /* La clave del 3D pixelado: una sombra dura, sin desenfoque */
-    box-shadow: 5px 5px 0px #00ffcc; 
-    transition: all 0.1s; /* Muy rápido, respuesta inmediata */
+    box-shadow: 5px 5px 0px #004400; 
+    transition: all 0.1s; 
 }
-
-/* Efecto al pasar el ratón */
 .boton-arcade:hover {
-    background-color: #ff3377;
-    transform: translate(-2px, -2px); /* Sube un poco */
-    box-shadow: 7px 7px 0px #00ffcc; /* La sombra se hace más grande */
+    background-color: #00ff00; 
+    color: #000000; 
+    text-shadow: none; 
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0px #006600; 
 }
-
-/* ¡EL GUSTITO! Efecto al hacer clic (se hunde el botón físico) */
 .boton-arcade:active {
-    transform: translate(5px, 5px); /* Se hunde hacia abajo y derecha */
-    box-shadow: 0px 0px 0px #00ffcc; /* La sombra desaparece porque lo has pulsado */
+    transform: translate(5px, 5px); 
+    box-shadow: 0px 0px 0px #006600; 
+}
+.boton-arcade:disabled {
+    background-color: #000000;
+    color: #003300; 
+    border-color: #003300;
+    box-shadow: 5px 5px 0px #001100;
+    cursor: not-allowed;
+    transform: none; 
+    text-shadow: none;
 }
 
-/* Botón bloqueado (cuando no tienes cubatas/dinero) */
-.boton-arcade:disabled {
-    background-color: #555555;
-    color: #888888;
-    border-color: #777777;
-    box-shadow: 5px 5px 0px #222222;
-    cursor: not-allowed;
-    transform: none; /* No se mueve al pulsarlo */
+@keyframes flotarYDesaparecer {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
 }
+
+.texto-flotante-arcade {
+    position: absolute;
+    font-family: 'Press Start 2P', cursive;
+    color: #00ff00; 
+    font-size: 16px;
+    text-shadow: 0 0 5px #00ff00, 2px 2px 0px #000000; 
+    pointer-events: none; 
+    animation: flotarYDesaparecer 0.8s ease-out forwards;
+    z-index: 9999;
+}
+
+/* --- CONFIGURACIÓN DE LA CUADRÍCULA DE LA TIENDA --- */
 .shop-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; padding-right: 5px; }
-.shop-items button { background: #f5f5f5; border: 2px solid #333; padding: 12px 5px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; }
-.shop-items button:active { background: #ddd; }
-.shop-items .btn-caro { background: #ffd700; border-color: #333; }
-.shop-items small { display: block; color: #ff0055; font-size: 11px; margin-top: 4px; }
+.shop-items small { display: block; color: #00aa00; font-size: 11px; margin-top: 4px; text-shadow: none; }
+
+/* --- SECCIÓN LIBRO DE LA PEÑA Y LOGROS --- */
 .libro-grid { overflow-y: auto; padding-right: 5px; margin-top: 10px; }
 .libro-item { display: flex; align-items: center; background: white; border: 2px solid #333; margin-bottom: 10px; border-radius: 10px; padding: 10px; }
 .libro-item img { width: 65px; height: 65px; object-fit: contain; border-radius: 8px; margin-right: 12px; border: 2px solid #333; background: #222;}
 .libro-info h4 { margin: 0 0 4px 0; color: #ff0055; font-size: 15px; }
 .libro-info p { margin: 0; font-size: 12px; color: #444; font-weight: bold;}
 
+/* --- CINEMÁTICAS --- */
 #unlock-cinematic { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: rgba(0,0,0,0.92); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .cone-light { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(255,255,210,0.7) 0%, rgba(255,255,210,0) 80%); clip-path: polygon(30% 0, 70% 0, 100% 100%, 0% 100%); z-index: 1; pointer-events: none; }
 .cinematic-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
@@ -146,40 +159,45 @@ html, body {
 @keyframes epicPop { 0% { transform: scale(0.1) translateY(80px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 @keyframes fadeLight { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+
+/* --- CUPÓN DE CHUPITOS --- */
 .codigo-chupito { background: #ff0055; color: white; padding: 15px; border-radius: 10px; border: 3px solid #333; font-size: 22px; font-weight: bold; letter-spacing: 2px; margin-top: 10px; animation: pulse 1s infinite alternate; text-align: center;}
 @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+
+/* --- ANIMACIÓN ENTRADA TIENDA --- */
 @keyframes entrarTienda {
     0% { opacity: 0; transform: translateY(20px) scale(0.95); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+.animacion-entrada { animation: entrarTienda 0.4s ease-out forwards; }
 
-.animacion-entrada {
-    animation: entrarTienda 0.4s ease-out forwards;
-}
-/* ELEMENTOS NUEVOS DE LA TIENDA DE MEJORAS */
+/* --- TÍTULOS DE SECCIÓN DE LA TIENDA TÁCTICA --- */
 .shop-seccion-titulo {
-    grid-column: span 2; text-align: center; font-weight: bold; font-size: 12px;
-    padding: 5px; border-radius: 6px; background: #e0e0e0; margin-top: 8px; color: #444; border: 2px solid #333;
-}
-.shop-seccion-titulo.bajo { background: #c8e6c9; color: #256029; }
-.shop-seccion-titulo.medio { background: #fff9c4; color: #726200; }
-.shop-seccion-titulo.epico { background: #ffccbc; color: #ad3205; }
-.shop-seccion-titulo.extremo { background: #d1c4e9; color: #4a148c; }
-
-.btn-lock { background: #bdbdbd !important; color: #757575 !important; border: 2px dashed #666 !important; cursor: not-allowed !important; box-shadow: none !important; opacity: 0.6; }
-.btn-unlocked-extremo { background: linear-gradient(135deg, #4a148c, #7c4dff) !important; color: white !important; border: 2px solid #333 !important; text-shadow: 1px 1px 0 #000; box-shadow: 2px 4px 0 #000 !important; }
-@keyframes flotarYDesaparecer {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
-}
-
-.texto-flotante-arcade {
-    position: absolute;
+    grid-column: span 2; 
+    text-align: center; 
+    font-size: 10px; 
+    padding: 8px; 
+    margin-top: 15px; 
+    margin-bottom: 5px;
+    background-color: #002200; 
+    color: #00ff00; 
+    border: 2px dashed #00ff00; 
+    border-radius: 0px; 
     font-family: 'Press Start 2P', cursive;
-    color: #ff0055;
-    font-size: 16px;
-    text-shadow: 2px 2px 0px white;
-    pointer-events: none; /* Que no estorbe si haces muchos clics seguidos */
-    animation: flotarYDesaparecer 0.8s ease-out forwards;
-    z-index: 9999;
+    text-shadow: 0px 0px 5px #00ff00;
+}
+
+/* BOTONES EXTREMOS BLOQUEADOS (Adaptados al estilo táctico) */
+.btn-lock { 
+    background: #000000 !important; 
+    color: #004400 !important; 
+    border: 2px dashed #004400 !important; 
+    cursor: not-allowed !important; 
+    box-shadow: none !important; 
+}
+.btn-unlocked-extremo { 
+    background: #001100 !important; 
+    color: #00ff00 !important; 
+    border: 2px solid #00ff00 !important; 
+    box-shadow: 0 0 15px #00ff00 !important; 
 }

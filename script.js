@@ -1,8 +1,6 @@
 // ==========================================================================
 // 🔥 1. CONEXIÓN A LA NUBE (FIREBASE)
 // ==========================================================================
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDYPbqh0-tLpwJK-hHXuG1fwABr-fkGXtA",
   authDomain: "juerga-civil-2026.firebaseapp.com",
@@ -13,8 +11,6 @@ const firebaseConfig = {
   measurementId: "G-X8LNCK1J29"
 };
 
-
-// Inicializamos el motor de la base de datos
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -28,40 +24,31 @@ function subirPuntuacion() {
     }, { merge: true }).catch((error) => console.log("Error de nube:", error));
 }
 
-// Sube los datos a internet cada 15 segundos automáticamente
-setInterval(subirPuntuacion, 15000); 
+// Sube los datos a internet cada 15 segundos
+setInterval(subirPuntuacion, 15000);
 
 // ==========================================================================
 // 🎮 2. LÓGICA DEL JUEGO
 // ==========================================================================
-// BLOQUEO DEFINITIVO DE ZOOM
-document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
-document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
-
-// ... (y a partir de aquí sigue el resto de tu código normal) ...
-
-// Sube los datos a internet cada 15 segundos automáticamente
-setInterval(subirPuntuacion, 15000);
-// BLOQUEO DEFINITIVO DE ZOOM
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
 document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
 
 const board = document.getElementById('game-board');
 const contadorCubatas = document.getElementById('contador-cubatas');
-
-// AMPLIADO A 18 NIVELES DE JUERGUISTAS
 const levels = ['n1.png', 'n2.png', 'n3.png', 'n4.png', 'n5.png', 'n6.png', 'n7.png', 'n8.png', 'n9.png', 'n10.png', 'n11.png', 'n12.png','n125.png', 'n13.png', 'n14.png', 'n15.png', 'n16.png', 'n17.png', 'n18.png']; 
 
 let cubatas = 0; let nivelAparicion = 0; 
 let dragItem = null; let offsetX = 0; let offsetY = 0;
-
 let maxNivelDesbloqueado = 0; 
 let nombreJugador = "Desconocido";
 let haPagadoEuro = false;
 let fechaSimulada = null;
 
-// MOTOR DE ECONOMIC MULTIPLIERS
+// MOTOR DE ECONOMÍA Y CASINO
 let multiplicadorPasivo = 1;
+let multiplicadorClic = 1; 
+let casinoVIP = localStorage.getItem('casinoVIP') === 'true';
+let fichasCasino = 0;
 
 let regalosReclamados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false, 'jefe_final': false };
 let cuponesCanjeados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false, 'jefe_final': false };
@@ -100,6 +87,7 @@ function guardarPartida() {
     document.querySelectorAll('.friend').forEach(f => { amigosEnTablero.push({ level: f.dataset.level, x: f.style.left, y: f.style.top }); });
     const estadoJuego = {
         nombre: nombreJugador, cubatas: cubatas, maxNivelDesbloqueado: maxNivelDesbloqueado, haPagadoEuro: haPagadoEuro,
+        fichasCasino: fichasCasino, // Guardamos fichas de casino
         regalosReclamados: regalosReclamados, cuponesCanjeados: cuponesCanjeados, estadisticasLogros: estadisticasLogros, logrosDesbloqueados: logrosDesbloqueados, 
         tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, tiempoRecogida: tiempoRecogida, costeLimpieza: costeLimpieza, tiempoPasivo: tiempoPasivo, costePasivo: costePasivo, amigos: amigosEnTablero, timeStamp: Date.now() 
     };
@@ -111,6 +99,7 @@ function cargarPartida() {
     if (guardado) {
         const estadoJuego = JSON.parse(guardado);
         nombreJugador = estadoJuego.nombre || "Desconocido"; cubatas = estadoJuego.cubatas || 0; maxNivelDesbloqueado = estadoJuego.maxNivelDesbloqueado || 0; haPagadoEuro = estadoJuego.haPagadoEuro || false;
+        fichasCasino = estadoJuego.fichasCasino || 0;
         regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
         estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
         tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 4000; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
@@ -135,41 +124,26 @@ function pedirNombre() {
     if (nomCode === "DINERO") { ganarCubatas(50000); alert("🛠️ ADMIN: +50.000 Cubatas."); return; }
     if (nomCode === "VIP") { haPagadoEuro = true; guardarPartida(); alert("🛠️ ADMIN: Pase VIP de 1€ forzado."); return; }
     if (nomCode === "MAXIMO") { maxNivelDesbloqueado = 11; const xC = (board.clientWidth / 2) - 45; const yC = (board.clientHeight / 2) - 45; createFriend(11, xC, yC); alert("🛠️ ADMIN: Desbloqueado Nivel 12."); actualizaEstilosExtremos(); return; }
-    if (nomCode === "RESET") { regalosReclamados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false, 'jefe_final': false }; cuponesCanjeados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false, 'jefe_final': false }; guardarPartida(); alert("🛠️ ADMIN: Cupones reseteados."); return; }
-    if (nomCode === "JUEVES") { fechaSimulada = '2026-09-03'; alert("🛠️ ADMIN: Viaje al JUEVES 3."); return; }
-    if (nomCode === "LUNES") { fechaSimulada = '2026-09-07'; alert("🛠️ ADMIN: Viaje al LUNES 7."); return; }
-    if (nomCode === "HOY") { fechaSimulada = null; alert("🛠️ ADMIN: Fecha devuelta a la realidad."); return; }
     nombreJugador = nomCode.substring(0, 15); guardarPartida(); 
 }
 
 function cambiarNombre() { pedirNombre(); if(nombreJugador !== "Desconocido") alert("Nombre actualizado a: " + nombreJugador); }
 function borrarPartida() { if(confirm("¿Seguro que quieres borrar todo el progreso?")) { localStorage.removeItem('juergaSave2026'); location.reload(); } }
 
-// ==========================================================================
-// CENTRALIZACIÓN TIENDA BOOSTS
-// ==========================================================================
-// Dispara el efecto visual del gasto donde hagas clic
 function efectoGastoVisual(event, coste) {
     const flotante = document.createElement('div');
     flotante.className = 'texto-flotante-arcade';
     flotante.innerText = '-' + coste;
-
-    // Posicionarlo exactamente donde está el ratón
     flotante.style.left = (event.clientX - 10) + 'px';
     flotante.style.top = (event.clientY - 20) + 'px';
-
     document.body.appendChild(flotante);
-
-    // Borrar el elemento del código cuando termine la animación (800ms)
-    setTimeout(() => {
-        flotante.remove();
-    }, 800);
+    setTimeout(() => { flotante.remove(); }, 800);
 }
 function actualizaEstilosExtremos() {
     const btn1 = document.getElementById('btn-extremo-chupinazo');
     const btn2 = document.getElementById('btn-extremo-barralibre');
     if(btn1 && btn2) {
-        if(maxNivelDesbloqueado >= 11) { // 11 significa Nivel 12 desbloqueado
+        if(maxNivelDesbloqueado >= 11) { 
             btn1.className = "btn-unlocked-extremo"; btn2.className = "btn-unlocked-extremo";
         } else {
             btn1.className = "btn-lock"; btn2.className = "btn-lock";
@@ -181,76 +155,87 @@ function abrirTienda() { pausarJuego(); ocultarTodosModales(); document.getEleme
 
 // 🟢 BOOSTS NIVEL BAJO
 function boostBajoRefresco() {
-    if (cubatas >= 25) { cubatas -= 25; ganarCubatas(10); mostrarTextoFlotante(window.innerWidth/2, window.innerHeight/2, 10); } 
-    else alert("¡No tienes cubatas!");
+    if (cubatas >= 150) { 
+        cubatas -= 150; ganarCubatas(0); cerrarModales();
+        multiplicadorClic = 3;
+        crearCronometroFlotante('refresco-banner', '🥤 CLIC x3', 10);
+        setTimeout(() => { multiplicadorClic = 1; }, 10000);
+        guardarPartida();
+    } else alert("¡Te faltan cubatas!");
 }
 function boostBajoTapa() {
-    if (cubatas >= 40) { cubatas -= 40; ganarCubatas(0); crearCajaInstantanea(); } 
-    else alert("¡No tienes cubatas!");
+    if (cubatas >= 250) { 
+        cubatas -= 250; ganarCubatas(0); cerrarModales();
+        for(let i = 0; i < 3; i++) setTimeout(crearCajaInstantanea, i*200); 
+    } else alert("¡Te faltan cubatas!");
 }
 function crearCajaInstantanea() {
     const caja = document.createElement('div'); caja.classList.add('caja'); caja.style.transition = "none";
     const randomX = Math.random() * (board.clientWidth - 95); caja.style.left = `${randomX}px`; caja.style.top = `${board.clientHeight * 0.72}px`;
     board.appendChild(caja);
-    caja.addEventListener('pointerdown', () => { if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); ganarCubatas(1); createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); });
+    caja.addEventListener('pointerdown', () => { if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); ganarCubatas(1 * multiplicadorClic); createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); });
 }
 
 // 🟡 BOOSTS NIVEL MEDIO
 function boostMedioCharanga() {
-    if (cubatas >= 300) {
-        cubatas -= 300; ganarCubatas(0); cerrarModales();
-        multiplicadorPasivo = 2; crearCronometroFlotante('charanga-banner', '🎷 LA CHARANGA (X2)', 20);
-        setTimeout(() => { multiplicadorPasivo = 1; }, 20000);
+    if (cubatas >= 1200) {
+        cubatas -= 1200; ganarCubatas(0); cerrarModales();
+        multiplicadorPasivo = 3; crearCronometroFlotante('charanga-banner', '🎷 LA CHARANGA (X3)', 30);
+        setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida();
     } else alert("¡Te faltan cubatas!");
 }
 function boostMedioBarril() {
     if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está llena!"); return; }
-    if (cubatas >= 600) { cubatas -= 600; ganarCubatas(0); cerrarModales(); const xCentro = (board.clientWidth / 2) - 45; const yCentro = (board.clientHeight / 2) - 45; createFriend(2, xCentro, yCentro); guardarPartida(); } 
+    if (cubatas >= 2000) { cubatas -= 2000; ganarCubatas(0); cerrarModales(); const xCentro = (board.clientWidth / 2) - 45; const yCentro = (board.clientHeight / 2) - 45; createFriend(3, xCentro, yCentro); guardarPartida(); } 
     else alert("¡Te faltan cubatas!");
 }
 
 // 🔥 BOOSTS ÉPICOS
 function comprarHoraLoca() {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
-    if (cubatas >= 1500) { cubatas -= 1500; ganarCubatas(0); cerrarModales(); boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 300; clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); crearCronometroFlotante('frenesi-banner', '🌪️ HORA LOCA', 15); estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); guardarPartida(); } 
+    if (cubatas >= 5000) { cubatas -= 5000; ganarCubatas(0); cerrarModales(); boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 300; clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); crearCronometroFlotante('frenesi-banner', '🌪️ HORA LOCA', 15); estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); guardarPartida(); } 
     else alert("¡Te faltan cubatas!");
 }
 function comprarAmnesia() {
-    if (cubatas >= 2500) {
-        let ingresosPorBucle = 0; document.querySelectorAll('.friend').forEach(f => { ingresosPorBucle += (parseInt(f.dataset.level) + 1); });
-        let cps = (ingresosPorBucle / (tiempoPasivo / 1000)) * multiplicadorPasivo;
-        if (cps <= 0) { alert("¡Pradera vacía!"); return; }
-        cubatas -= 2500; let ganancia = Math.floor(cps * 3600); ganarCubatas(ganancia); cerrarModales(); alert(`⏳ ¡AMNESIA!\nGanaste +${ganancia} cubatas de golpe.`); guardarPartida();
+    let coste = 8500;
+    if (cubatas >= coste) {
+        cubatas -= coste;
+        let cps = 0; document.querySelectorAll('.friend').forEach(f => { cps += (parseInt(f.dataset.level) + 1); });
+        cps = (cps / (tiempoPasivo / 1000)) * multiplicadorPasivo;
+        let gananciasInstantaneas = Math.floor(cps * 900); 
+        ganarCubatas(gananciasInstantaneas);
+        alert("⏳ ¡Amnesia! Has avanzado en el tiempo y ganado " + gananciasInstantaneas + " 🥃");
+        cerrarModales();
     } else alert("¡Te faltan cubatas!");
 }
-function comprarAutobus() { if (document.querySelectorAll('.friend').length > 17) { alert("¡No hay espacio!"); return; } if (cubatas >= 5000) { cubatas -= 5000; ganarCubatas(0); cerrarModales(); alert("🚌 ¡Llegó el autobús de refuerzos!"); for(let i = 0; i < 3; i++) { setTimeout(() => { const rX = Math.random() * (board.clientWidth - 95); const rY = Math.random() * (board.clientHeight - 150) + 50; createFriend(3, rX, rY); }, i * 400); } guardarPartida(); } else alert("¡Te faltan cubatas!"); }
+function comprarAutobus() { if (document.querySelectorAll('.friend').length > 18) { alert("¡No hay espacio para 2!"); return; } if (cubatas >= 15000) { cubatas -= 15000; ganarCubatas(0); cerrarModales(); alert("🚌 ¡Llegó el autobús de refuerzos!"); for(let i = 0; i < 2; i++) { setTimeout(() => { const rX = Math.random() * (board.clientWidth - 95); const rY = Math.random() * (board.clientHeight - 150) + 50; createFriend(4, rX, rY); }, i * 400); } guardarPartida(); } else alert("¡Te faltan cubatas!"); }
 
-// 💀 BOOSTS EXTREMOS (OBLIGATORIO DESBLOQUEAR PERSONAJE NIVEL 12)
+// 💀 BOOSTS EXTREMOS 
 function boostExtremoChupinazo() {
-    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres subir y desbloquear al menos un Juerguista de Nivel 12 para desatar el Chupinazo."); return; }
+    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres subir y desbloquear al menos un Juerguista de Nivel 12."); return; }
     if (document.querySelectorAll('.friend').length >= 20) { alert("¡Pradera llena!"); return; }
-    if (cubatas >= 15000) {
-        cubatas -= 15000; ganarCubatas(0); cerrarModales();
+    if (cubatas >= 50000) {
+        cubatas -= 50000; ganarCubatas(0); cerrarModales();
         const xC = (board.clientWidth / 2) - 45; const yC = (board.clientHeight / 2) - 45;
-        createFriend(8, xC, yC); // Instancia un colega de nivel 9 directo
+        createFriend(8, xC, yC); 
         guardarPartida();
-    } else alert("¡Te faltan cubatas para el Chupinazo Extrem!");
+    } else alert("¡Te faltan cubatas!");
 }
 
 function boostExtremoBarraLibre() {
-    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres al menos un Juerguista de Nivel 12 para abrir la Barra Libre."); return; }
-    if (cubatas >= 35000) {
-        cubatas -= 35000; ganarCubatas(0); cerrarModales();
-        multiplicadorPasivo = 5; // Producción pasiva multiplicada por 5 de golpe
-        crearCronometroFlotante('barralibre-banner', '👑 BARRA LIBRE x5', 30);
+    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres al menos un Juerguista de Nivel 12."); return; }
+    if (cubatas >= 120000) {
+        cubatas -= 120000; ganarCubatas(0); cerrarModales();
+        multiplicadorPasivo = 10; 
+        crearCronometroFlotante('barralibre-banner', '👑 BARRA LIBRE x10', 30);
         setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida();
-    } else alert("¡Te faltan cubatas para pagar la Barra Libre!");
+    } else alert("¡Te faltan cubatas!");
 }
 
 // ==========================================================================
-// GESTION MISIONES Y CHUPITOS
+// GESTIÓN MISIONES Y CHUPITOS
 // ==========================================================================
 const infoChupitos = [
     { id: '2026-09-03', titulo: "Día 1: El Chupitazo", req: "Juega el Jueves 3 de Septiembre" },
@@ -287,17 +272,168 @@ function cerrarCupon() { document.getElementById('cupon-modal').classList.add('o
 function quemarCupon() { if(confirm("🚨 ¿CAMARERO DE LA PEÑA?\n\n¿Quemas este cupón?")) { cuponesCanjeados[cuponActivoTipo] = true; guardarPartida(); cerrarCupon(); alert("✅ DESTRUIDO."); renderizarListaChupitos(); } }
 
 // ==========================================================================
+// CASINO Y TOTP DEL STAFF
+// ==========================================================================
+function abrirCasino() {
+    cerrarModales(); 
+    if (casinoVIP) {
+        document.getElementById('casino-modal').classList.remove('oculto');
+        document.getElementById('contador-fichas').innerText = fichasCasino;
+    } else {
+        document.getElementById('pago-casino-modal').classList.remove('oculto');
+    }
+}
+
+function generarCodigoDinamico(offset = 0) {
+    const ventanaTiempo = Math.floor(Date.now() / 20000) + offset;
+    let semilla = 7351; 
+    let codigo = ((ventanaTiempo + semilla) * 1234) % 10000;
+    return codigo.toString().padStart(4, '0');
+}
+
+let intervaloCamarero;
+function abrirPanelCamarero() {
+    let pass = prompt("Contraseña Maestra de la Barra:");
+    if (pass === "DeXTer_2007") { 
+        cerrarModales();
+        document.getElementById('camarero-modal').classList.remove('oculto');
+        
+        document.getElementById('codigo-vivo').innerText = generarCodigoDinamico();
+        intervaloCamarero = setInterval(() => {
+            if(document.getElementById('camarero-modal').classList.contains('oculto')) {
+                clearInterval(intervaloCamarero); 
+            } else {
+                document.getElementById('codigo-vivo').innerText = generarCodigoDinamico();
+            }
+        }, 1000);
+    } else if (pass !== null) {
+        alert("¡Largo de aquí, cotilla!");
+    }
+}
+
+function verificarPagoCasino() {
+    let password = prompt("🕵️‍♂️ SEGURATA: 'El código cambia cada 20s. Dale tu móvil al camarero para que lo teclee.'\n\nCódigo actual:");
+    if (password === null || password === "") return;
+    let codigoCorrecto = generarCodigoDinamico();
+    let codigoAnterior = generarCodigoDinamico(-1);
+    
+    if (password === codigoCorrecto || password === codigoAnterior) {
+        casinoVIP = true;
+        localStorage.setItem('casinoVIP', 'true');
+        document.getElementById('pago-casino-modal').classList.add('oculto');
+        abrirCasino();
+        alert("¡Pase VIP Confirmado! Bienvenido al Clandestino.");
+    } else {
+        alert("❌ SEGURATA: 'Código incorrecto o caducado.'");
+    }
+}
+
+function comprarFicha() {
+    let costeFicha = 500000; 
+    if (cubatas >= costeFicha) {
+        cubatas -= costeFicha;
+        fichasCasino++;
+        document.getElementById('contador-fichas').innerText = fichasCasino;
+        ganarCubatas(0);
+    } else {
+        alert("¡Pobre! Necesitas 500.000 🥃 para una ficha.");
+    }
+}
+
+let casinoTirando = false;
+function tirarTragaperras() {
+    if (casinoTirando) return;
+    if (fichasCasino < 1) {
+        document.getElementById('mensaje-casino').innerText = "¡NO TIENES FICHAS!";
+        document.getElementById('mensaje-casino').style.color = "red";
+        return;
+    }
+    fichasCasino--;
+    document.getElementById('contador-fichas').innerText = fichasCasino;
+    guardarPartida();
+    casinoTirando = true;
+    
+    const slot1 = document.getElementById('slot1');
+    const slot2 = document.getElementById('slot2');
+    const slot3 = document.getElementById('slot3');
+    const msj = document.getElementById('mensaje-casino');
+    
+    msj.innerText = "GIRANDO...";
+    msj.style.color = "#ff00ff";
+
+    const iconos = ["🍒", "🍋", "🍉", "🍇", "⭐", "🔔"];
+    let tiempoGiro = 0;
+    
+    const intervaloGiro = setInterval(() => {
+        slot1.innerText = iconos[Math.floor(Math.random() * iconos.length)];
+        slot2.innerText = iconos[Math.floor(Math.random() * iconos.length)];
+        slot3.innerText = iconos[Math.floor(Math.random() * iconos.length)];
+        tiempoGiro += 50;
+        
+        if (tiempoGiro >= 2000) {
+            clearInterval(intervaloGiro);
+            calcularPremioCasino(slot1, slot2, slot3, msj);
+        }
+    }, 50);
+}
+
+function calcularPremioCasino(slot1, slot2, slot3, msj) {
+    let tirada = Math.floor(Math.random() * 1000) + 1;
+    
+    if (tirada <= 300) {
+        // 30% DE PROBABILIDAD: PERDIDA 
+        slot1.innerText = "💀"; slot2.innerText = "💩"; slot3.innerText = "💸";
+        msj.innerText = "¡NADA! A SEGUIR BEBIENDO..."; msj.style.color = "red";
+    } else if (tirada <= 650) {
+        // 35% DE PROBABILIDAD: EL CASI PREMIO
+        let posibles = ["🍒", "🍋", "🔔"];
+        let randomIcon = posibles[Math.floor(Math.random() * posibles.length)];
+        slot1.innerText = randomIcon; slot2.innerText = randomIcon; slot3.innerText = "💀"; 
+        msj.innerText = "¡UUUYY! ¡POR LOS PELOS!"; msj.style.color = "orange";
+    } else if (tirada <= 980) {
+        // 33% DE PROBABILIDAD: PREMIO DIGITAL BASTANTE GORDO
+        slot1.innerText = "🍒"; slot2.innerText = "🍒"; slot3.innerText = "🍒";
+        let premioDigital = 25000;
+        ganarCubatas(premioDigital);
+        msj.innerText = "¡BIEN! +" + premioDigital + " 🥃"; msj.style.color = "#00ff00"; 
+    } else if (tirada <= 998) {
+        // 1.8% DE PROBABILIDAD: CHUPITO FÍSICO
+        slot1.innerText = "🥂"; slot2.innerText = "🥂"; slot3.innerText = "🥂";
+        msj.innerText = "¡¡BINGO!! ¡CHUPITO GANADO!"; msj.style.color = "#ffd700"; 
+        entregarPremioFisico("¡UN CHUPITO EN LA BARRA!");
+    } else {
+        // 0.2% DE PROBABILIDAD: CUBATA FÍSICO (EL GORDO)
+        slot1.innerText = "🥃"; slot2.innerText = "🥃"; slot3.innerText = "🥃";
+        msj.innerText = "¡¡JACKPOT!! ¡CUBATAZO!"; msj.style.color = "#ffd700"; 
+        entregarPremioFisico("¡UN CUBATA GRATIS EN LA BARRA!");
+    }
+    casinoTirando = false;
+    guardarPartida();
+}
+
+function entregarPremioFisico(textoPremio) {
+    setTimeout(() => {
+        cerrarModales(); 
+        document.getElementById('cupon-modal').classList.remove('oculto');
+        document.getElementById('cupon-desc').innerText = textoPremio;
+        let codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
+        document.getElementById('cupon-codigo').innerText = "#" + codigoGen;
+        cuponActivoTipo = "CASINO"; // Permitir que el camarero lo queme sin problemas
+    }, 1500); 
+}
+
+// ==========================================================================
 // MENÚS AUXILIARES
 // ==========================================================================
 function abrirLogros() { ocultarTodosModales(); document.getElementById('logros-modal').classList.remove('oculto'); const contenedor = document.getElementById('lista-logros-contenedor'); contenedor.innerHTML = ''; for (let id in infoLogros) { let l = infoLogros[id]; let completado = logrosDesbloqueados[id]; let textoProgreso = ""; if (completado) { textoProgreso = `<span style="color:#00c853; font-weight:bold;">🏆 COMPLETADO</span>`; } else if (l.meta !== undefined) { let actual = estadisticasLogros[l.campo]; if (actual > l.meta) actual = l.meta; textoProgreso = `<span style="color:#666;">Progreso: ${actual}/${l.meta}</span>`; } else { textoProgreso = `<span style="color:#ffaa00;">En progreso...</span>`; } contenedor.innerHTML += `<div class="libro-item" style="background:${completado ? '#e8f5e9' : 'white'};"><div class="libro-info" style="width:100%;"><h4 style="color:${completado ? '#00c853' : '#ff0055'};">${l.titulo}</h4><p style="color:#555; font-size:12px; font-weight:normal; margin-bottom:4px;">${l.desc}</p><div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>Premio: +${l.premio} 🍹</span>${textoProgreso}</div></div></div>`; } }
-function abrirMenuPrincipal() { juerguistasModalOpenCheck(); pausarJuego(); ocultarTodosModales(); document.getElementById('menu-modal').classList.remove('oculto'); }
-function juerguistasModalOpenCheck() {} function abrirJuerguistas() { ocultarTodosModales(); document.getElementById('juerguistas-modal').classList.remove('oculto'); }
+function abrirMenuPrincipal() { pausarJuego(); ocultarTodosModales(); document.getElementById('menu-modal').classList.remove('oculto'); }
+function abrirJuerguistas() { ocultarTodosModales(); document.getElementById('juerguistas-modal').classList.remove('oculto'); }
 function abrirOpciones() { ocultarTodosModales(); document.getElementById('opciones-modal').classList.remove('oculto'); }
 function abrirRanking() { 
     ocultarTodosModales(); 
     document.getElementById('ranking-modal').classList.remove('oculto'); 
     if (nombreJugador === "Desconocido") { pedirNombre(); subirPuntuacion(); }
-    actualizarInterfazRanking(); // 👈 ESTA ES LA CLAVE DE LA NUBE
+    actualizarInterfazRanking(); 
 }
 function volverAlMenu() { ocultarTodosModales(); document.getElementById('menu-modal').classList.remove('oculto'); }
 function cerrarModales() { ocultarTodosModales(); reanudarJuego(); }
@@ -314,32 +450,11 @@ function mostrarAvisoFlotante(x, y, mensaje) { const texto = document.createElem
 function actualizarInterfazRanking() {
     const contenedor = document.getElementById('ranking-content');
     contenedor.innerHTML = '<h3 style="color:#333;">Cargando... 📡</h3>';
-
-    db.collection("ranking")
-        .orderBy("nivelMaximo", "desc")
-        .limit(10)
-        .get()
-        .then((querySnapshot) => {
-            let html = '<h3 style="margin-bottom:10px;">TOP 10 JUERGAS</h3>';
-            html += '<div style="text-align:left; font-size: 14px;">';
-            
-            let i = 1;
-            querySnapshot.forEach((doc) => {
-                let p = doc.data();
-                html += `<div style="padding: 8px; border-bottom: 1px solid #ccc; display:flex; justify-content:space-between;">
-                            <span>${i}. ${p.nombre}</span>
-                            <span style="font-weight:bold; color:#ff0055;">Nvl ${p.nivelMaximo}</span>
-                         </div>`;
-                i++;
-            });
-            
-            html += '</div>';
-            contenedor.innerHTML = html;
-        })
-        .catch((error) => {
-            console.error("Error al cargar ranking: ", error);
-            contenedor.innerHTML = "Error al conectar. 🔌";
-        });
+    db.collection("ranking").orderBy("nivelMaximo", "desc").limit(10).get().then((querySnapshot) => {
+            let html = '<h3 style="margin-bottom:10px;">TOP 10 JUERGAS</h3><div style="text-align:left; font-size: 14px;">';
+            let i = 1; querySnapshot.forEach((doc) => { let p = doc.data(); html += `<div style="padding: 8px; border-bottom: 1px solid #ccc; display:flex; justify-content:space-between;"><span>${i}. ${p.nombre}</span><span style="font-weight:bold; color:#ff0055;">Nvl ${p.nivelMaximo}</span></div>`; i++; });
+            html += '</div>'; contenedor.innerHTML = html;
+        }).catch((error) => { console.error("Error ranking: ", error); contenedor.innerHTML = "Error de conexión."; });
 }
 function actualizarCubatasPorSegundo() { const friends = document.querySelectorAll('.friend'); let ingresosTotales = 0; friends.forEach(f => { ingresosTotales += (parseInt(f.dataset.level) + 1); }); let cps = (ingresosPorBucle = ingresosTotales / (tiempoPasivo / 1000)) * multiplicadorPasivo; document.getElementById('cubatas-segundo').innerText = `${cps.toFixed(1)} cubatas/seg`; }
 
@@ -349,7 +464,7 @@ function iniciarBuclePasivo() {
         if (juegoPausado) return; 
         const friends = document.querySelectorAll('.friend'); let ingresos = 0; 
         friends.forEach(f => { ingresos += (parseInt(f.dataset.level) + 1); }); 
-        if (ingresos > 0) ganarCubatas(ingresos * multiplicadorPasivo); // 👈 AQUÍ ENTRA EL MULTIPLICADOR DE LA CHARANGA/BARRA LIBRE
+        if (ingresos > 0) ganarCubatas(ingresos * multiplicadorPasivo); 
     }, tiempoPasivo); 
     actualizarCubatasPorSegundo(); 
 }
@@ -375,16 +490,15 @@ function crearCaja() {
     if (segundosCaida < 0.6) segundosCaida = 0.6; 
     caja.style.transition = `top ${segundosCaida}s linear`; 
     
-    // Posición X e Y aleatorias por toda la pradera
     const randomX = Math.random() * (board.clientWidth - 95); 
-    const randomY = Math.random() * (board.clientHeight - 120) + 20; // 👈 CAE EN CUALQUIER PUNTO
+    const randomY = Math.random() * (board.clientHeight - 120) + 20; 
     
     caja.style.left = `${randomX}px`; 
     caja.style.top = `-95px`; 
     board.appendChild(caja); 
     
     setTimeout(() => { 
-        if(!juegoPausado) caja.style.top = `${randomY}px`; // 👈 SE DETIENE EN SU POSICIÓN ALEATORIA
+        if(!juegoPausado) caja.style.top = `${randomY}px`; 
     }, 50); 
     
     caja.addEventListener('pointerdown', () => { 
@@ -398,7 +512,7 @@ function crearCaja() {
         const rect = caja.getBoundingClientRect(); 
         const boardRect = board.getBoundingClientRect(); 
         caja.remove(); 
-        ganarCubatas(1); 
+        ganarCubatas(1 * multiplicadorClic); 
         createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
         estadisticasLogros.cajasAbiertas++; 
         verificarLogro('lluvia_litros'); 
@@ -412,7 +526,6 @@ function crearCajaOffline() {
     caja.classList.add('caja'); 
     caja.style.transition = "none"; 
     
-    // Posición X e Y aleatorias por toda la pradera
     const randomX = Math.random() * (board.clientWidth - 95); 
     const randomY = Math.random() * (board.clientHeight - 120) + 20; 
     
@@ -424,14 +537,12 @@ function crearCajaOffline() {
         if (juegoPausado) return; 
         if (document.querySelectorAll('.friend').length >= 20) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
-            estadisticasLogros.ansiasActivado++; 
-            verificarLogro('el_ansias'); 
             return; 
         } 
         const rect = caja.getBoundingClientRect(); 
         const boardRect = board.getBoundingClientRect(); 
         caja.remove(); 
-        ganarCubatas(1); 
+        ganarCubatas(1 * multiplicadorClic); 
         createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
         estadisticasLogros.cajasAbiertas++; 
         verificarLogro('lluvia_litros'); 
@@ -443,34 +554,21 @@ function startDrag(e) { if (juegoPausado) return; dragItem = e.target; const rec
 function drag(e) { 
     if (!dragItem || juegoPausado) return; 
     const boardRect = board.getBoundingClientRect(); 
-    
-    // Calculamos dónde quiere ir el jugador
     let newX = e.clientX - boardRect.left - offsetX;
     let newY = e.clientY - boardRect.top - offsetY;
-    
-    // 🚧 PAREDES INVISIBLES 🚧
-    // Evitamos que newX sea menor que 0 (borde izquierdo) o mayor que el ancho de la pradera menos el personaje (borde derecho)
     newX = Math.max(0, Math.min(newX, boardRect.width - dragItem.offsetWidth));
-    // Evitamos que newY se salga por arriba o por abajo
     newY = Math.max(0, Math.min(newY, boardRect.height - dragItem.offsetHeight));
-
     dragItem.style.left = `${newX}px`; 
     dragItem.style.top = `${newY}px`; 
 }
-
 function dragTouch(e) { 
     if (!dragItem || juegoPausado) return; 
     e.preventDefault(); 
     const boardRect = board.getBoundingClientRect(); 
-    
-    // Calculamos dónde quiere ir el jugador (en pantallas táctiles)
     let newX = e.touches[0].clientX - boardRect.left - offsetX;
     let newY = e.touches[0].clientY - boardRect.top - offsetY;
-    
-    // 🚧 PAREDES INVISIBLES 🚧
     newX = Math.max(0, Math.min(newX, boardRect.width - dragItem.offsetWidth));
     newY = Math.max(0, Math.min(newY, boardRect.height - dragItem.offsetHeight));
-
     dragItem.style.left = `${newX}px`; 
     dragItem.style.top = `${newY}px`; 
 }
