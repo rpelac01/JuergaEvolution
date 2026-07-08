@@ -206,3 +206,49 @@ html, body {
     filter: brightness(0); /* Lo convierte en silueta negra */
     opacity: 0.5;
 }
+/* --- ESTILOS MANUAL DEL JUERGUISTA --- */
+.regla-item {
+    background: #001100;
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    color: #fff;
+    box-shadow: 0 0 5px #003300;
+}
+.regla-item summary {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    color: #00ff00;
+    padding: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    list-style: none; /* Quita la flechita fea por defecto */
+    outline: none;
+}
+.regla-item summary::-webkit-details-marker {
+    display: none;
+}
+.regla-contenido {
+    padding: 0 15px 15px 15px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ccc;
+    font-family: 'Arial', sans-serif;
+}
+.regla-contenido p {
+    margin-bottom: 8px;
+}
+.regla-contenido b {
+    color: #00ff00;
+}
+
+/* Botón desactivado para el manual */
+.boton-arcade.desactivado {
+    background-color: #111 !important;
+    color: #444 !important;
+    border-color: #333 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    text-shadow: none !important;
+}

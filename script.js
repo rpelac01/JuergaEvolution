@@ -969,4 +969,67 @@ function renderizarJuerguistas() {
         `;
     });
 }
+// ==========================================================================
+// 📖 SISTEMA DE MANUAL OBLIGATORIO AL INICIO
+// ==========================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    const pantallaReglas = document.getElementById('pantalla-reglas');
+    
+    // Comprobamos si ya aceptaron las reglas en una visita anterior
+    const reglasLeidas = localStorage.getItem('juergaReglas2026') === 'true';
+    
+    if (reglasLeidas) {
+        // Si ya las leyeron, ocultamos el modal y dejamos jugar
+        pantallaReglas.classList.add('oculto');
+    } else {
+        // Si es su primera vez, pausamos el juego en segundo plano
+        pausarJuego();
+        
+        const detalles = document.querySelectorAll('.regla-item');
+        const total = detalles.length;
+        let abiertas = new Set(); // Guardamos cuáles se han abierto
+        
+        const textoProgreso = document.getElementById('progreso-lectura');
+        const btnEntrar = document.getElementById('btn-entrar-juego');
+
+        detalles.forEach((detalle, index) => {
+            detalle.addEventListener('toggle', (e) => {
+                // Si el usuario abre el desplegable, lo registramos
+                if (detalle.open) {
+                    abiertas.add(index);
+                    
+                    // Actualizamos el contador visual
+                    textoProgreso.innerText = `LEÍDO: ${abiertas.size}/${total}`;
+                    
+                    // Si ya ha abierto las 7...
+                    if (abiertas.size === total) {
+                        textoProgreso.innerText = "¡TODO LISTO!";
+                        textoProgreso.style.color = "#00ff00"; // Cambia a verde
+                        
+                        // Activamos el botón
+                        btnEntrar.disabled = false;
+                        btnEntrar.classList.remove('desactivado');
+                    }
+                }
+            });
+        });
+    }
+});
+
+function aceptarReglas() {
+    // Guardamos en la memoria del móvil que ya han leído las reglas
+    localStorage.setItem('juergaReglas2026', 'true');
+    
+    // Ocultamos la pantalla
+    document.getElementById('pantalla-reglas').classList.add('oculto');
+    
+    // Reanudamos el juego (cajas, vómitos, farmeo)
+    reanudarJuego();
+    
+    // Si no tienen nombre, se lo pedimos
+    if (nombreJugador === "Desconocido") {
+        pedirNombre();
+    }
+}
 cargarPartida(); reanudarJuego(); intervalGuardado = setInterval(guardarPartida, 3000);
