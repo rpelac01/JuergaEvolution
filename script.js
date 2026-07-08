@@ -530,18 +530,56 @@ function iniciarBuclePasivo() {
 
 function generarVomito() { if (juegoPausado) return; const friends = document.querySelectorAll('.friend'); friends.forEach(f => { const vomito = document.createElement('div'); vomito.classList.add('vomito'); vomito.innerText = '🤮'; let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); let y = parseFloat(f.style.top) + 95; vomito.style.left = `${x}px`; vomito.style.top = `${y}px`; const nivelAmigo = parseInt(f.dataset.level); vomito.dataset.valor = (nivelAmigo + 1) * 2; vomito.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); if (juegoPausado) return; const valorVomito = parseInt(vomito.dataset.valor); ganarCubatas(valorVomito); mostrarTextoFlotante(x, y, valorVomito); vomito.remove(); estadisticasLogros.vomitosLipiados++; verificarLogro('estomago_hierro'); }); board.appendChild(vomito); }); }
 function recogerVomitoAutomatico() { if (juegoPausado) return; const vomitos = document.querySelectorAll('.vomito'); let totalRecolectado = 0; vomitos.forEach(v => { const valor = parseInt(v.dataset.valor); totalRecolectado += valor; mostrarTextoFlotante(parseFloat(v.style.left), parseFloat(v.style.top), valor); v.remove(); }); if (totalRecolectado > 0) ganarCubatas(totalRecolectado); }
-function cambiarTab(pestana) { document.getElementById('btn-tab-mejoras').classList.remove('tab-activa'); document.getElementById('btn-tab-personajes').classList.remove('tab-activa'); document.getElementById('tab-mejoras').classList.add('oculto'); document.getElementById('tab-personajes').classList.add('oculto'); document.getElementById(`btn-tab-${pestana}`).classList.add('tab-activa'); document.getElementById(`tab-${pestana}`).classList.remove('oculto'); if (pestana === 'personajes') { actualizarTiendaPersonajes(); } }
-function cambiarTabCasino(pestana) {
-    const tabs = ['slots', 'ruleta', 'bj'];
+function cambiarTab(pestana) { 
+    // Ocultamos ambos contenidos
+    document.getElementById('tab-mejoras').classList.add('oculto'); 
+    document.getElementById('tab-personajes').classList.add('oculto'); 
     
-    // Ocultar todo y quitar clase activa
+    // Apagamos ambos botones (fondo negro, letras verdes)
+    document.getElementById('btn-tab-mejoras').style.background = '#000';
+    document.getElementById('btn-tab-mejoras').style.color = '#00ff00';
+    document.getElementById('btn-tab-personajes').style.background = '#000';
+    document.getElementById('btn-tab-personajes').style.color = '#00ff00';
+
+    // Encendemos la pestaña seleccionada (fondo verde, letras negras)
+    document.getElementById(`tab-${pestana}`).classList.remove('oculto'); 
+    document.getElementById(`btn-tab-${pestana}`).style.background = '#00ff00';
+    document.getElementById(`btn-tab-${pestana}`).style.color = '#000';
+    
+    if (pestana === 'personajes') { actualizarTiendaPersonajes(); } 
+}
+
+function actualizarTiendaPersonajes() { 
+    const tabPersonajes = document.getElementById('tab-personajes'); 
+    tabPersonajes.innerHTML = ''; 
+    for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
+        if(i >= levels.length) break; 
+        let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
+        // Aplicada la clase boton-arcade para que todo el diseño fluya igual
+        tabPersonajes.innerHTML += `
+            <button class="boton-arcade" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; margin: 5px;" onclick="comprarPersonaje(${i}, ${precioPersonaje})">
+                <img src="${levels[i]}" style="width:50px; height:50px; object-fit:contain; margin-bottom:5px; filter: drop-shadow(0 0 5px #00ff00);">
+                Nvl ${i + 1}<br>
+                <small style="color:#00ff00; font-size:9px; margin-top:5px; font-family: 'Press Start 2P', cursive;">${precioPersonaje} 🥃</small>
+            </button>`; 
+    } 
+}
+function cambiarTabCasino(pestana) {
+    const tabs = ['slots', 'iq', 'bj']; 
+    
+    // Apagar todas
     tabs.forEach(t => {
-        document.getElementById(`btn-tab-${t}`).classList.remove('tab-activa');
+        let btn = document.getElementById(`btn-tab-${t}`);
+        btn.style.background = '#000';
+        btn.style.color = (t === 'iq') ? '#00ffff' : '#00ff00';
         document.getElementById(`tab-${t}`).classList.add('oculto');
     });
     
-    // Activar solo la pestaña seleccionada
-    document.getElementById(`btn-tab-${pestana}`).classList.add('tab-activa');
+    // Encender la activa
+    let activeBtn = document.getElementById(`btn-tab-${pestana}`);
+    activeBtn.style.background = (pestana === 'iq') ? '#00ffff' : '#00ff00';
+    activeBtn.style.color = '#000'; 
+    
     document.getElementById(`tab-${pestana}`).classList.remove('oculto');
 }
 // ==========================================================================

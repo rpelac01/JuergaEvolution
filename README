@@ -1,32 +1,39 @@
-# 🍻 Juerga Civil 2026 - El Juego Oficial
+# 🍻 Juerga Civil - Evolución 🍻
 
-Un juego web incremental multijugador creado en exclusiva para la peña **Juerga Civil** de Santa María del Páramo. ¡Genera cubatas, fusiona a tus colegas de la peña y compite en el ranking global en plenas fiestas!
+Un juego incremental (Clicker/Merge) hiper-casual diseñado exclusivamente para las fiestas de la peña **Juerga Civil**. Fusiona juerguistas, farmea "cubatas", limpia vómitos, compra mejoras y juégate la economía en el Casino Clandestino.
 
-## 🎮 Características Principales
+## 🚀 Novedades de la Última Versión
+- **🎨 Estética Neón-Arcade:** La Tienda y el Casino han sido rediseñados con un modo oscuro, bordes verde neón, tipografías retro de 8-bits y diseño a pantalla completa para móviles.
+- **🎁 Regalo Diario (Free-to-Play):** Sistema de fidelización del 3 de Agosto al 7 de Septiembre. Los jugadores ganan cubatas cada día que entran, y una Ficha VIP de Casino todos los Lunes.
+- **🎲 Súper Casino Clandestino:** Rediseño completo con 3 minijuegos:
+  - **🎰 Tragaperras VIP:** Requiere Fichas VIP. Reparte premios físicos en barra (chupitos y cubatas gratis).
+  - **🧊 Ice Queen (NUEVO):** Tragamonedas de 5 rodillos para apostar cubatas. Cuenta con comodines (La Reina 👑) y un mega-jackpot de x100.
+  - **🃏 21 Blackjack (NUEVO):** Juega tus cubatas contra el crupier en partidas rápidas de cartas.
 
-*   **Mecánica Merge (Fusión):** Combina cajas sorpresa para desbloquear hasta 18 niveles distintos de juerguistas de la peña.
-*   **Economía Incremental:** Cada nivel genera una cantidad de "cubatas" por segundo. Usa tus ganancias para comprar mejoras (Frenesí de cajas, Hora Feliz, Recoge-Vómitos automático, etc.).
-*   **Ranking en Tiempo Real:** Base de datos conectada a la nube (Firebase Firestore) que actualiza el Top 15 de la peña en vivo. ¡Guerra total por el número 1!
-*   **Cupones Físicos:** Sistema integrado para reclamar chupitos reales en la barra durante los días de fiesta (3 al 7 de septiembre de 2026).
-*   **Sistema Offline:** El juego sigue farmeando cubatas y acumulando cajas aunque tengas el móvil en el bolsillo.
+## 🎮 Mecánicas Principales
+1. **Merge (Fusión):** Arrastra dos colegas del mismo nivel para crear uno nuevo que genera más cubatas por segundo.
+2. **Economía Clicker:** Toca las cajas sorpresa que caen del cielo y limpia los vómitos de la pradera para ganar cubatas extra.
+3. **Tienda de Mejoras:** Compra aumentos de velocidad, "Frenesís" (lluvias de cajas) o mejoras permanentes para tu ritmo pasivo.
+4. **Pase VIP (Monetización Real):** El acceso al Casino requiere un pago único de 2€ físicos en la barra de la peña. El camarero valida el acceso mediante un sistema de contraseñas dinámicas (TOTP) que cambian cada 20 segundos.
 
-## 🛠️ Tecnologías Utilizadas
+## 🛠️ Comandos de Administrador / Trucos
+Para facilitar el testeo sin tener que jugar horas, el juego incluye códigos secretos. 
+*¿Cómo usarlos?* Ve a **Opciones ⚙️ -> Cambiar Nombre / Trucos** e introduce:
 
-*   **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+).
-*   **Backend / Nube:** Firebase Cloud Firestore (Modo de prueba habilitado para lecturas/escrituras públicas del Leaderboard).
-*   **Despliegue:** Preparado para Vercel / Netlify.
-*   **Persistencia:** `localStorage` para guardar el progreso local del jugador (nivel, cubatas, mejoras) y Firestore para la puntuación máxima global.
+- `DINERO` -> Añade **+50.000 Cubatas** al instante.
+- `MAXIMO` -> Desbloquea automáticamente el **nivel máximo** de juerguista disponible en el código y lo pone en el tablero.
+- `FICHAS` -> Añade **+20 Fichas VIP** de Casino para probar la tragaperras de premios físicos sin límite.
 
-## 🚀 Instalación y Despliegue
+## 💻 Tecnologías Utilizadas
+- **Frontend:** HTML5, CSS3, JavaScript (Vanilla, sin frameworks pesados).
+- **Backend/BBDD:** Firebase Firestore (Para el sistema de Ranking global en tiempo real).
+- **Almacenamiento:** LocalStorage (Guardado del progreso del usuario y fecha de reclamación de recompensas).
 
-Este proyecto no requiere compilación local ni dependencias de Node.js. Para jugar en local:
+## 📱 Instalación / Despliegue
+Este juego está diseñado como una WebApp adaptada a móviles (Viewport fit, sin zoom, touch-action controlada).
+1. Clona el repositorio o sube los archivos (`index.html`, `style.css`, `script.js` y la carpeta de imágenes) a un servidor web (Vercel, GitHub Pages, Netlify).
+2. Asegúrate de configurar tu propia cuenta en `firebaseConfig` dentro de `script.js` para que el ranking funcione en tu base de datos.
+3. ¡Abre la web en tu móvil, añade a la pantalla de inicio y a disfrutar de la fiesta!
 
-1. Clona este repositorio.
-2. Abre el archivo `index.html` directamente en cualquier navegador moderno.
-
-**Para desplegar en producción:**
-Conecta el repositorio a una plataforma de hosting estático (como Vercel). Asegúrate de que las reglas de Firestore están configuradas en `allow read, write: if true;` para que el ranking funcione correctamente.
-
-## 📜 Licencia
-
-Proyecto creado por y para la peña Juerga Civil 2026. ¡Prohibido rendirse antes de las 8 de la mañana!
+---
+*Desarrollado para la supervivencia de los hígados más fuertes. ¡Viva la Juerga Civil!* 🍻

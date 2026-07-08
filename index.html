@@ -27,149 +27,150 @@
     </footer>
 
     <div id="shop-modal" class="modal oculto">
-        <div class="modal-content">
-            <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
-            <h3>🛒 EL BAR</h3>
-            <div class="tienda-tabs">
-                <button id="btn-tab-mejoras" class="tab-activa" onclick="cambiarTab('mejoras')">⚡ Mejoras</button>
-                <button id="btn-tab-personajes" onclick="cambiarTab('personajes')">👥 Colegas</button>
+        <!-- PANTALLA COMPLETA: Ocupa todo el alto y ancho del móvil -->
+        <div class="modal-content" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; border: none; padding: 15px; padding-top: 25px; background: #000; display: flex; flex-direction: column;">
+            
+            <!-- El botón de cerrar se mete un poco hacia adentro para que no se salga de la pantalla -->
+            <button class="cerrar-btn" style="top: 20px; right: 20px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
+            
+            <h3 style="color: #00ff00; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; font-size: 16px; text-shadow: 0 0 10px #00ff00; text-align: center; margin-top: 5px;">🛒 EL BAR</h3>
+            
+            <!-- Pestañas estilo Neón -->
+            <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 10px; display: flex; gap: 5px; flex-shrink: 0;">
+                <button id="btn-tab-mejoras" style="flex: 1; padding: 12px; background: #00ff00; color: #000; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('mejoras')">⚡ MEJORAS</button>
+                <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 COLEGAS</button>
             </div>
             
-            <div id="tab-mejoras" class="shop-items tienda-arcade">
+            <!-- Contenido de Mejoras -->
+            <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0; flex-grow: 1; margin: 0; overflow-y: auto;">
                 <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
-                <button class="boton-arcade" onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
-                <button class="boton-arcade" onclick="comprarEvento()">🍻 Hora Feliz (Nvl 2)<br><small>150 🥃</small></button>
-                <button class="boton-arcade" onclick="comprarPasivo()">⚡ Ritmo de Fiesta<br><small>Coste: <span id="coste-pasivo">100</span> 🥃</small></button>
-                <button class="btn-caro boton-arcade" onclick="comprarLimpieza()" style="grid-column: span 2;">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarEvento()">🍻 Hora Feliz (2)<br><small>150 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarPasivo()">⚡ Ritmo Fiesta<br><small><span id="coste-pasivo">100</span> 🥃</small></button>
+                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarLimpieza()">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
                 
                 <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button class="boton-arcade" onclick="boostBajoRefresco()">🥤 Refresco Rápido<br><small>150 🥃 (Clic x3 por 10s)</small></button>
-                <button class="boton-arcade" onclick="boostBajoTapa()">🧆 Tapa de Bravas<br><small>250 🥃 (Abre 3 cajas)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoRefresco()">🥤 Refresco<br><small>150 🥃 (x3)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoTapa()">🧆 Bravas<br><small>250 🥃 (Abre 3)</small></button>
 
                 <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
-                <button class="boton-arcade" onclick="boostMedioCharanga()">🎷 La Charanga<br><small>1200 🥃 (Pasivo x3 por 30s)</small></button>
-                <button class="boton-arcade" onclick="boostMedioBarril()">🛢️ Barril Cerveza<br><small>2000 🥃 (Colega Nvl 4)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioCharanga()">🎷 Charanga<br><small>1200 🥃 (x3)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioBarril()">🛢️ Barril<br><small>2000 🥃 (Nvl 4)</small></button>
 
                 <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
-                <button class="boton-arcade" onclick="comprarHoraLoca()">🌪️ LA HORA LOCA<br><small>5000 🥃 (Lluvia cajas)</small></button>
-                <button class="boton-arcade" onclick="comprarAmnesia()">⏳ LA AMNESIA<br><small>8500 🥃 (+15m Farmeo)</small></button>
-                <button class="boton-arcade" onclick="comprarAutobus()" style="grid-column: span 2;">🚌 AUTOBÚS PEÑA<br><small>15000 🥃 (2 colegas Nvl 5)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarHoraLoca()">🌪️ HORA LOCA<br><small>5000 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarAmnesia()">⏳ AMNESIA<br><small>8500 🥃</small></button>
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarAutobus()">🚌 AUTOBÚS<br><small>15000 🥃 (2 de Nvl 5)</small></button>
 
                 <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
-                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" onclick="boostExtremoChupinazo()">💥 EL CHUPINAZO<br><small>50000 🥃 (Colega Nvl 9)</small></button>
-                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>120000 🥃 (Pasivo x10 - 30s)</small></button>
+                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px;" onclick="boostExtremoChupinazo()">💥 CHUPINAZO<br><small>50000 🥃</small></button>
+                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" style="margin: 5px;" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>120000 🥃</small></button>
             </div>
             
-            <div id="tab-personajes" class="shop-items oculto"></div>
+            <!-- Contenido de Personajes -->
+            <div id="tab-personajes" class="shop-items oculto" style="flex-grow: 1; overflow-y: auto; align-content: start;"></div>
         </div>
     </div>
 
     <div id="casino-modal" class="modal oculto" style="z-index: 550;">
-    <!-- Usamos modal-content libreta para mantener la coherencia del diseño -->
-    <div class="modal-content libreta" style="width: 95%; max-width: 450px; padding: 15px;">
-        <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
-        
-        <div class="libreta-tab">🎰 CASINO VIP</div>
-        
-        <!-- Pestañas del Casino -->
-        <div class="tienda-tabs" style="margin-top: 15px; margin-bottom: 15px;">
-            <button id="btn-tab-slots" class="tab-activa" onclick="cambiarTabCasino('slots')">🎰 VIP</button>
-            <button id="btn-tab-iq" onclick="cambiarTabCasino('iq')">🧊 ICE QUEEN</button>
-            <button id="btn-tab-bj" onclick="cambiarTabCasino('bj')">🃏 21 BJ</button>
-        </div>
-
-        <!-- ================= PESTAÑA TRAGAPERRAS ================= -->
-        <div id="tab-slots">
-            <div style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
-                <p style="font-size: 12px; color: #333; font-weight: bold; margin-bottom: 5px;">FICHAS VIP: <span id="contador-fichas" style="font-size: 16px; color: #ff0055;">0</span> 🪙</p>
-                <button style="width: 100%; padding: 10px; background: #fff59d; border: 2px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="comprarFicha()">
-                    COMPRAR 1 FICHA<br><small style="color: #666;">500.000 🥃</small>
-                </button>
-            </div>
-            <div style="margin-top: 15px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 15px;">
-                <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 40px; margin-bottom: 15px; background: #f0f0f0; padding: 10px; border-radius: 8px; border: 2px solid #ccc;">
-                    <span id="slot1">🎰</span><span id="slot2">🎰</span><span id="slot3">🎰</span>
-                </div>
-                <button style="width: 100%; padding: 12px; background: #a5d6a7; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;" onclick="tirarTragaperras()">TIRAR (1 🪙)</button>
-                <p id="mensaje-casino" style="margin-top: 15px; color: #ff0055; font-size: 12px; font-weight: bold;">¡SUERTE, JUERGUISTA!</p>
-                
-                <!-- TABLA DE PREMIOS VIP AÑADIDA AQUÍ -->
-                <div style="margin-top: 15px; padding: 10px; background: #fff9c4; border: 2px dashed #ff0055; border-radius: 8px; text-align: left;">
-                    <p style="font-size: 12px; font-weight: bold; color: #ff0055; text-align: center; margin-bottom: 8px;">🏆 TABLA DE PREMIOS VIP</p>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 11px; color: #333; font-weight: bold;">
-                        <span style="display: flex; justify-content: space-between;"><span>🥃🥃🥃 (El Gordo)</span> <span style="color:#00c853;">CUBATA FÍSICO</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>🥂🥂🥂 (Especial)</span> <span style="color:#00c853;">CHUPITO FÍSICO</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>🍒🍒🍒 (Digital)</span> <span>+25.000 🥃</span></span>
-                        <span style="display: flex; justify-content: space-between; color: #666;"><span>Cualquier otra mezcla</span> <span>NADA 💀</span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= PESTAÑA ICE QUEEN ================= -->
-        <div id="tab-iq" class="oculto">
-            <div style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
-                <p style="font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">APUESTA (CUBATAS):</p>
-                <input type="number" id="input-apuesta-iq" placeholder="1000" style="width: 100%; padding: 8px; background: #e1f5fe; color: #0277bd; border: 2px solid #333; border-radius: 5px; font-size: 14px; text-align: center; font-weight: bold; margin-bottom: 10px;">
-                <button style="width: 100%; padding: 12px; background: #81d4fa; color: #333; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer; text-shadow: 1px 1px 0px #fff;" onclick="tirarIceQueen()">
-                    ❄️ GIRAR RODILLOS ❄️
-                </button>
-            </div>
+        <div class="modal-content tienda-arcade" style="width: 95%; max-width: 450px; padding: 15px; padding-top: 20px; border: 4px solid #00ff00; box-shadow: 0 0 20px #00ff00, inset 0 0 20px #003300;">
             
-            <div style="margin-top: 10px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 10px;">
-                <div style="display: flex; justify-content: center; gap: 5px; font-size: 26px; margin-bottom: 10px; background: #b3e5fc; padding: 15px 5px; border-radius: 8px; border: 2px solid #0288d1; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);">
-                    <span id="iq1" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">🧊</span>
-                    <span id="iq2" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">👑</span>
-                    <span id="iq3" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">🐺</span>
-                    <span id="iq4" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">💎</span>
-                    <span id="iq5" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">❄️</span>
-                </div>
-                <p id="mensaje-iq" style="color: #0288d1; font-size: 11px; font-weight: bold; margin-bottom: 10px;">¡LA REINA 👑 ES COMODÍN!</p>
+            <!-- Botón de cerrar modo arcade -->
+            <button class="cerrar-btn" style="background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; top: -10px; right: -10px; box-shadow: none;" onclick="cerrarModales()">X</button>
+            
+            <!-- TÍTULO ARREGLADO: Ya no flota, ahora empuja el contenido hacia abajo -->
+            <h3 style="color: #00ff00; text-shadow: 0px 0px 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px;">🎰 CASINO VIP</h3>
+            
+            <!-- Pestañas Neón -->
+            <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 15px; display: flex; gap: 5px;">
+                <button id="btn-tab-slots" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #00ff00; color: #000; border: 2px solid #00ff00; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('slots')">🎰 VIP</button>
+                <button id="btn-tab-iq" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #000; color: #00ffff; border: 2px solid #00ffff; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('iq')">🧊 ICE</button>
+                <button id="btn-tab-bj" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #000; color: #00ff00; border: 2px solid #00ff00; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('bj')">🃏 21</button>
+            </div>
 
-                <!-- TABLA DE PREMIOS ICE QUEEN AÑADIDA AQUÍ -->
-                <div style="margin-top: 10px; padding: 8px; background: #e1f5fe; border: 2px dashed #0288d1; border-radius: 8px; text-align: left;">
-                    <p style="font-size: 12px; font-weight: bold; color: #0277bd; text-align: center; margin-bottom: 8px;">❄️ PREMIOS (x Apuesta)</p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10px; color: #333; font-weight: bold;">
-                        <span style="display: flex; justify-content: space-between;"><span>👑 5 Reinas:</span> <span style="color:#0288d1;">x100</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>💎 5 Diam:</span> <span style="color:#0288d1;">x50</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>🐺 5 Lobos:</span> <span style="color:#0288d1;">x25</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>🧊/❄️ (5):</span> <span style="color:#0288d1;">x10</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>4 Iguales:</span> <span style="color:#0288d1;">x4</span></span>
-                        <span style="display: flex; justify-content: space-between;"><span>3 Iguales:</span> <span style="color:#0288d1;">x1.5</span></span>
+            <!-- ================= PESTAÑA TRAGAPERRAS VIP ================= -->
+            <div id="tab-slots">
+                <div style="background: #051405; border: 2px solid #00ff00; border-radius: 8px; padding: 10px; text-align: center;">
+                    <p style="font-size: 10px; color: #00ff00; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">FICHAS VIP: <span id="contador-fichas" style="font-size: 16px; color: #fff; text-shadow: 0 0 5px #fff;">0</span> 🪙</p>
+                    <button class="boton-arcade" style="width: 100%; padding: 10px; margin: 0; font-size: 10px;" onclick="comprarFicha()">COMPRAR FICHA<br><small style="color: #00aa00; margin-top: 5px; display: block;">500.000 🥃</small></button>
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ff00; border-radius: 10px; padding: 15px;">
+                    <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 35px; margin-bottom: 15px; background: #051405; padding: 10px; border-radius: 8px; border: 2px solid #00ff00; box-shadow: inset 0 0 10px #00ff00;">
+                        <span id="slot1">🎰</span><span id="slot2">🎰</span><span id="slot3">🎰</span>
+                    </div>
+                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 12px; padding: 12px;" onclick="tirarTragaperras()">TIRAR (1 🪙)</button>
+                    <p id="mensaje-casino" style="margin-top: 15px; color: #00ff00; font-size: 10px; font-family: 'Press Start 2P', cursive;">¡SUERTE!</p>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: #051405; border: 2px dashed #00ff00; border-radius: 8px; text-align: left;">
+                        <p style="font-size: 9px; color: #00ff00; font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 8px;">🏆 PREMIOS VIP</p>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 8px; font-family: 'Press Start 2P', cursive; color: #fff;">
+                            <span style="display: flex; justify-content: space-between;"><span>🥃🥃🥃</span> <span style="color:#00ff00;">CUBATA FÍSICO</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>🥂🥂🥂</span> <span style="color:#00ff00;">CHUPITO FÍSICO</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>🍒🍒🍒</span> <span>+25.000 🥃</span></span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- ================= PESTAÑA BLACKJACK ================= -->
-        <div id="tab-bj" class="oculto">
-            <div id="bj-controles-apuesta" style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
-                <p style="font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">APUESTA (CUBATAS):</p>
-                <input type="number" id="input-apuesta-bj" placeholder="1000" style="width: 100%; padding: 8px; background: #f0f0f0; color: #333; border: 2px solid #333; border-radius: 5px; font-size: 14px; text-align: center; font-weight: bold; margin-bottom: 10px;">
-                <button style="width: 100%; padding: 12px; background: #a5d6a7; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="iniciarBlackjack()">REPARTIR CARTAS</button>
+
+            <!-- ================= PESTAÑA ICE QUEEN (Cian Neón) ================= -->
+            <div id="tab-iq" class="oculto">
+                <div style="background: #001111; border: 2px solid #00ffff; border-radius: 8px; padding: 10px; text-align: center;">
+                    <p style="font-size: 9px; color: #00ffff; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">APUESTA (CUBATAS):</p>
+                    <input type="number" id="input-apuesta-iq" placeholder="1000" style="width: 100%; padding: 8px; background: #000; color: #00ffff; border: 2px solid #00ffff; font-family: 'Press Start 2P', cursive; font-size: 12px; text-align: center; margin-bottom: 10px;">
+                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 9px; border-color: #00ffff; color: #00ffff; background: #001a1a;" onclick="tirarIceQueen()">❄️ GIRAR ❄️</button>
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ffff; border-radius: 10px; padding: 15px;">
+                    <div style="display: flex; justify-content: center; gap: 5px; font-size: 22px; margin-bottom: 10px; background: #001111; padding: 10px 5px; border-radius: 8px; border: 2px solid #00ffff; box-shadow: inset 0 0 10px #00ffff;">
+                        <span id="iq1">🧊</span><span id="iq2">👑</span><span id="iq3">🐺</span><span id="iq4">💎</span><span id="iq5">❄️</span>
+                    </div>
+                    <p id="mensaje-iq" style="color: #00ffff; font-size: 8px; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">LA REINA 👑 ES COMODÍN</p>
+
+                    <div style="margin-top: 10px; padding: 10px; background: #001111; border: 2px dashed #00ffff; border-radius: 8px; text-align: left;">
+                        <p style="font-size: 9px; color: #00ffff; font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 8px;">❄️ PREMIOS (x)</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 7px; font-family: 'Press Start 2P', cursive; color: #fff;">
+                            <span style="display: flex; justify-content: space-between;"><span>👑x5:</span> <span style="color:#00ffff;">x100</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>💎x5:</span> <span style="color:#00ffff;">x50</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>🐺x5:</span> <span style="color:#00ffff;">x25</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>🧊x5:</span> <span style="color:#00ffff;">x10</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>4 Igls:</span> <span style="color:#00ffff;">x4</span></span>
+                            <span style="display: flex; justify-content: space-between;"><span>3 Igls:</span> <span style="color:#00ffff;">x1.5</span></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="bj-zona-juego" class="oculto" style="margin-top: 10px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">
-                    <span>CRUPIER: <span id="bj-puntos-crupier" style="color:#ff0055;">?</span></span>
+            <!-- ================= PESTAÑA BLACKJACK ================= -->
+            <div id="tab-bj" class="oculto">
+                <div id="bj-controles-apuesta" style="background: #051405; border: 2px solid #00ff00; border-radius: 8px; padding: 10px; text-align: center;">
+                    <p style="font-size: 9px; color: #00ff00; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">APUESTA (CUBATAS):</p>
+                    <input type="number" id="input-apuesta-bj" placeholder="1000" style="width: 100%; padding: 8px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 12px; text-align: center; margin-bottom: 10px;">
+                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 10px;" onclick="iniciarBlackjack()">REPARTIR CARTAS</button>
                 </div>
-                <div id="bj-cartas-crupier" style="display: flex; gap: 5px; height: 50px; margin-bottom: 10px; justify-content: center;"></div>
-                
-                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">
-                    <span>TÚ: <span id="bj-puntos-jugador" style="color:#00c853;">0</span></span>
+
+                <div id="bj-zona-juego" class="oculto" style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ff00; border-radius: 10px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: 'Press Start 2P', cursive; color: #fff; margin-bottom: 5px;">
+                        <span>CRUPIER: <span id="bj-puntos-crupier" style="color:#ff0000;">?</span></span>
+                    </div>
+                    <div id="bj-cartas-crupier" style="display: flex; gap: 5px; height: 40px; margin-bottom: 15px; justify-content: center;"></div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: 'Press Start 2P', cursive; color: #fff; margin-bottom: 5px;">
+                        <span>TÚ: <span id="bj-puntos-jugador" style="color:#00ff00;">0</span></span>
+                    </div>
+                    <div id="bj-cartas-jugador" style="display: flex; gap: 5px; height: 40px; margin-bottom: 15px; justify-content: center;"></div>
+                    
+                    <p id="mensaje-bj" style="color: #00ff00; font-size: 9px; font-family: 'Press Start 2P', cursive; margin-bottom: 15px;">¿QUÉ HACES?</p>
+                    
+                    <div id="bj-botones-accion" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="boton-arcade" style="margin: 0; padding: 12px; font-size: 9px;" onclick="pedirCartaBJ()">CARTA</button>
+                        <button class="boton-arcade" style="margin: 0; padding: 12px; font-size: 9px; border-color: #ff0000; color: #ff0000; background: #1a0000;" onclick="plantarseBJ()">PLANTAR</button>
+                    </div>
+                    <button id="bj-btn-reiniciar" class="boton-arcade oculto" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 9px;" onclick="reiniciarBJ()">NUEVA MANO</button>
                 </div>
-                <div id="bj-cartas-jugador" style="display: flex; gap: 5px; height: 50px; margin-bottom: 10px; justify-content: center;"></div>
-                
-                <p id="mensaje-bj" style="color: #333; font-size: 12px; font-weight: bold; margin-bottom: 10px;">¿QUÉ HACES?</p>
-                
-                <div id="bj-botones-accion" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button style="background: #a5d6a7; color: #333; border: 2px solid #333; border-radius: 5px; padding: 10px; font-weight: bold; cursor: pointer;" onclick="pedirCartaBJ()">CARTA</button>
-                    <button style="background: #ffcccc; color: #333; border: 2px solid #333; border-radius: 5px; padding: 10px; font-weight: bold; cursor: pointer;" onclick="plantarseBJ()">PLANTARSE</button>
-                </div>
-                <button id="bj-btn-reiniciar" class="oculto" style="width: 100%; background: #fff59d; color: #333; border: 2px solid #333; border-radius: 8px; padding: 10px; font-weight: bold; margin-top: 10px; cursor: pointer;" onclick="reiniciarBJ()">NUEVA MANO</button>
             </div>
         </div>
     </div>
-</div>
     <!-- ==================== LA PUERTA DEL CASINO (PAGO 2€ EN EFECTIVO) ==================== -->
     <div id="pago-casino-modal" class="modal oculto" style="z-index: 600;">
         <div class="modal-content libreta" style="border-left-color: #ff00ff; text-align: center;">
