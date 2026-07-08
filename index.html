@@ -65,36 +65,111 @@
     </div>
 
     <div id="casino-modal" class="modal oculto" style="z-index: 550;">
-        <div class="modal-content tienda-arcade" style="border-color: #ff00ff; box-shadow: inset 0 0 25px rgba(50, 0, 50, 0.9), 0 0 15px rgba(255, 0, 255, 0.5);">
-            <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
-            
-            <h3 style="color: #ff00ff; text-shadow: 0px 0px 10px #ff00ff; border-bottom: 2px dashed #ff00ff;">🎰 CASINO VIP</h3>
-            
-            <div style="background: #110011; border: 2px solid #ff00ff; padding: 15px; text-align: center; margin-top: 15px;">
-                <p style="font-size: 10px; color: #fff; margin-bottom: 10px;">TUS FICHAS: <span id="contador-fichas" style="font-size: 16px; color: #ff00ff;">0</span> 🪙</p>
-                <button class="boton-arcade" style="border-color: #ff00ff; color: #ff00ff;" onclick="comprarFicha()">
-                    COMPRAR 1 FICHA<br><small style="color: #aa00aa;">500.000 🥃</small>
+    <!-- Usamos modal-content libreta para mantener la coherencia del diseño -->
+    <div class="modal-content libreta" style="width: 95%; max-width: 450px; padding: 15px;">
+        <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
+        
+        <div class="libreta-tab">🎰 CASINO VIP</div>
+        
+        <!-- Pestañas del Casino -->
+        <div class="tienda-tabs" style="margin-top: 15px; margin-bottom: 15px;">
+            <button id="btn-tab-slots" class="tab-activa" onclick="cambiarTabCasino('slots')">🎰 VIP</button>
+            <button id="btn-tab-iq" onclick="cambiarTabCasino('iq')">🧊 ICE QUEEN</button>
+            <button id="btn-tab-bj" onclick="cambiarTabCasino('bj')">🃏 21 BJ</button>
+        </div>
+
+        <!-- ================= PESTAÑA TRAGAPERRAS ================= -->
+        <div id="tab-slots">
+            <div style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
+                <p style="font-size: 12px; color: #333; font-weight: bold; margin-bottom: 5px;">FICHAS VIP: <span id="contador-fichas" style="font-size: 16px; color: #ff0055;">0</span> 🪙</p>
+                <button style="width: 100%; padding: 10px; background: #fff59d; border: 2px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="comprarFicha()">
+                    COMPRAR 1 FICHA<br><small style="color: #666;">500.000 🥃</small>
                 </button>
             </div>
-
-            <div id="zona-juego-casino" style="margin-top: 20px; text-align: center; background: #0a000a; border: 3px solid #ff00ff; border-radius: 10px; padding: 15px;">
-                <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 45px; margin-bottom: 15px; background: #000; padding: 10px; border-radius: 8px; box-shadow: inset 0 0 15px #ff00ff;">
-                    <span id="slot1">🎰</span>
-                    <span id="slot2">🎰</span>
-                    <span id="slot3">🎰</span>
+            <div style="margin-top: 15px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 15px;">
+                <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 40px; margin-bottom: 15px; background: #f0f0f0; padding: 10px; border-radius: 8px; border: 2px solid #ccc;">
+                    <span id="slot1">🎰</span><span id="slot2">🎰</span><span id="slot3">🎰</span>
                 </div>
+                <button style="width: 100%; padding: 12px; background: #a5d6a7; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;" onclick="tirarTragaperras()">TIRAR (1 🪙)</button>
+                <p id="mensaje-casino" style="margin-top: 15px; color: #ff0055; font-size: 12px; font-weight: bold;">¡SUERTE, JUERGUISTA!</p>
                 
-                <button id="btn-tirar-casino" class="boton-arcade" style="width: 100%; border-color: #ff00ff; color: #ff00ff; background: #1a001a; font-size: 14px;" onclick="tirarTragaperras()">
-                    TIRAR (1 🪙)
+                <!-- TABLA DE PREMIOS VIP AÑADIDA AQUÍ -->
+                <div style="margin-top: 15px; padding: 10px; background: #fff9c4; border: 2px dashed #ff0055; border-radius: 8px; text-align: left;">
+                    <p style="font-size: 12px; font-weight: bold; color: #ff0055; text-align: center; margin-bottom: 8px;">🏆 TABLA DE PREMIOS VIP</p>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 11px; color: #333; font-weight: bold;">
+                        <span style="display: flex; justify-content: space-between;"><span>🥃🥃🥃 (El Gordo)</span> <span style="color:#00c853;">CUBATA FÍSICO</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>🥂🥂🥂 (Especial)</span> <span style="color:#00c853;">CHUPITO FÍSICO</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>🍒🍒🍒 (Digital)</span> <span>+25.000 🥃</span></span>
+                        <span style="display: flex; justify-content: space-between; color: #666;"><span>Cualquier otra mezcla</span> <span>NADA 💀</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PESTAÑA ICE QUEEN ================= -->
+        <div id="tab-iq" class="oculto">
+            <div style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
+                <p style="font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">APUESTA (CUBATAS):</p>
+                <input type="number" id="input-apuesta-iq" placeholder="1000" style="width: 100%; padding: 8px; background: #e1f5fe; color: #0277bd; border: 2px solid #333; border-radius: 5px; font-size: 14px; text-align: center; font-weight: bold; margin-bottom: 10px;">
+                <button style="width: 100%; padding: 12px; background: #81d4fa; color: #333; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer; text-shadow: 1px 1px 0px #fff;" onclick="tirarIceQueen()">
+                    ❄️ GIRAR RODILLOS ❄️
                 </button>
+            </div>
+            
+            <div style="margin-top: 10px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 10px;">
+                <div style="display: flex; justify-content: center; gap: 5px; font-size: 26px; margin-bottom: 10px; background: #b3e5fc; padding: 15px 5px; border-radius: 8px; border: 2px solid #0288d1; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);">
+                    <span id="iq1" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">🧊</span>
+                    <span id="iq2" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">👑</span>
+                    <span id="iq3" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">🐺</span>
+                    <span id="iq4" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">💎</span>
+                    <span id="iq5" style="background: white; border: 2px solid #333; border-radius: 5px; padding: 5px;">❄️</span>
+                </div>
+                <p id="mensaje-iq" style="color: #0288d1; font-size: 11px; font-weight: bold; margin-bottom: 10px;">¡LA REINA 👑 ES COMODÍN!</p>
+
+                <!-- TABLA DE PREMIOS ICE QUEEN AÑADIDA AQUÍ -->
+                <div style="margin-top: 10px; padding: 8px; background: #e1f5fe; border: 2px dashed #0288d1; border-radius: 8px; text-align: left;">
+                    <p style="font-size: 12px; font-weight: bold; color: #0277bd; text-align: center; margin-bottom: 8px;">❄️ PREMIOS (x Apuesta)</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10px; color: #333; font-weight: bold;">
+                        <span style="display: flex; justify-content: space-between;"><span>👑 5 Reinas:</span> <span style="color:#0288d1;">x100</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>💎 5 Diam:</span> <span style="color:#0288d1;">x50</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>🐺 5 Lobos:</span> <span style="color:#0288d1;">x25</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>🧊/❄️ (5):</span> <span style="color:#0288d1;">x10</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>4 Iguales:</span> <span style="color:#0288d1;">x4</span></span>
+                        <span style="display: flex; justify-content: space-between;"><span>3 Iguales:</span> <span style="color:#0288d1;">x1.5</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ================= PESTAÑA BLACKJACK ================= -->
+        <div id="tab-bj" class="oculto">
+            <div id="bj-controles-apuesta" style="background: white; border: 2px solid #333; border-radius: 8px; padding: 10px; text-align: center;">
+                <p style="font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">APUESTA (CUBATAS):</p>
+                <input type="number" id="input-apuesta-bj" placeholder="1000" style="width: 100%; padding: 8px; background: #f0f0f0; color: #333; border: 2px solid #333; border-radius: 5px; font-size: 14px; text-align: center; font-weight: bold; margin-bottom: 10px;">
+                <button style="width: 100%; padding: 12px; background: #a5d6a7; border: 3px solid #333; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="iniciarBlackjack()">REPARTIR CARTAS</button>
+            </div>
+
+            <div id="bj-zona-juego" class="oculto" style="margin-top: 10px; text-align: center; background: white; border: 3px solid #333; border-radius: 10px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">
+                    <span>CRUPIER: <span id="bj-puntos-crupier" style="color:#ff0055;">?</span></span>
+                </div>
+                <div id="bj-cartas-crupier" style="display: flex; gap: 5px; height: 50px; margin-bottom: 10px; justify-content: center;"></div>
                 
-                <p id="mensaje-casino" style="margin-top: 15px; color: #fff; font-size: 11px; height: 15px; font-family: 'Press Start 2P', cursive; text-shadow: 0 0 5px #ff00ff;">
-                    ¡SUERTE, JUERGUISTA!
-                </p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #333; font-weight: bold; margin-bottom: 5px;">
+                    <span>TÚ: <span id="bj-puntos-jugador" style="color:#00c853;">0</span></span>
+                </div>
+                <div id="bj-cartas-jugador" style="display: flex; gap: 5px; height: 50px; margin-bottom: 10px; justify-content: center;"></div>
+                
+                <p id="mensaje-bj" style="color: #333; font-size: 12px; font-weight: bold; margin-bottom: 10px;">¿QUÉ HACES?</p>
+                
+                <div id="bj-botones-accion" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button style="background: #a5d6a7; color: #333; border: 2px solid #333; border-radius: 5px; padding: 10px; font-weight: bold; cursor: pointer;" onclick="pedirCartaBJ()">CARTA</button>
+                    <button style="background: #ffcccc; color: #333; border: 2px solid #333; border-radius: 5px; padding: 10px; font-weight: bold; cursor: pointer;" onclick="plantarseBJ()">PLANTARSE</button>
+                </div>
+                <button id="bj-btn-reiniciar" class="oculto" style="width: 100%; background: #fff59d; color: #333; border: 2px solid #333; border-radius: 8px; padding: 10px; font-weight: bold; margin-top: 10px; cursor: pointer;" onclick="reiniciarBJ()">NUEVA MANO</button>
             </div>
         </div>
     </div>
-
+</div>
     <!-- ==================== LA PUERTA DEL CASINO (PAGO 2€ EN EFECTIVO) ==================== -->
     <div id="pago-casino-modal" class="modal oculto" style="z-index: 600;">
         <div class="modal-content libreta" style="border-left-color: #ff00ff; text-align: center;">
@@ -141,8 +216,8 @@
                 <button class="menu-card" onclick="abrirLogros()">
                     <div class="menu-icon bg-verde">🎯</div><span>LOGROS</span>
                 </button>
-                <button class="menu-card" onclick="abrirMenuChupitos()">
-                    <div class="menu-icon bg-calendario">🥂</div><span>CHUPITO GRATIS</span>
+                <button class="menu-card" onclick="abrirMenuDiario()">
+                    <div class="menu-icon bg-calendario">🎁</div><span>REGALO DIARIO</span>
                 </button>
                 <button class="menu-card" onclick="abrirOpciones()" style="grid-column: span 2;">
                     <div class="menu-icon bg-azul" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">⚙️</div><span>OPCIONES</span>
@@ -151,37 +226,23 @@
         </div>
     </div>
 
-    <div id="chupitos-modal" class="modal oculto">
+    <div id="diario-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
-            <div class="libreta-tab">CHUPITOS</div>
-            <h3 style="font-size:18px; margin-bottom:5px; color:#333; text-align:center;">🥂 MISIONES DE BARRA</h3>
-            <p style="font-size:11px; text-align:center; color:#666; margin-bottom:10px;">Completa el requisito para ganar tu chupito en las fiestas</p>
-            <div class="calendar-grid" id="lista-chupitos-contenedor"></div>
-        </div>
-    </div>
-
-    <!-- ==================== EL BOTE PARA LOS CHUPITOS (PAGO 1€ EN EFECTIVO) ==================== -->
-    <div id="pago-modal" class="modal oculto" style="z-index: 600;">
-        <div class="modal-content libreta" style="border-left-color: #00c853; text-align: center;">
-            <button class="cerrar-btn" onclick="cerrarPagoModal()">❌</button>
-            <h2 style="color:#00c853; margin-bottom: 10px; font-size: 22px;">¡BOTE DE LA PEÑA! 🍻</h2>
-            <p style="font-size: 14px; color: #333; margin-bottom: 15px; font-weight: bold;">
-                Para desbloquear los chupitos gratis en el juego, debes donar 1 euro. ¡Pago único para todas las fiestas!
+            <div class="libreta-tab">REGALO DIARIO</div>
+            
+            <h3 style="font-size:16px; text-align:center; margin-top:20px;">¡Entra cada día y gana!</h3>
+            <p style="font-size:10px; text-align:center; color:#666; margin-bottom:15px;">
+                El LUNES es el día del CASINO. ¡No te lo pierdas!
             </p>
 
-            <div style="background: #e8f5e9; padding:15px; border-radius:10px; border: 3px dashed #00c853; margin-bottom:15px;">
-                <p style="font-size: 16px; color: #1b5e20; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
-                <p style="font-size: 12px; color: #333;">Dale 1€ físico al camarero en la barra de la peña para que te autorice el pase.</p>
-            </div>
-
-            <!-- Como los chupitos no tienen segurata TOTP, aquí el camarero solo tiene que darle al botón y confiar, o podemos ponerle un prompt básico -->
-            <button onclick="confirmarDonacion()" style="padding:15px; background:#00c853; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:15px; box-shadow: 2px 4px 0 #005500;">
-                ✅ CAMARERO: DESBLOQUEAR
-            </button>
+            <div id="calendario-contenedor" class="calendar-grid">
+                </div>
         </div>
     </div>
+
+    
 
     <div id="logros-modal" class="modal oculto">
         <div class="modal-content libreta">
