@@ -575,5 +575,43 @@ function dragTouch(e) {
 function endDrag() { limpiarEventos(); }
 function endDragTouch() { limpiarEventos(); }
 function limpiarEventos() { if (!dragItem) return; const friends = document.querySelectorAll('.friend'); const rect1 = dragItem.getBoundingClientRect(); for (let other of friends) { if (other !== dragItem) { const rect2 = other.getBoundingClientRect(); if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) { if (dragItem.dataset.level === other.dataset.level) { const currentLevel = parseInt(dragItem.dataset.level); if (currentLevel < levels.length - 1) { const newX = parseFloat(other.style.left); const newY = parseFloat(other.style.top); dragItem.remove(); other.remove(); ganarCubatas((currentLevel + 1) * 5); const nuevoNivel = currentLevel + 1; createFriend(nuevoNivel, newX, newY); verificarLogro('calentamiento'); if (nuevoNivel > maxNivelDesbloqueado) { maxNivelDesbloqueado = nuevoNivel; mostrarCinematica(nuevoNivel); actualizaEstilosExtremos(); } break; } } } } } dragItem = null; document.removeEventListener('pointermove', drag); document.removeEventListener('pointerup', endDrag); document.removeEventListener('touchmove', dragTouch); document.removeEventListener('touchend', endDragTouch); actualizarCubatasPorSegundo(); guardarPartida(); }
+// Array con los nombres en el mismo orden que tus imágenes
+const nombresJuerguistas = [
+    "Adrian Juan", "Iñaki Gonzalez", "Ander Garmon", 
+    "Victor Santos", "Noa Ugidos", "Natalia Gonzalez", 
+    "Ivan Ordas", "Guillermo Bango", "Lucia Grande", 
+    "Ruben Pelayo", "Karen Beneitez", "Aina Fernandez", 
+    "Iñigo Fernandez", "Hugo Barragan", "Natalia Armendariz", 
+    "Elena Vivas", "Naroa Chamorro", "Gerardo Pascual", "Pablo Martinez"
+];
 
+function abrirJuerguistas() { 
+    ocultarTodosModales(); 
+    document.getElementById('juerguistas-modal').classList.remove('oculto');
+    renderizarJuerguistas(); // Llamamos a la función que dibuja el libro
+}
+
+function renderizarJuerguistas() {
+    const contenedor = document.getElementById('juerguistas-contenedor');
+    contenedor.innerHTML = ''; // Vaciamos antes de dibujar
+
+    levels.forEach((img, index) => {
+        // Comprobamos si el nivel está desbloqueado
+        const desbloqueado = index <= maxNivelDesbloqueado;
+        
+        const nombre = desbloqueado ? nombresJuerguistas[index] : "???";
+        const claseImagen = desbloqueado ? "" : "silueta-bloqueada";
+        const textoNivel = desbloqueado ? `Nivel ${index + 1}` : "Bloqueado";
+
+        contenedor.innerHTML += `
+            <div class="libro-item">
+                <img src="${img}" class="${claseImagen}" alt="Colega">
+                <div class="libro-info">
+                    <h4>${nombre}</h4>
+                    <p>${textoNivel}</p>
+                </div>
+            </div>
+        `;
+    });
+}
 cargarPartida(); reanudarJuego(); intervalGuardado = setInterval(guardarPartida, 3000);

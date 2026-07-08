@@ -201,3 +201,8 @@ html, body {
     border: 2px solid #00ff00 !important; 
     box-shadow: 0 0 15px #00ff00 !important; 
 }
+/* Clase para oscurecer las imágenes bloqueadas */
+.silueta-bloqueada {
+    filter: brightness(0); /* Lo convierte en silueta negra */
+    opacity: 0.5;
+}
