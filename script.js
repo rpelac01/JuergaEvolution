@@ -1,15 +1,21 @@
 // ==========================================================================
 // 🔥 1. CONEXIÓN A LA NUBE (FIREBASE)
 // ==========================================================================
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDYPbqh0-tLpwJK-hHXuG1fwABr-fkGXtA", // 👈 Empieza por AIzaSy...
-  authDomain: "juergacivil-9e9fa.firebaseapp.com",
-  projectId: "juergacivil-9e9fa",
-  storageBucket: "juergacivil-9e9fa.appspot.com",
-  messagingSenderId: "58778749870",
-  appId: "1:58778749870:web:8c5b36437d2cebb3f06c11",
-  measurementId: "G-F7L41EKSV1"
+  apiKey: "AIzaSyDYPbqh0-tLpwJK-hHXuG1fwABr-fkGXtA",
+  authDomain: "juerga-civil-2026.firebaseapp.com",
+  projectId: "juerga-civil-2026",
+  storageBucket: "juerga-civil-2026.firebasestorage.app",
+  messagingSenderId: "945369478500",
+  appId: "1:945369478500:web:7eacbff81462189f46f671",
+  measurementId: "G-X8LNCK1J29"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Inicializamos el motor de la base de datos
 firebase.initializeApp(firebaseConfig);
