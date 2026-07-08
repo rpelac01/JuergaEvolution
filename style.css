@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -72,6 +73,56 @@ html, body {
 .tienda-tabs { display: flex; border-bottom: 3px solid #333; margin-bottom: 15px; }
 .tienda-tabs button { flex: 1; padding: 12px; background: #f0f0f0; border: none; font-weight: bold; font-size: 14px; cursor: pointer; }
 .tienda-tabs button.tab-activa { background: #ff0055; color: white; }
+/* Contenedor de la tienda con un brillo sutil */
+/* Contenedor de la tienda tipo pantalla arcade */
+.tienda-arcade {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #111111; /* Fondo muy oscuro */
+    border: 4px solid #ffcc00; /* Borde amarillo recreativa */
+    padding: 20px;
+    color: #00ffcc; /* Texto en cian brillante */
+    text-shadow: 3px 3px 0px #ff0055; /* Sombra fucsia para el 3D retro */
+    box-shadow: inset 0 0 20px #000000, 0 0 15px #ffcc00; /* Brillo de neón */
+}
+
+/* El botón gordo de máquina física */
+.boton-arcade {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #ff0055;
+    color: white;
+    border: 4px solid #ffffff;
+    padding: 15px 20px;
+    font-size: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin: 10px;
+    /* La clave del 3D pixelado: una sombra dura, sin desenfoque */
+    box-shadow: 5px 5px 0px #00ffcc; 
+    transition: all 0.1s; /* Muy rápido, respuesta inmediata */
+}
+
+/* Efecto al pasar el ratón */
+.boton-arcade:hover {
+    background-color: #ff3377;
+    transform: translate(-2px, -2px); /* Sube un poco */
+    box-shadow: 7px 7px 0px #00ffcc; /* La sombra se hace más grande */
+}
+
+/* ¡EL GUSTITO! Efecto al hacer clic (se hunde el botón físico) */
+.boton-arcade:active {
+    transform: translate(5px, 5px); /* Se hunde hacia abajo y derecha */
+    box-shadow: 0px 0px 0px #00ffcc; /* La sombra desaparece porque lo has pulsado */
+}
+
+/* Botón bloqueado (cuando no tienes cubatas/dinero) */
+.boton-arcade:disabled {
+    background-color: #555555;
+    color: #888888;
+    border-color: #777777;
+    box-shadow: 5px 5px 0px #222222;
+    cursor: not-allowed;
+    transform: none; /* No se mueve al pulsarlo */
+}
 .shop-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; padding-right: 5px; }
 .shop-items button { background: #f5f5f5; border: 2px solid #333; padding: 12px 5px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; }
 .shop-items button:active { background: #ddd; }
@@ -97,7 +148,14 @@ html, body {
 @keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
 .codigo-chupito { background: #ff0055; color: white; padding: 15px; border-radius: 10px; border: 3px solid #333; font-size: 22px; font-weight: bold; letter-spacing: 2px; margin-top: 10px; animation: pulse 1s infinite alternate; text-align: center;}
 @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+@keyframes entrarTienda {
+    0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 
+.animacion-entrada {
+    animation: entrarTienda 0.4s ease-out forwards;
+}
 /* ELEMENTOS NUEVOS DE LA TIENDA DE MEJORAS */
 .shop-seccion-titulo {
     grid-column: span 2; text-align: center; font-weight: bold; font-size: 12px;
@@ -110,3 +168,18 @@ html, body {
 
 .btn-lock { background: #bdbdbd !important; color: #757575 !important; border: 2px dashed #666 !important; cursor: not-allowed !important; box-shadow: none !important; opacity: 0.6; }
 .btn-unlocked-extremo { background: linear-gradient(135deg, #4a148c, #7c4dff) !important; color: white !important; border: 2px solid #333 !important; text-shadow: 1px 1px 0 #000; box-shadow: 2px 4px 0 #000 !important; }
+@keyframes flotarYDesaparecer {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+}
+
+.texto-flotante-arcade {
+    position: absolute;
+    font-family: 'Press Start 2P', cursive;
+    color: #ff0055;
+    font-size: 16px;
+    text-shadow: 2px 2px 0px white;
+    pointer-events: none; /* Que no estorbe si haces muchos clics seguidos */
+    animation: flotarYDesaparecer 0.8s ease-out forwards;
+    z-index: 9999;
+}

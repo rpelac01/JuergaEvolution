@@ -21,8 +21,8 @@
     <main id="game-board"></main>
 
     <footer id="bottom-bar">
-        <button class="btn-cuadrado" onclick="abrirTienda()">🛒</button>
-        <button class="btn-cuadrado" onclick="abrirMenuPrincipal()">📖</button>
+        <button class="btn-cuadrado boton-arcade" onclick="abrirTienda()">🛒</button>
+        <button class="btn-cuadrado boton-arcade" onclick="abrirMenuPrincipal()">📖</button>
     </footer>
 
     <div id="shop-modal" class="modal oculto">
@@ -34,29 +34,30 @@
                 <button id="btn-tab-personajes" onclick="cambiarTab('personajes')">👥 Colegas</button>
             </div>
             
-            <div id="tab-mejoras" class="shop-items">
+            <div id="tab-mejoras" class="shop-items tienda-arcade">
                 <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
-                <button onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
-                <button onclick="comprarEvento()">🍻 Hora Feliz (Nvl 2)<br><small>150 🥃</small></button>
-                <button onclick="comprarPasivo()">⚡ Ritmo de Fiesta<br><small>Coste: <span id="coste-pasivo">100</span> 🥃</small></button>
-                <button onclick="comprarLimpieza()" class="btn-caro" style="grid-column: span 2;">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
+                <button class="boton-arcade" onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
+                <button class="boton-arcade" onclick="comprarEvento()">🍻 Hora Feliz (Nvl 2)<br><small>150 🥃</small></button>
+                <button class="boton-arcade" onclick="comprarPasivo()">⚡ Ritmo de Fiesta<br><small>Coste: <span id="coste-pasivo">100</span> 🥃</small></button>
+                <button class="btn-caro boton-arcade" onclick="comprarLimpieza()" style="grid-column: span 2;">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
                 
                 <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button onclick="boostBajoRefresco()">🥤 Refresco Rápido<br><small>25 🥃 (+10 cubatas)</small></button>
-                <button onclick="boostBajoTapa()">🧆 Tapa de Bravas<br><small>40 🥃 (Caja inmediata)</small></button>
+                <button class="boton-arcade" onclick="boostBajoRefresco()">🥤 Refresco Rápido<br><small>25 🥃 (+10 cubatas)</small></button>
+                <button class="boton-arcade" onclick="boostBajoTapa()">🧆 Tapa de Bravas<br><small>40 🥃 (Caja inmediata)</small></button>
 
                 <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
-                <button onclick="boostMedioCharanga()">🎷 La Charanga<br><small>300 🥃 (X2 pasivo 20s)</small></button>
-                <button onclick="boostMedioBarril()">🛢️ Barril Cerveza<br><small>600 🥃 (Colega Nvl 3)</small></button>
+                <button class="boton-arcade" onclick="boostMedioCharanga()">🎷 La Charanga<br><small>300 🥃 (X2 pasivo 20s)</small></button>
+                <button class="boton-arcade" onclick="boostMedioBarril()">🛢️ Barril Cerveza<br><small>600 🥃 (Colega Nvl 3)</small></button>
 
                 <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
-                <button onclick="comprarHoraLoca()">🌪️ LA HORA LOCA<br><small>1500 🥃 (Lluvia cajas)</small></button>
-                <button onclick="comprarAmnesia()">⏳ LA AMNESIA<br><small>2500 🥃 (+1h Farmeo)</small></button>
-                <button onclick="comprarAutobus()" style="grid-column: span 2;">🚌 AUTOBÚS DE LA PEÑA<br><small>5000 🥃 (3 colegas Nvl 4)</small></button>
+                <button class="boton-arcade" onclick="comprarHoraLoca()">🌪️ LA HORA LOCA<br><small>1500 🥃 (Lluvia cajas)</small></button>
+                <button class="boton-arcade" onclick="comprarAmnesia()">⏳ LA AMNESIA<br><small>2500 🥃 (+1h Farmeo)</small></button>
+                <button class="boton-arcade" onclick="comprarAutobus()" style="grid-column: span 2;">🚌 AUTOBÚS DE LA PEÑA<br><small>5000 🥃 (3 colegas Nvl 4)</small></button>
 
                 <div class="shop-seccion-titulo extremo">💀 BOOSTS EXTREMOS (REQ NVL 12)</div>
-                <button id="btn-extremo-chupinazo" onclick="boostExtremoChupinazo()" class="btn-lock">💥 EL CHUPINAZO<br><small>15000 🥃 (Colega Nvl 9)</small></button>
-                <button id="btn-extremo-barralibre" onclick="boostExtremoBarraLibre()" class="btn-lock">👑 BARRA LIBRE<br><small>35000 🥃 (X5 pasivo 30s)</small></button>
+                <!-- Fíjate que a estos que ya tenían btn-lock, se les pone al lado separado por un espacio -->
+                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" onclick="boostExtremoChupinazo()">💥 EL CHUPINAZO<br><small>15000 🥃 (Colega Nvl 9)</small></button>
+                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>35000 🥃 (X5 pasivo 30s)</small></button>
             </div>
             
             <div id="tab-personajes" class="shop-items oculto"></div>

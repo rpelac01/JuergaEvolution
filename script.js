@@ -148,6 +148,23 @@ function borrarPartida() { if(confirm("¿Seguro que quieres borrar todo el progr
 // ==========================================================================
 // CENTRALIZACIÓN TIENDA BOOSTS
 // ==========================================================================
+// Dispara el efecto visual del gasto donde hagas clic
+function efectoGastoVisual(event, coste) {
+    const flotante = document.createElement('div');
+    flotante.className = 'texto-flotante-arcade';
+    flotante.innerText = '-' + coste;
+
+    // Posicionarlo exactamente donde está el ratón
+    flotante.style.left = (event.clientX - 10) + 'px';
+    flotante.style.top = (event.clientY - 20) + 'px';
+
+    document.body.appendChild(flotante);
+
+    // Borrar el elemento del código cuando termine la animación (800ms)
+    setTimeout(() => {
+        flotante.remove();
+    }, 800);
+}
 function actualizaEstilosExtremos() {
     const btn1 = document.getElementById('btn-extremo-chupinazo');
     const btn2 = document.getElementById('btn-extremo-barralibre');
