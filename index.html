@@ -51,18 +51,17 @@
                 </details>
 
                 <details class="regla-item">
-                    <summary>5. 🎰 CASINO Y PASE VIP</summary>
+                    <summary>5. 🎁 SOBRES Y PASE VIP</summary>
                     <div class="regla-contenido">
                         <p><b>Pase VIP:</b> Cuesta 2€ en la barra. El camarero te pondrá un código secreto para entrar.</p>
-                        <p><b>Tragaperras VIP:</b> Da chupitos y copas de verdad usando Fichas.</p>
-                        <p><b>Ice Queen y 21 BJ:</b> Minijuegos para apostar tus cubatas de la pradera.</p>
+                        <p><b>Sobres:</b> Cómpralos con tus cubatas. Pueden darte cubatas extra, o un chupito o cubata de verdad en la barra. Cuanto más caro el sobre, más posibilidades de premio real.</p>
                     </div>
                 </details>
 
                 <details class="regla-item">
                     <summary>6. 🎁 REGALO DIARIO</summary>
                     <div class="regla-contenido">
-                        <p>Entra cada día para llevarte cubatas gratis. ¡Ojo! Los lunes el premio es una Ficha de Casino VIP.</p>
+                        <p>Entra cada día para llevarte cubatas gratis. ¡Ojo! Los lunes el premio es un Sobre Épico GRATIS.</p>
                     </div>
                 </details>
 
@@ -98,7 +97,7 @@
 
     <footer id="bottom-bar">
         <button class="btn-cuadrado boton-arcade" onclick="abrirTienda()">🛒</button>
-        <button class="btn-cuadrado boton-arcade" style="color: #ff00ff; border-color: #ff00ff;" onclick="abrirCasino()">🎰</button>
+        <button class="btn-cuadrado boton-arcade" style="color: #ff00ff; border-color: #ff00ff;" onclick="abrirCasino()">🎁</button>
         <button class="btn-cuadrado boton-arcade" onclick="abrirMenuPrincipal()">📖</button>
     </footer>
 
@@ -149,101 +148,379 @@
     </div>
 
     <div id="casino-modal" class="modal oculto" style="z-index: 550;">
-        <div class="modal-content tienda-arcade" style="width: 95%; max-width: 450px; padding: 15px; padding-top: 20px; border: 4px solid #00ff00; box-shadow: 0 0 20px #00ff00, inset 0 0 20px #003300;">
+        <!-- PANTALLA COMPLETA: Eliminamos los topes de ancho y alto -->
+        <div class="modal-content tienda-arcade" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; border: none; padding: 20px; padding-top: 40px; display: flex; flex-direction: column; background: #000;">
             
-            <!-- Botón de cerrar modo arcade -->
-            <button class="cerrar-btn" style="background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; top: -10px; right: -10px; box-shadow: none;" onclick="cerrarModales()">X</button>
+            <!-- Botón de cerrar (colocado en la esquina superior derecha) -->
+            <button class="cerrar-btn" style="top: 20px; right: 20px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
             
-            <!-- TÍTULO ARREGLADO: Ya no flota, ahora empuja el contenido hacia abajo -->
-            <h3 style="color: #00ff00; text-shadow: 0px 0px 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px;">🎰 CASINO VIP</h3>
-            
-            <!-- Pestañas Neón -->
-            <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 15px; display: flex; gap: 5px;">
-                <button id="btn-tab-slots" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #00ff00; color: #000; border: 2px solid #00ff00; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('slots')">🎰 VIP</button>
-                <button id="btn-tab-iq" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #000; color: #00ffff; border: 2px solid #00ffff; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('iq')">🧊 ICE</button>
-                <button id="btn-tab-bj" style="font-family: 'Press Start 2P', cursive; font-size: 8px; background: #000; color: #00ff00; border: 2px solid #00ff00; border-radius: 4px; padding: 10px 0;" onclick="cambiarTabCasino('bj')">🃏 21</button>
+            <h3 style="color: #00ff00; text-shadow: 0px 0px 8px #00ff00; text-align: center; font-size: 16px; margin-top: 5px; margin-bottom: 5px; border-bottom: 2px dashed #00ff00; padding-bottom: 15px;">🎁 SOBRES DE LA PEÑA</h3>
+
+            <!-- ================= RESULTADOS LIMPIOS (Sin la caja gigante) ================= -->
+            <div style="text-align: center; min-height: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 10px;">
+                <!-- El icono se mantiene oculto/pequeño para la animación pero sin el borde feo -->
+                <div id="sobre-animacion" style="font-size: 25px; margin-bottom: 5px; line-height: 1;"></div>
+                <p id="sobre-resultado" style="font-size: 12px; font-family: 'Press Start 2P', cursive; color: #00ff00; margin: 0; text-shadow: 0 0 5px #00ff00;">¡DESLIZA Y ELIGE!</p>
             </div>
 
-            <!-- ================= PESTAÑA TRAGAPERRAS VIP ================= -->
-            <div id="tab-slots">
-                <div style="background: #051405; border: 2px solid #00ff00; border-radius: 8px; padding: 10px; text-align: center;">
-                    <p style="font-size: 10px; color: #00ff00; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">FICHAS VIP: <span id="contador-fichas" style="font-size: 16px; color: #fff; text-shadow: 0 0 5px #fff;">0</span> 🪙</p>
-                    <button class="boton-arcade" style="width: 100%; padding: 10px; margin: 0; font-size: 10px;" onclick="comprarFicha()">COMPRAR FICHA<br><small style="color: #00aa00; margin-top: 5px; display: block;">500.000 🥃</small></button>
-                </div>
+            <!-- ================= ZONA DESLIZABLE CENTRADA Y GIGANTE ================= -->
+            <!-- flex-grow: 1 empuja el carrusel para que ocupe todo el espacio libre -->
+            <div class="carrusel-fifa" style="flex-grow: 1; align-items: center; padding: 0 25vw;">
                 
-                <div style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ff00; border-radius: 10px; padding: 15px;">
-                    <div id="slots-container" style="display: flex; justify-content: center; gap: 15px; font-size: 35px; margin-bottom: 15px; background: #051405; padding: 10px; border-radius: 8px; border: 2px solid #00ff00; box-shadow: inset 0 0 10px #00ff00;">
-                        <span id="slot1">🎰</span><span id="slot2">🎰</span><span id="slot3">🎰</span>
-                    </div>
-                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 12px; padding: 12px;" onclick="tirarTragaperras()">TIRAR (1 🪙)</button>
-                    <p id="mensaje-casino" style="margin-top: 15px; color: #00ff00; font-size: 10px; font-family: 'Press Start 2P', cursive;">¡SUERTE!</p>
-                    
-                    <div style="margin-top: 15px; padding: 10px; background: #051405; border: 2px dashed #00ff00; border-radius: 8px; text-align: left;">
-                        <p style="font-size: 9px; color: #00ff00; font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 8px;">🏆 PREMIOS VIP</p>
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 8px; font-family: 'Press Start 2P', cursive; color: #fff;">
-                            <span style="display: flex; justify-content: space-between;"><span>🥃🥃🥃</span> <span style="color:#00ff00;">CUBATA FÍSICO</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>🥂🥂🥂</span> <span style="color:#00ff00;">CHUPITO FÍSICO</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>🍒🍒🍒</span> <span>+25.000 🥃</span></span>
+                <!-- PACK 1: JUERGA CIVIL -->
+                <div class="pack-container">
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="background: #000000; box-shadow: 0 0 20px rgba(57, 255, 20, 0.3); border: 3px solid #39FF14;">
+                        <div class="cinta-lateral" style="background: #39FF14; color: #000000; border-right: 3px solid #000000; font-size: 7px; font-weight: bold;">JUERGA CIVIL</div>
+                        <div class="contenido-sobre">
+                            <img src="JUERGA.png" alt="Logo Juerga Civil" style="width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 0 8px #39FF14);">
+                            <h4 class="titulo-sobre" style="color: #39FF14; text-shadow: 0 0 5px #39FF14; margin-top: 15px;">JUERGA<br>CIVIL</h4>
                         </div>
                     </div>
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
                 </div>
-            </div>
 
-            <!-- ================= PESTAÑA ICE QUEEN (Cian Neón) ================= -->
-            <div id="tab-iq" class="oculto">
-                <div style="background: #001111; border: 2px solid #00ffff; border-radius: 8px; padding: 10px; text-align: center;">
-                    <p style="font-size: 9px; color: #00ffff; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">APUESTA (CUBATAS):</p>
-                    <input type="number" id="input-apuesta-iq" placeholder="1000" style="width: 100%; padding: 8px; background: #000; color: #00ffff; border: 2px solid #00ffff; font-family: 'Press Start 2P', cursive; font-size: 12px; text-align: center; margin-bottom: 10px;">
-                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 9px; border-color: #00ffff; color: #00ffff; background: #001a1a;" onclick="tirarIceQueen()">❄️ GIRAR ❄️</button>
+                <!-- PACK 2: BUFA PERMANENTE -->
+                <div class="pack-container">
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border-color: #1d2b53; background: #ffffff;">
+                        <div class="cinta-lateral" style="background: #1d2b53; color: #ffffff; border-right: 3px solid #ffde00; font-size: 6.5px; font-weight: bold;">BUFA PERMANENTE</div>
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f9f9f9, #ffffff 70%);">
+                            <img src="BUFA.png" alt="Logo Bufa" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3));">
+                            <h4 class="titulo-sobre" style="color: #1d2b53; text-shadow: 1px 1px 0px #ffde00; font-weight: bold;">BUFA<br>PERMANENTE</h4>
+                        </div>
+                        <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #1d2b53;">
+                            <div class="stat-col"><span class="stat-icono">🔥</span><span class="stat-lbl" style="color: #ffde00;">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num">4000</span><span class="stat-lbl" style="color: #ffde00;">COSTE</span></div>
+                        </div>
+                        <div class="borde-inferior" style="background: #ffde00;"></div>
+                    </div>
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+
+                <!-- ⬇️⬇️ Pega aquí debajo el resto de tus peñas ⬇️⬇️ -->
+                <!--PACK 3: PEÑA SIN SUELO -->
+                <!-- ========================================== -->
+                 <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #ff6600; background: #ffffff;">
+            
+                        <!-- Cinta NEGRA con texto AMARILLO OBRA y borde derecho ROJO PELIGRO -->
+                        <!-- Al ser más corto el nombre, le subimos la fuente a 8px -->
+                        <div class="cinta-lateral" style="background: #111111; color: #ffcc00; border-right: 3px solid #e3000f; font-size: 8px; font-weight: bold;">SIN SUELO</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f9f9f9, #ffffff 70%);">
+                            
+                            <img src="SINSUELO.png" alt="Logo Sin Suelo" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3));">
+                            
+                            <!-- Título NEGRO con sombra AMARILLA OBRA -->
+                            <h4 class="titulo-sobre" style="color: #111111; text-shadow: 1px 1px 0px #ffcc00; line-height: 1.5; margin: 0; font-weight: bold;">SIN<br>SUELO</h4>
+                        </div>
+
+                        <!-- Stats en ROJO PELIGRO con borde NEGRO -->
+                        <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #111111;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffcc00;">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffcc00;">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior AMARILLA OBRA -->
+                        <div class="borde-inferior" style="background: #ffcc00;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 4: PEÑA SIN NOMBRE -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #555555; background: #ffffff;">
+            
+                        <!-- Cinta AMARILLA SIMPSON con texto NEGRO y borde derecho NEGRO -->
+                        <div class="cinta-lateral" style="background: #fed90f; color: #111111; border-right: 3px solid #111111; font-size: 7px; font-weight: bold;">SIN NOMBRE</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f9f9f9, #ffffff 70%);">
+                            
+                            <img src="SINNOMBRE.png" alt="Logo Sin Nombre" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3));">
+                            
+                            <!-- Título NEGRO con sombra AMARILLA -->
+                            <h4 class="titulo-sobre" style="color: #111111; text-shadow: 1px 1px 0px #fed90f; line-height: 1.5; margin: 0; font-weight: bold;">SIN<br>NOMBRE</h4>
+                        </div>
+
+                        <!-- Stats en AZUL PANTALÓN con borde NEGRO -->
+                        <div class="stats-sobre" style="background: rgba(0, 115, 207, 0.98); border-top: 2px solid #111111;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #fed90f;">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #fed90f;">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior ROJO DUFF -->
+                        <div class="borde-inferior" style="background: #ed1b24;"></div>
+                    </div>
+
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 5: PEÑA OTRA RONDA -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #ff007f; background: #ffffff;">
+            
+                        <!-- Cinta ROSA UNO con texto BLANCO y borde derecho NEGRO para hacer contraste -->
+                        <div class="cinta-lateral" style="background: #ff007f; color: #ffffff; border-right: 3px solid #111111; font-size: 7px; font-weight: bold;">OTRA RONDA</div>
+                        
+                        <!-- Fondo blanco con un levísimo destello rosa -->
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #fff0f8, #ffffff 70%);">
+                            
+                            <!-- Le ponemos un border-radius de 5px a la imagen por si acaso tiene bordes afilados para que parezca una carta real -->
+                            <img src="OTRARONDA.png" alt="Logo Otra Ronda" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3)); border-radius: 4px;">
+                            
+                            <!-- Título ROSA con sombra NEGRA -->
+                            <h4 class="titulo-sobre" style="color: #ff007f; text-shadow: 1px 1px 0px #111111; line-height: 1.5; margin: 0; font-weight: bold;">OTRA<br>RONDA</h4>
+                        </div>
+
+                        <!-- Stats en ROSA UNO con borde NEGRO -->
+                        <div class="stats-sobre" style="background: rgba(255, 0, 127, 0.98); border-top: 2px solid #111111;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffffff;">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffffff;">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior BLANCA Pura -->
+                        <div class="borde-inferior" style="background: #ffffff;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 6: PEÑA WANNABEER -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <!-- CARTA: Peña Wannabeer -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #e6b800; background: #ffffff;">
+                        
+                        <!-- Cinta NARANJA con texto BLANCO y borde derecho AMARILLO CERVEZA -->
+                        <div class="cinta-lateral" style="background: #ff9640; color: #ffffff; border-right: 3px solid #d2691e; font-size: 8px; font-weight: bold;">WANNABEER</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #fffdf0, #ffffff 70%);">
+                            
+                            <img src="WANNABEER.png" alt="Logo Wannabeer" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.2));">
+                            
+                            <!-- Título marrón oscuro (color malta) -->
+                            <h4 class="titulo-sobre" style="color: #6d4110; text-shadow: 1px 1px 0px #ff9640; line-height: 1.5; margin: 0; font-weight: bold;">WANNA<br>BEER</h4>
+                        </div>
+
+                        <!-- Stats en color AMBAR CERVEZA con borde superior color malta -->
+                        <div class="stats-sobre" style="background: rgba(210, 105, 30, 0.95); border-top: 2px solid #6d4110;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior NARANJA -->
+                        <div class="borde-inferior" style="background: #ff9640;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 7: PEÑA SUPERBEBIENTES -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <!-- CARTA: Peña Superbebientes -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #228b22; background: #ffffff;">
+                        
+                        <!-- Cinta NEGRA con letras AMARILLAS. Fuente 6px para que quepa "SUPERBEBIENTES" -->
+                        <div class="cinta-lateral" style="background: #111111; color: #fcf403; border-right: 3px solid #fcf403; font-size: 6px; font-weight: bold;">SUPERBEBIENTES</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f9f9f9, #ffffff 70%);">
+                            
+                            <img src="SUPER.png" alt="Logo Superbebientes" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.2));">
+                            
+                            <!-- Título VERDE CAMPO ajustado a 8px para que quede cuadrado -->
+                            <h4 class="titulo-sobre" style="font-size: 8px; color: #2d5a27; text-shadow: 1px 1px 0px #fcf403; line-height: 1.3; margin: 0; font-weight: bold;">SUPER<br>BEBIENTES</h4>
+                        </div>
+
+                        <!-- Stats VERDE CAMPO -->
+                        <div class="stats-sobre" style="background: rgba(45, 90, 39, 0.98); border-top: 2px solid #111111;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior AMARILLA MAÍZ -->
+                        <div class="borde-inferior" style="background: #fcf403;"></div>
+                    </div>
+
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 8: PEÑA LLAMALO X -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    <!-- CARTA: Peña Llámalo X -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #00509d; background: #ffffff;">
+                        
+                        <!-- Cinta AZUL con letras AMARILLAS -->
+                        <div class="cinta-lateral" style="background: #00509d; color: #fcd000; border-right: 3px solid #fcd000; font-size: 7px; font-weight: bold;">LLÁMALO X</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f9f9f9, #ffffff 70%);">
+                            
+                            <img src="LLAMALOX.png" alt="Logo Llámalo X" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.2));">
+                            
+                            <!-- Título AMARILLO con sombra NEGRA -->
+                            <h4 class="titulo-sobre" style="color: #fcd000; text-shadow: 1px 1px 0px #000; line-height: 1.5; margin: 0; font-weight: bold;">LLÁMALO<br>X</h4>
+                        </div>
+
+                        <!-- Stats AZUL con borde superior AMARILLO -->
+                        <div class="stats-sobre" style="background: rgba(0, 80, 157, 0.98); border-top: 2px solid #000;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior AMARILLA -->
+                        <div class="borde-inferior" style="background: #fcd000;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 9: LOS VIGILANTES DEL HIDRANTE -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                    
+                    <!-- CARTA: Peña Los Vigilantes del Hidrante -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #e3000f; background: #ffffff;">
+                        
+                        <!-- Cinta ROJA con letras AMARILLAS -->
+                        <div class="cinta-lateral" style="background: #e3000f; color: #ffcc00; border-right: 3px solid #ffcc00; font-size: 6px; font-weight: bold;">VIGILANTES HIDRANTE</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #fff0f0, #ffffff 70%);">
+                            
+                            <img src="HIDRANTE.png" alt="Logo Vigilantes" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3));">
+                            
+                            <!-- Título ROJO VIGILANTE -->
+                            <h4 class="titulo-sobre" style="font-size: 8px; color: #e3000f; text-shadow: 1px 1px 0px #ffcc00; line-height: 1.3; margin: 0; font-weight: bold;">LOS<br>VIGILANTES</h4>
+                        </div>
+
+                        <!-- Stats NEGRAS (contrastan bien con el rojo) -->
+                        <div class="stats-sobre" style="background: rgba(33, 33, 33, 0.98); border-top: 2px solid #e3000f;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior AMARILLA -->
+                        <div class="borde-inferior" style="background: #ffcc00;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- PACK 10: PEÑA FBA -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- 1. PEGA AQUÍ EL DIV ENTERO DE LA CARTA (desde <div class="sobre-fifa-23"> hasta su </div> final) -->
+                     <!-- CARTA: Peña FBA -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 2px solid #0057b8; background: #ffffff;">
+                        
+                        <!-- Cinta AZUL con letras BLANCAS -->
+                        <div class="cinta-lateral" style="background: #0057b8; color: #ffffff; border-right: 3px solid #e3000f; font-size: 9px; font-weight: bold;">FBA</div>
+                        
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f0f7ff, #ffffff 70%);">
+                            
+                            <img src="FBA.png" alt="Logo FBA" style="width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.2));">
+                            
+                            <!-- Título AZUL -->
+                            <h4 class="titulo-sobre" style="font-size: 12px; color: #0057b8; text-shadow: 1px 1px 0px #e3000f; line-height: 1.5; margin: 0; font-weight: bold;">FBA</h4>
+                        </div>
+
+                        <!-- Stats ROJAS para contrastar -->
+                        <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #0057b8;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Línea inferior AZUL -->
+                        <div class="borde-inferior" style="background: #0057b8;"></div>
+                    </div>
+                    
+                    <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
+                </div>
+                <!-- ========================================== -->
+                <!-- PACK 11: LOS TAITANTOS                        -->
+                <!-- ========================================== -->
+                <div class="pack-container">
+                    
+                    <!-- CARTA TAITANTOS -->
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 3px solid #0055a4; background: #ffffff;">
+                        
+                        <!-- Cinta lateral AMARILLA con texto AZUL -->
+                        <div class="cinta-lateral" style="background: #ffd700; color: #003399; border-right: 3px solid #003399; font-size: 7px; font-weight: bold;">LOS TAITANTOS</div>
+                        
+                        <!-- Fondo de la carta -->
+                        <div class="contenido-sobre" style="background: radial-gradient(circle at top right, #f0f8ff, #ffffff 70%);">
+                            
+                            <!-- ⚠️ CAMBIA "logo_taitantos.png" POR EL NOMBRE EXACTO DE TU IMAGEN ⚠️ -->
+                            <img src="peñataitantos.png" alt="Logo Los Taitantos" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.3));">
+                            
+                            <!-- Título AZUL con sombra AMARILLA -->
+                            <h4 class="titulo-sobre" style="color: #0055a4; text-shadow: 1px 1px 0px #ffd700; font-weight: bold;">LOS<br>TAITANTOS</h4>
+                        </div>
+
+                        <!-- Barra inferior AZUL con letras AMARILLAS -->
+                        <div class="stats-sobre" style="background: rgba(0, 51, 153, 0.98); border-top: 2px solid #ffd700;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffd700;">PEÑA</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">4000</span><span class="stat-lbl" style="color: #ffd700;">COSTE</span></div>
+                        </div>
+                        
+                        <!-- Remate inferior AMARILLO -->
+                        <div class="borde-inferior" style="background: #ffd700;"></div>
+                    </div>
+
+                    <!-- Etiqueta del precio debajo de la carta -->
+                    <div class="etiqueta-precio">
+                        <span class="icono-moneda">🥃</span> 4000
+                    </div>
                 </div>
                 
-                <div style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ffff; border-radius: 10px; padding: 15px;">
-                    <div style="display: flex; justify-content: center; gap: 5px; font-size: 22px; margin-bottom: 10px; background: #001111; padding: 10px 5px; border-radius: 8px; border: 2px solid #00ffff; box-shadow: inset 0 0 10px #00ffff;">
-                        <span id="iq1">🧊</span><span id="iq2">👑</span><span id="iq3">🐺</span><span id="iq4">💎</span><span id="iq5">❄️</span>
-                    </div>
-                    <p id="mensaje-iq" style="color: #00ffff; font-size: 8px; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">LA REINA 👑 ES COMODÍN</p>
-
-                    <div style="margin-top: 10px; padding: 10px; background: #001111; border: 2px dashed #00ffff; border-radius: 8px; text-align: left;">
-                        <p style="font-size: 9px; color: #00ffff; font-family: 'Press Start 2P', cursive; text-align: center; margin-bottom: 8px;">❄️ PREMIOS (x)</p>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 7px; font-family: 'Press Start 2P', cursive; color: #fff;">
-                            <span style="display: flex; justify-content: space-between;"><span>👑x5:</span> <span style="color:#00ffff;">x100</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>💎x5:</span> <span style="color:#00ffff;">x50</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>🐺x5:</span> <span style="color:#00ffff;">x25</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>🧊x5:</span> <span style="color:#00ffff;">x10</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>4 Igls:</span> <span style="color:#00ffff;">x4</span></span>
-                            <span style="display: flex; justify-content: space-between;"><span>3 Igls:</span> <span style="color:#00ffff;">x1.5</span></span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- ================= PESTAÑA BLACKJACK ================= -->
-            <div id="tab-bj" class="oculto">
-                <div id="bj-controles-apuesta" style="background: #051405; border: 2px solid #00ff00; border-radius: 8px; padding: 10px; text-align: center;">
-                    <p style="font-size: 9px; color: #00ff00; font-family: 'Press Start 2P', cursive; margin-bottom: 10px;">APUESTA (CUBATAS):</p>
-                    <input type="number" id="input-apuesta-bj" placeholder="1000" style="width: 100%; padding: 8px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 12px; text-align: center; margin-bottom: 10px;">
-                    <button class="boton-arcade" style="width: 100%; margin: 0; font-size: 10px;" onclick="iniciarBlackjack()">REPARTIR CARTAS</button>
-                </div>
-
-                <div id="bj-zona-juego" class="oculto" style="margin-top: 15px; text-align: center; background: #000; border: 2px solid #00ff00; border-radius: 10px; padding: 15px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: 'Press Start 2P', cursive; color: #fff; margin-bottom: 5px;">
-                        <span>CRUPIER: <span id="bj-puntos-crupier" style="color:#ff0000;">?</span></span>
-                    </div>
-                    <div id="bj-cartas-crupier" style="display: flex; gap: 5px; height: 40px; margin-bottom: 15px; justify-content: center;"></div>
-                    
-                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: 'Press Start 2P', cursive; color: #fff; margin-bottom: 5px;">
-                        <span>TÚ: <span id="bj-puntos-jugador" style="color:#00ff00;">0</span></span>
-                    </div>
-                    <div id="bj-cartas-jugador" style="display: flex; gap: 5px; height: 40px; margin-bottom: 15px; justify-content: center;"></div>
-                    
-                    <p id="mensaje-bj" style="color: #00ff00; font-size: 9px; font-family: 'Press Start 2P', cursive; margin-bottom: 15px;">¿QUÉ HACES?</p>
-                    
-                    <div id="bj-botones-accion" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <button class="boton-arcade" style="margin: 0; padding: 12px; font-size: 9px;" onclick="pedirCartaBJ()">CARTA</button>
-                        <button class="boton-arcade" style="margin: 0; padding: 12px; font-size: 9px; border-color: #ff0000; color: #ff0000; background: #1a0000;" onclick="plantarseBJ()">PLANTAR</button>
-                    </div>
-                    <button id="bj-btn-reiniciar" class="boton-arcade oculto" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 9px;" onclick="reiniciarBJ()">NUEVA MANO</button>
-                </div>
+            <!-- ================= POSIBLES PREMIOS (Anclado abajo del todo) ================= -->
+            <div style="margin-top: auto; padding: 10px; background: #051405; border: 2px dashed #00ff00; border-radius: 8px; text-align: center;">
+                <p style="font-size: 9px; color: #00ff00; font-family: 'Press Start 2P', cursive; margin-bottom: 8px;">🎯 POSIBLES PREMIOS</p>
+                <p style="font-size: 10px; color: #ccc; line-height: 1.6; font-family: 'Arial', sans-serif; margin: 0;">
+                    Cubatas del juego · 🥂 Chupito real · 🍹 Cubata real.<br>
+                </p>
             </div>
         </div>
     </div>
@@ -251,9 +528,9 @@
     <div id="pago-casino-modal" class="modal oculto" style="z-index: 600;">
         <div class="modal-content libreta" style="border-left-color: #ff00ff; text-align: center;">
             <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
-            <h2 style="color:#ff00ff; margin-bottom: 10px; font-size: 22px; text-shadow: 0 0 5px #ff00ff;">🎰 ACCESO VIP</h2>
+            <h2 style="color:#ff00ff; margin-bottom: 10px; font-size: 22px; text-shadow: 0 0 5px #ff00ff;">🎁 ACCESO VIP</h2>
             <p style="font-size: 14px; color: #333; margin-bottom: 15px; font-weight: bold;">
-                El Casino Clandestino requiere 2€ para el Bote de la Peña. Pago único de por vida.
+                Los Sobres VIP requieren 2€ para el Bote de la Peña. Pago único de por vida.
             </p>
             
             <div style="background: #111; padding:15px; border-radius:10px; border: 3px dashed #ff00ff; margin-bottom:15px;">
@@ -311,7 +588,7 @@
             
             <h3 style="font-size:16px; text-align:center; margin-top:20px;">¡Entra cada día y gana!</h3>
             <p style="font-size:10px; text-align:center; color:#666; margin-bottom:15px;">
-                El LUNES es el día del CASINO. ¡No te lo pierdas!
+                El LUNES es el día del SOBRE ÉPICO GRATIS. ¡No te lo pierdas!
             </p>
 
             <div id="calendario-contenedor" class="calendar-grid">
@@ -389,7 +666,26 @@
             </button>
         </div>
     </div>
-
+   <!-- ==================== CINEMÁTICA WALKOUT ÉPICO ==================== -->
+    <div id="walkout-modal" class="oculto">
+        <!-- Luces de estadio -->
+        <div id="walkout-flares"></div>
+        
+        <!-- Puertas Doradas (Solo se ven en premios épicos) -->
+        <div id="puerta-izq" class="walkout-puerta oculto"></div>
+        <div id="puerta-der" class="walkout-puerta oculto"></div>
+        
+        <!-- Fase 1: El Sobre latiendo en suspense -->
+        <div id="walkout-card-container"></div>
+        
+        <!-- Fase 2: Recompensa (Texto o Carta FIFA) -->
+        <div id="walkout-reward-container" class="oculto">
+            <img id="walkout-reward-img" src="" class="oculto">
+            <h2 id="walkout-premio"></h2>
+        </div>
+        
+        <button id="walkout-btn-cerrar" class="boton-arcade oculto" style="margin-top: 30px; z-index: 20;" onclick="cerrarWalkout()">RECOGER PREMIO</button>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="script.js?v=5"></script>
