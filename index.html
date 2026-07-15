@@ -107,22 +107,18 @@
     </footer>
 
     <div id="shop-modal" class="modal oculto">
-        <!-- PANTALLA COMPLETA: Ocupa todo el alto y ancho del móvil -->
-        <div class="modal-content" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; border: none; padding: 15px; padding-top: 25px; background: #000; display: flex; flex-direction: column;">
+        <div class="modal-content" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; box-sizing: border-box; border-radius: 0; border: none; padding: 15px; padding-top: 25px; background: #000; display: flex; flex-direction: column;">
             
-            <!-- El botón de cerrar se mete un poco hacia adentro para que no se salga de la pantalla -->
             <button class="cerrar-btn" style="top: 20px; right: 20px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
             
             <h3 style="color: #00ff00; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; font-size: 16px; text-shadow: 0 0 10px #00ff00; text-align: center; margin-top: 5px;">🛒 EL BAR</h3>
             
-            <!-- Pestañas estilo Neón -->
             <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 10px; display: flex; gap: 5px; flex-shrink: 0;">
                 <button id="btn-tab-mejoras" style="flex: 1; padding: 12px; background: #00ff00; color: #000; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('mejoras')">⚡ MEJORAS</button>
                 <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 COLEGAS</button>
             </div>
             
-           <!-- Contenido de Mejoras -->
-            <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0; flex-grow: 1; margin: 0; overflow-y: auto;">
+            <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0 0 80px 0; flex-grow: 1; margin: 0; overflow-y: auto;">
                 
                 <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
                 <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarVelocidad()">
@@ -201,7 +197,7 @@
             </div>
             
             <!-- Contenido de Personajes -->
-            <div id="tab-personajes" class="shop-items oculto" style="flex-grow: 1; overflow-y: auto; align-content: start;"></div>
+            <div id="tab-personajes" class="shop-items oculto" style="flex-grow: 1; overflow-y: auto; align-content: start; padding-bottom: 80px;"></div>
         </div>
     </div>
 
@@ -235,7 +231,7 @@
                         </div>
                     </div>
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
 
@@ -249,12 +245,12 @@
                         </div>
                         <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #1d2b53;">
                             <div class="stat-col"><span class="stat-icono">🔥</span><span class="stat-lbl" style="color: #ffde00;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num">4000</span><span class="stat-lbl" style="color: #ffde00;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num">75000</span><span class="stat-lbl" style="color: #ffde00;">COSTE</span></div>
                         </div>
                         <div class="borde-inferior" style="background: #ffde00;"></div>
                     </div>
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
 
@@ -290,7 +286,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 4: PEÑA SIN NOMBRE -->
@@ -324,7 +320,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 5: PEÑA OTRA RONDA -->
@@ -359,7 +355,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 6: PEÑA WANNABEER -->
@@ -393,7 +389,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 7: PEÑA SUPERBEBIENTES -->
@@ -428,7 +424,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 8: PEÑA LLAMALO X -->
@@ -462,7 +458,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 9: LOS VIGILANTES DEL HIDRANTE -->
@@ -497,7 +493,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- PACK 10: PEÑA FBA -->
@@ -531,7 +527,7 @@
                     
                     <!-- 2. LA ETIQUETA DEL PRECIO (No la toques, se queda igual) -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 <!-- ========================================== -->
@@ -558,7 +554,7 @@
                         <!-- Barra inferior AZUL con letras AMARILLAS -->
                         <div class="stats-sobre" style="background: rgba(0, 51, 153, 0.98); border-top: 2px solid #ffd700;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffd700;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">4000</span><span class="stat-lbl" style="color: #ffd700;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffd700;">COSTE</span></div>
                         </div>
                         
                         <!-- Remate inferior AMARILLO -->
@@ -567,7 +563,7 @@
 
                     <!-- Etiqueta del precio debajo de la carta -->
                     <div class="etiqueta-precio">
-                        <span class="icono-moneda">🥃</span> 4000
+                        <span class="icono-moneda">🥃</span> 75000
                     </div>
                 </div>
                 

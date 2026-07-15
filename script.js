@@ -212,13 +212,14 @@ function efectoGastoVisual(event, coste) {
     document.body.appendChild(flotante);
     setTimeout(() => { flotante.remove(); }, 800);
 }
-// 🔓 FUNCIÓN QUE DESBLOQUEA EL BOTÓN AL LLEGAR AL NIVEL 12
+// 🔓 FUNCIÓN QUE DESBLOQUEA EL BOTÓN AL LLEGAR AL NIVEL 9
 function actualizaEstilosExtremos() {
     const btn1 = document.getElementById('btn-extremo-chupinazo');
     const btn2 = document.getElementById('btn-extremo-barralibre');
     const btnVip = document.getElementById('btn-vip-room'); 
 
-    if(maxNivelDesbloqueado >= 11) { 
+    // Cambiamos el 11 por un 8 (Nivel 9)
+    if(maxNivelDesbloqueado >= 8) { 
         if(btn1 && btn2) { btn1.className = "btn-unlocked-extremo"; btn2.className = "btn-unlocked-extremo"; }
         // Encendemos el botón VIP para que se vea
         if(btnVip) btnVip.style.display = 'block'; 
@@ -291,7 +292,8 @@ function comprarAutobus() { if (document.querySelectorAll('.friend').length > 18
 
 // 💀 BOOSTS EXTREMOS 
 function boostExtremoChupinazo() {
-    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres subir y desbloquear al menos un Juerguista de Nivel 12."); return; }
+    // Bajamos el aviso al Nivel 9 (índice 8)
+    if (maxNivelDesbloqueado < 8) { alert("🔒 BLOQUEADO: Requieres subir y desbloquear al menos un Juerguista de Nivel 9."); return; }
     if (document.querySelectorAll('.friend').length >= 20) { alert("¡Pradera llena!"); return; }
     if (cubatas >= 50000) {
         cubatas -= 50000; ganarCubatas(0); cerrarModales();
@@ -302,7 +304,8 @@ function boostExtremoChupinazo() {
 }
 
 function boostExtremoBarraLibre() {
-    if (maxNivelDesbloqueado < 11) { alert("🔒 BLOQUEADO: Requieres al menos un Juerguista de Nivel 12."); return; }
+    // Bajamos el aviso al Nivel 9 (índice 8)
+    if (maxNivelDesbloqueado < 8) { alert("🔒 BLOQUEADO: Requieres al menos un Juerguista de Nivel 9."); return; }
     if (cubatas >= 120000) {
         cubatas -= 120000; ganarCubatas(0); cerrarModales();
         multiplicadorPasivo = 10; 
@@ -896,11 +899,10 @@ function createFriend(level, x, y) {
     friend.dataset.level = level; 
     friend.style.backgroundImage = `url('${levels[level]}')`; 
     
-    // Tamaños dinámicos
-    let tamanoBase = 95; 
-    let aumentoPorNivel = level * 10; 
-    friend.style.width = `${tamanoBase + aumentoPorNivel}px`; 
-    friend.style.height = `${tamanoBase + aumentoPorNivel}px`; 
+    // 🛑 TAMAÑO ESTÁNDAR PARA TODOS: Sean Nivel 1 o 19, todos miden lo mismo (95px)
+    friend.style.width = `95px`; 
+    friend.style.height = `95px`; 
+    
     friend.style.left = `${x}px`; 
     friend.style.top = `${y}px`; 
     
@@ -908,13 +910,14 @@ function createFriend(level, x, y) {
     friend.addEventListener('pointerdown', startDrag); 
     
     // ==========================================
-    // EL PORTERO DE LA DISCOTECA (SEPARACIÓN VIP)
+    // EL PORTERO DE LA DISCOTECA (A VIP DESDE EL NIVEL 9)
+    // Recordatorio: Nivel 9 en código es el índice 8
     // ==========================================
-    if (level >= 11) {
-        // Los de nivel 11 en adelante van al Reservado
+    if (level >= 8) {
+        // A partir de Nivel 9 van al Reservado
         document.getElementById('game-board-vip').appendChild(friend);
     } else {
-        // Los de nivel bajo se quedan en la calle principal
+        // Del Nivel 1 al 8 se quedan en la calle
         document.getElementById('game-board').appendChild(friend);
     }
     
