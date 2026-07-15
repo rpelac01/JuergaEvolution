@@ -21,7 +21,7 @@
                     <summary>1. 🎮 MECÁNICAS BÁSICAS</summary>
                     <div class="regla-contenido">
                         <p><b>📦 Lluvia de Cajas:</b> Caen del cielo. Tócalas para revelar un juerguista. (Máx 20).</p>
-                        <p><b>🧬 Fusión:</b> Arrastra a dos colegas del mismo nivel para evolucionarlos.</p>
+                        <p><b>🧬 Fusión:</b> Arrastra a dos Juerguistas del mismo nivel para evolucionarlos.</p>
                         <p><b>🤮 Vómitos:</b> Tócalos rápido para limpiar y ganar cubatas extra.</p>
                     </div>
                 </details>
@@ -115,7 +115,7 @@
             
             <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 10px; display: flex; gap: 5px; flex-shrink: 0;">
                 <button id="btn-tab-mejoras" style="flex: 1; padding: 12px; background: #00ff00; color: #000; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('mejoras')">⚡ MEJORAS</button>
-                <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 COLEGAS</button>
+                <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 JUERGUISTASS</button>
             </div>
             
             <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0 0 80px 0; flex-grow: 1; margin: 0; overflow-y: auto;">
@@ -162,7 +162,7 @@
                 </button>
                 <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostMedioBarril()">
                     👨🏼‍🌾 Llegó el Campesino<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un colega de Nivel 4</span>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un juerguista de Nivel 4</span>
                     <small>2000 🥃</small>
                 </button>
 
@@ -179,14 +179,14 @@
                 </button>
                 <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarAutobus()">
                     🚌 La novia del Peri x2<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Llegan 2 colegas de Nivel 5 de refuerzo</span>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Llegan 2 juerguistas de Nivel 5 de refuerzo</span>
                     <small>15000 🥃</small>
                 </button>
 
                 <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
                 <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoChupinazo()">
                     💥 CHUPINAZO<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un colega de Nivel 9</span>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un juerguista de Nivel 9</span>
                     <small>50000 🥃</small>
                 </button>
                 <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoBarraLibre()">
@@ -701,8 +701,8 @@
     <div id="unlock-cinematic" class="oculto">
         <div class="cone-light"></div>
         <div class="cinematic-content">
-            <h2 class="unlock-title">¡NUEVO COLEGA!</h2>
-            <img id="unlock-img" src="n1.png" alt="Nuevo Colega">
+            <h2 class="unlock-title">¡NUEVO JUERGUISTA!</h2>
+            <img id="unlock-img" src="n1.png" alt="Nuevo Juerguista">
             <div id="unlock-desc">¡NIVEL ALCANZADO!</div>
             <p class="tap-to-continue">Toca cualquier parte para continuar</p>
         </div>

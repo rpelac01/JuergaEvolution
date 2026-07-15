@@ -75,7 +75,7 @@ function verificarLogro(id) {
 }
 
 let juegoPausado = false;
-let tiempoSpawnBase = 4000; let tiempoSpawnActual = 4000; let costeVelocidad = 50;
+let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 50;
 let tiempoRecogida = 5000; let costeLimpieza = 500; let tiempoPasivo = 3000; let costePasivo = 100;
 let boostVelocidadActivo = false;
 let intervalCajas; let intervalVomitar; let intervalRecoger; let intervalPasivo; let intervalGuardado;
@@ -117,7 +117,7 @@ function cargarPartida() {
         sobresGratisEpico = estadoJuego.sobresGratisEpico || 0;
         regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
         estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
-        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 4000; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
+        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
         document.getElementById('coste-vel').innerText = costeVelocidad; document.getElementById('coste-limpieza').innerText = costeLimpieza; document.getElementById('coste-pasivo').innerText = costePasivo;
         if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); } else { spawnAmigoInicial(); }
         // ... (resto de la función cargarPartida por arriba) ...
@@ -746,9 +746,29 @@ function abrirRanking() {
 function volverAlMenu() { ocultarTodosModales(); document.getElementById('menu-modal').classList.remove('oculto'); }
 function cerrarModales() { ocultarTodosModales(); reanudarJuego(); }
 function ocultarTodosModales() { document.querySelectorAll('.modal').forEach(m => m.classList.add('oculto')); }
-function pausarJuego() { juegoPausado = true; clearInterval(intervalCajas); clearInterval(intervalVomitar); clearInterval(intervalRecoger); clearInterval(intervalPasivo); }
-function reanudarJuego() { juegoPausado = false; intervalCajas = setInterval(crearCaja, tiempoSpawnActual); intervalVomitar = setInterval(generarVomito, 3500); intervalRecoger = setInterval(recogerVomitoAutomatico, tiempoRecogida); iniciarBuclePasivo(); }
+function pausarJuego() { 
+    juegoPausado = true; 
+    clearInterval(intervalCajas); 
+    clearInterval(intervalVomitar); 
+    clearInterval(intervalRecoger); 
+    clearInterval(intervalPasivo); 
+}
 
+function reanudarJuego() { 
+    juegoPausado = false; 
+    
+    // 🛡️ EL ANTIVIRUS DE LOS CLONES: Matamos cualquier generador antiguo antes de crear uno nuevo
+    clearInterval(intervalCajas); 
+    clearInterval(intervalVomitar); 
+    clearInterval(intervalRecoger); 
+    clearInterval(intervalPasivo);
+    
+    // Y ahora sí, arrancamos un ÚNICO cronómetro limpio
+    intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
+    intervalVomitar = setInterval(generarVomito, 3500); 
+    intervalRecoger = setInterval(recogerVomitoAutomatico, tiempoRecogida); 
+    iniciarBuclePasivo(); 
+}
 // ==========================================================================
 // LOOP DE PRODUCCIÓN PASIVA CON MULTIPLICADOR
 // ==========================================================================
@@ -829,27 +849,28 @@ function crearCaja() {
     if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
     const caja = document.createElement('div'); 
     caja.classList.add('caja'); 
-    let segundosCaida = (tiempoSpawnActual / 4000) * 3; 
-    if (segundosCaida < 0.6) segundosCaida = 0.6; 
+    
+    // ⚖️ EL TÉRMINO MEDIO PERFECTO:
+    // De normal tardan 5 segundos en caer.
+    // Si compran mejoras, baja a 4s, y como máximo absoluto bajarán a 3.5s (nunca volverá a ser un agobio).
+    let segundosCaida = 5.0; 
+    if (tiempoSpawnActual <= 4000) segundosCaida = 4.0;
+    if (tiempoSpawnActual <= 2000) segundosCaida = 3.5; 
+    
     caja.style.transition = `top ${segundosCaida}s linear`; 
     
     const randomX = Math.random() * (board.clientWidth - 95); 
     const randomY = Math.random() * (board.clientHeight - 120) + 20; 
-    
     caja.style.left = `${randomX}px`; 
     caja.style.top = `-95px`; 
     board.appendChild(caja); 
     
-    setTimeout(() => { 
-        if(!juegoPausado) caja.style.top = `${randomY}px`; 
-    }, 50); 
+    setTimeout(() => { if(!juegoPausado) caja.style.top = `${randomY}px`; }, 50); 
     
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
         if (document.querySelectorAll('.friend').length >= 20) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
-            estadisticasLogros.ansiasActivado++; 
-            verificarLogro('el_ansias'); 
             return; 
         } 
         const rect = caja.getBoundingClientRect(); 
@@ -857,8 +878,6 @@ function crearCaja() {
         caja.remove(); 
         ganarCubatas(1 * multiplicadorClic); 
         createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
-        estadisticasLogros.cajasAbiertas++; 
-        verificarLogro('lluvia_litros'); 
         guardarPartida(); 
     }); 
 }
