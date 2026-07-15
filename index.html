@@ -121,30 +121,83 @@
                 <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 COLEGAS</button>
             </div>
             
-            <!-- Contenido de Mejoras -->
+           <!-- Contenido de Mejoras -->
             <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0; flex-grow: 1; margin: 0; overflow-y: auto;">
+                
                 <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarEvento()">🍻 Iñaki's Cachimba (2)<br><small>150 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarPasivo()">⚡ El Kzurro <br><small><span id="coste-pasivo">100</span> 🥃</small></button>
-                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarLimpieza()">🧹 Serrín pal vómito<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarVelocidad()">
+                    🚀 Cajas Rápidas<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Frenesí 30s + caída base más rápida (Perma)</span>
+                    <small><span id="coste-vel">50</span> 🥃</small>
+                </button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarEvento()">
+                    🍻 Iñaki's Cachimba<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Durante 30s las cajas traen Nivel 2</span>
+                    <small>150 🥃</small>
+                </button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarPasivo()">
+                    ⚡ El Kzurro<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Gana dinero pasivo más rápido (Perma)</span>
+                    <small><span id="coste-pasivo">100</span> 🥃</small>
+                </button>
+                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarLimpieza()">
+                    🧹 Serrín pal vómito<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Limpieza automática el doble de rápida (Perma)</span>
+                    <small><span id="coste-limpieza">500</span> 🥃</small>
+                </button>
                 
                 <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoRefresco()">🥤 Refresco de Maifrien<br><small>150 🥃 (x3)</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoTapa()">📦 Estanco de Carlos<br><small>250 🥃 (Abre 3)</small></button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostBajoRefresco()">
+                    🥤 Refresco de Maifrien<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Tus clics y vómitos valen x3 (10s)</span>
+                    <small>150 🥃</small>
+                </button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostBajoTapa()">
+                    📦 Estanco de Carlos<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Caen 3 cajas de golpe al instante</span>
+                    <small>250 🥃</small>
+                </button>
 
                 <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioCharanga()">🎷 Charanga<br><small>1200 🥃 (x3)</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioBarril()">👨🏼‍🌾 Llegó el Campesino<br><small>2000 🥃 (Nvl 4)</small></button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostMedioCharanga()">
+                    🎷 Charanga<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Dinero pasivo multiplicado x3 (30s)</span>
+                    <small>1200 🥃</small>
+                </button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostMedioBarril()">
+                    👨🏼‍🌾 Llegó el Campesino<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un colega de Nivel 4</span>
+                    <small>2000 🥃</small>
+                </button>
 
                 <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarHoraLoca()">🌪️ HORA LOCA<br><small>5000 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarAmnesia()">🎧 DJ TINO<br><small>8500 🥃</small></button>
-                <button class="boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarAutobus()">La novia del Peri x2<br><small>15000 🥃 (2 de Nvl 5)</small></button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarHoraLoca()">
+                    🌪️ HORA LOCA<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Lluvia extrema de cajas (15s)</span>
+                    <small>5000 🥃</small>
+                </button>
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarAmnesia()">
+                    🎧 DJ TINO<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Te da 15 minutos de dinero pasivo de golpe</span>
+                    <small>8500 🥃</small>
+                </button>
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarAutobus()">
+                    🚌 La novia del Peri x2<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Llegan 2 colegas de Nivel 5 de refuerzo</span>
+                    <small>15000 🥃</small>
+                </button>
 
                 <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
-                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px;" onclick="boostExtremoChupinazo()">💥 CHUPINAZO<br><small>50000 🥃</small></button>
-                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" style="margin: 5px;" onclick="boostExtremoBarraLibre()">👑 BARRA LIBRE<br><small>120000 🥃</small></button>
+                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoChupinazo()">
+                    💥 CHUPINAZO<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un colega de Nivel 9</span>
+                    <small>50000 🥃</small>
+                </button>
+                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoBarraLibre()">
+                    👑 BARRA LIBRE<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Dinero pasivo multiplicado x10 (30s)</span>
+                    <small>120000 🥃</small>
+                </button>
             </div>
             
             <!-- Contenido de Personajes -->
