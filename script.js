@@ -84,11 +84,25 @@ function guardarPartida() {
     if (juegoPausado && !boostVelocidadActivo) return; 
     const amigosEnTablero = [];
     document.querySelectorAll('.friend').forEach(f => { amigosEnTablero.push({ level: f.dataset.level, x: f.style.left, y: f.style.top }); });
+    
     const estadoJuego = {
-        nombre: nombreJugador, cubatas: cubatas, maxNivelDesbloqueado: maxNivelDesbloqueado, haPagadoEuro: haPagadoEuro,
-        sobresGratisEpico: sobresGratisEpico, // Sobres épicos gratis pendientes
-        regalosReclamados: regalosReclamados, cuponesCanjeados: cuponesCanjeados, estadisticasLogros: estadisticasLogros, logrosDesbloqueados: logrosDesbloqueados, 
-        tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, tiempoRecogida: tiempoRecogida, costeLimpieza: costeLimpieza, tiempoPasivo: tiempoPasivo, costePasivo: costePasivo, amigos: amigosEnTablero, timeStamp: Date.now() 
+        nombre: nombreJugador, 
+        cubatas: cubatas, 
+        maxNivelDesbloqueado: maxNivelDesbloqueado, 
+        // 👻 ¡Fantasma de haPagadoEuro eliminado de aquí!
+        sobresGratisEpico: sobresGratisEpico, 
+        regalosReclamados: regalosReclamados, 
+        cuponesCanjeados: cuponesCanjeados, 
+        estadisticasLogros: estadisticasLogros, 
+        logrosDesbloqueados: logrosDesbloqueados, 
+        tiempoSpawnBase: tiempoSpawnBase, 
+        costeVelocidad: costeVelocidad, 
+        tiempoRecogida: tiempoRecogida, 
+        costeLimpieza: costeLimpieza, 
+        tiempoPasivo: tiempoPasivo, 
+        costePasivo: costePasivo, 
+        amigos: amigosEnTablero, 
+        timeStamp: Date.now() 
     };
     localStorage.setItem('juergaSave2026', JSON.stringify(estadoJuego));
 }
@@ -97,7 +111,9 @@ function cargarPartida() {
     const guardado = localStorage.getItem('juergaSave2026');
     if (guardado) {
         const estadoJuego = JSON.parse(guardado);
-        nombreJugador = estadoJuego.nombre || "Desconocido"; cubatas = estadoJuego.cubatas || 0; maxNivelDesbloqueado = estadoJuego.maxNivelDesbloqueado || 0; haPagadoEuro = estadoJuego.haPagadoEuro || false;
+        nombreJugador = estadoJuego.nombre || "Desconocido"; 
+        cubatas = estadoJuego.cubatas || 0; 
+        maxNivelDesbloqueado = estadoJuego.maxNivelDesbloqueado || 0; 
         sobresGratisEpico = estadoJuego.sobresGratisEpico || 0;
         regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
         estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
