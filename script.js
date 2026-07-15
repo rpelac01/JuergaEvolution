@@ -104,15 +104,45 @@ function cargarPartida() {
         tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 4000; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
         document.getElementById('coste-vel').innerText = costeVelocidad; document.getElementById('coste-limpieza').innerText = costeLimpieza; document.getElementById('coste-pasivo').innerText = costePasivo;
         if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); } else { spawnAmigoInicial(); }
+        // ... (resto de la función cargarPartida por arriba) ...
+        
         if (estadoJuego.timeStamp) {
-            const tiempoFueraMs = Date.now() - estadoJuego.timeStamp; const tiempoFueraSegundos = tiempoFueraMs / 1000; if (tiempoFueraSegundos >= 14400) { verificarLogro('la_resaca'); }
-            let ingresosPorBucle = 0; document.querySelectorAll('.friend').forEach(f => { ingresosPorBucle += (parseInt(f.dataset.level) + 1); });
-            let cubatasGanadosOffline = Math.floor((ingresosPorBucle / (tiempoPasivo / 1000)) * tiempoFueraSegundos); if (cubatasGanadosOffline > 3000) cubatasGanadosOffline = 3000;
-            let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); if (cajasNuevasOffline > 10) cajasNuevasOffline = 10;
-            if (cubatasGanadosOffline > 0 || cajasNuevasOffline > 0) { cubatas += cubatasGanadosOffline; estadisticasLogros.cubatasTotalesGanados += cubatasGanadosOffline; setTimeout(() => { alert(`🍻 ¡DE VUELTA!\nTus colegas produjeron:\n🍹 +${cubatasGanadosOffline} cubatas\n📦 +${cajasNuevasOffline} cajas`); for (let i = 0; i < cajasNuevasOffline; i++) { crearCajaOffline(); } }, 600); }
+            const tiempoFueraMs = Date.now() - estadoJuego.timeStamp;
+            let tiempoFueraSegundos = tiempoFueraMs / 1000;
+            
+            // Logro de la resaca (4 horas fuera)
+            if (tiempoFueraSegundos >= 14400) { verificarLogro('la_resaca'); }
+            
+            // 🛑 NUEVO TOPE OFFLINE: Limitamos la fiesta a 8 horas (28800 segundos).
+            // Si duermen más de 8 horas, los personajes dejan de generar hasta que abran el juego.
+            if (tiempoFueraSegundos > 28800) {
+                tiempoFueraSegundos = 28800;
+            }
+
+            let ingresosPorBucle = 0; 
+            document.querySelectorAll('.friend').forEach(f => { ingresosPorBucle += (parseInt(f.dataset.level) + 1); });
+            
+            // 💸 ELIMINADO EL LÍMITE DE 3000. ¡Ahora ganas exactamente lo que produces en ese tiempo!
+            let cubatasGanadosOffline = Math.floor((ingresosPorBucle / (tiempoPasivo / 1000)) * tiempoFueraSegundos); 
+            
+            // 📦 Límite de cajas ajustado a 6 (para que no te inunde la pantalla al volver)
+            let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); 
+            if (cajasNuevasOffline > 6) cajasNuevasOffline = 6;
+            
+            if (cubatasGanadosOffline > 0 || cajasNuevasOffline > 0) { 
+                cubatas += cubatasGanadosOffline; 
+                estadisticasLogros.cubatasTotalesGanados += cubatasGanadosOffline; 
+                
+                setTimeout(() => { 
+                    alert(`🍻 ¡DE VUELTA!\nHas estado fuera y tus colegas han seguido de fiesta.\n\nHan recolectado:\n🍹 +${cubatasGanadosOffline} cubatas\n📦 +${cajasNuevasOffline} cajas`); 
+                    for (let i = 0; i < cajasNuevasOffline; i++) { 
+                        crearCajaOffline(); 
+                    } 
+                }, 600); 
+            }
         }
     } else { spawnAmigoInicial(); pedirNombre(); }
-    ganarCubatas(0); 
+    ganarCubatas(0);  
 }
 
 function spawnAmigoInicial() { const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(0, xCentro, yCentro); }
@@ -166,15 +196,20 @@ function efectoGastoVisual(event, coste) {
     document.body.appendChild(flotante);
     setTimeout(() => { flotante.remove(); }, 800);
 }
+// 🔓 FUNCIÓN QUE DESBLOQUEA EL BOTÓN AL LLEGAR AL NIVEL 12
 function actualizaEstilosExtremos() {
     const btn1 = document.getElementById('btn-extremo-chupinazo');
     const btn2 = document.getElementById('btn-extremo-barralibre');
-    if(btn1 && btn2) {
-        if(maxNivelDesbloqueado >= 11) { 
-            btn1.className = "btn-unlocked-extremo"; btn2.className = "btn-unlocked-extremo";
-        } else {
-            btn1.className = "btn-lock"; btn2.className = "btn-lock";
-        }
+    const btnVip = document.getElementById('btn-vip-room'); 
+
+    if(maxNivelDesbloqueado >= 11) { 
+        if(btn1 && btn2) { btn1.className = "btn-unlocked-extremo"; btn2.className = "btn-unlocked-extremo"; }
+        // Encendemos el botón VIP para que se vea
+        if(btnVip) btnVip.style.display = 'block'; 
+    } else {
+        if(btn1 && btn2) { btn1.className = "btn-lock"; btn2.className = "btn-lock"; }
+        // Mantenemos oculto el botón VIP
+        if(btnVip) btnVip.style.display = 'none';
     }
 }
 
@@ -416,9 +451,9 @@ function entregarPremioFisico(textoPremio) {
 // chupito/cubata real para no quedarte sin fondo de barra.
 const SOBRES = {
     epico: {
-        nombre: "Sobre Épico", coste: 4000,
+        nombre: "Sobre Épico", coste: 75000,
         premios: [
-            { tipo: 'cubatas',     peso: 90.5, min: 2000, max: 5000, texto: "🥃 +{x} cubatas" },
+            { tipo: 'cubatas',     peso: 90.5, min: 25000, max: 65000, texto: "🥃 +{x} cubatas" },
             { tipo: 'chupito',     peso: 7, texto: "🥂 ¡CHUPITO GANADO!" },
             { tipo: 'cubata_real', peso: 2.5, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
@@ -770,7 +805,7 @@ function crearCronometroFlotante(id, texto, duracionSegundos) { let viejo = docu
 
 function mostrarCinematica(nivel) { pausarJuego(); const cinematic = document.getElementById('unlock-cinematic'); const imagen = document.getElementById('unlock-img'); const texto = document.getElementById('unlock-desc'); imagen.src = levels[nivel]; texto.innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; cinematic.classList.remove('oculto'); setTimeout(() => { cinematic.classList.add('activo'); }, 20); cinematic.onclick = () => { cinematic.classList.add('oculto'); cinematic.classList.remove('activo'); reanudarJuego(); }; }
 function crearCaja() { 
-    if (juegoPausado || document.querySelectorAll('.caja').length > 15) return; 
+    if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
     const caja = document.createElement('div'); 
     caja.classList.add('caja'); 
     let segundosCaida = (tiempoSpawnActual / 4000) * 3; 
@@ -808,7 +843,7 @@ function crearCaja() {
 }
 
 function crearCajaOffline() { 
-    if (document.querySelectorAll('.caja').length > 12) return; 
+    if (document.querySelectorAll('.caja').length > 6) return; 
     const caja = document.createElement('div'); 
     caja.classList.add('caja'); 
     caja.style.transition = "none"; 
@@ -836,8 +871,59 @@ function crearCajaOffline() {
         guardarPartida(); 
     }); 
 }
-function createFriend(level, x, y) { const friend = document.createElement('div'); friend.classList.add('friend'); friend.style.animation = "pop 0.4s ease-in-out"; friend.dataset.level = level; friend.style.backgroundImage = `url('${levels[level]}')`; let tamanoBase = 95; let aumentoPorNivel = level * 10; friend.style.width = `${tamanoBase + aumentoPorNivel}px`; friend.style.height = `${tamanoBase + aumentoPorNivel}px`; friend.style.left = `${x}px`; friend.style.top = `${y}px`; friend.addEventListener('pointerdown', startDrag); board.appendChild(friend); actualizarCubatasPorSegundo(); }
-function startDrag(e) { if (juegoPausado) return; dragItem = e.target; const rect = dragItem.getBoundingClientRect(); let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; let clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY; offsetX = clientX - rect.left; offsetY = clientY - rect.top; document.addEventListener('pointermove', drag); document.addEventListener('pointerup', endDrag); document.addEventListener('touchmove', dragTouch, {passive: false}); document.addEventListener('touchend', endDragTouch); }
+function createFriend(level, x, y) { 
+    const friend = document.createElement('div'); 
+    friend.classList.add('friend'); 
+    friend.style.animation = "pop 0.4s ease-in-out"; 
+    friend.dataset.level = level; 
+    friend.style.backgroundImage = `url('${levels[level]}')`; 
+    
+    // Tamaños dinámicos
+    let tamanoBase = 95; 
+    let aumentoPorNivel = level * 10; 
+    friend.style.width = `${tamanoBase + aumentoPorNivel}px`; 
+    friend.style.height = `${tamanoBase + aumentoPorNivel}px`; 
+    friend.style.left = `${x}px`; 
+    friend.style.top = `${y}px`; 
+    
+    // Asignar el evento para arrastrar
+    friend.addEventListener('pointerdown', startDrag); 
+    
+    // ==========================================
+    // EL PORTERO DE LA DISCOTECA (SEPARACIÓN VIP)
+    // ==========================================
+    if (level >= 11) {
+        // Los de nivel 11 en adelante van al Reservado
+        document.getElementById('game-board-vip').appendChild(friend);
+    } else {
+        // Los de nivel bajo se quedan en la calle principal
+        document.getElementById('game-board').appendChild(friend);
+    }
+    
+    actualizarCubatasPorSegundo(); 
+}
+
+function startDrag(e) { 
+    // Si el juego está en pausa (ej: abriendo sobres), no dejamos mover nada
+    if (juegoPausado) return; 
+    
+    dragItem = e.target; 
+    const rect = dragItem.getBoundingClientRect(); 
+    
+    // Detectar si es un toque en la pantalla (móvil) o un click de ratón (PC)
+    let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; 
+    let clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY; 
+    
+    // Calcular exactamente de dónde hemos agarrado la imagen para que no dé saltos raros
+    offsetX = clientX - rect.left; 
+    offsetY = clientY - rect.top; 
+    
+    // Activar los "oídos" del documento para seguir el movimiento del dedo/ratón y saber cuándo lo soltamos
+    document.addEventListener('pointermove', drag); 
+    document.addEventListener('pointerup', endDrag); 
+    document.addEventListener('touchmove', dragTouch, {passive: false}); 
+    document.addEventListener('touchend', endDragTouch); 
+}
 function drag(e) { 
     if (!dragItem || juegoPausado) return; 
     const boardRect = board.getBoundingClientRect(); 
@@ -848,20 +934,126 @@ function drag(e) {
     dragItem.style.left = `${newX}px`; 
     dragItem.style.top = `${newY}px`; 
 }
+function drag(e) { 
+    if (!dragItem || juegoPausado) return; 
+    
+    // 🌟 LA MAGIA: El juego averigua en qué sala (Calle o VIP) está el personaje
+    const currentBoard = dragItem.parentElement; 
+    const boardRect = currentBoard.getBoundingClientRect(); 
+    
+    let newX = e.clientX - boardRect.left - offsetX;
+    let newY = e.clientY - boardRect.top - offsetY;
+    
+    newX = Math.max(0, Math.min(newX, boardRect.width - dragItem.offsetWidth));
+    newY = Math.max(0, Math.min(newY, boardRect.height - dragItem.offsetHeight));
+    
+    dragItem.style.left = `${newX}px`; 
+    dragItem.style.top = `${newY}px`; 
+}
+
 function dragTouch(e) { 
     if (!dragItem || juegoPausado) return; 
     e.preventDefault(); 
-    const boardRect = board.getBoundingClientRect(); 
+    
+    // 🌟 LA MAGIA (para móviles): Averiguamos la sala
+    const currentBoard = dragItem.parentElement; 
+    const boardRect = currentBoard.getBoundingClientRect(); 
+    
     let newX = e.touches[0].clientX - boardRect.left - offsetX;
     let newY = e.touches[0].clientY - boardRect.top - offsetY;
+    
     newX = Math.max(0, Math.min(newX, boardRect.width - dragItem.offsetWidth));
     newY = Math.max(0, Math.min(newY, boardRect.height - dragItem.offsetHeight));
+    
     dragItem.style.left = `${newX}px`; 
     dragItem.style.top = `${newY}px`; 
 }
 function endDrag() { limpiarEventos(); }
 function endDragTouch() { limpiarEventos(); }
-function limpiarEventos() { if (!dragItem) return; const friends = document.querySelectorAll('.friend'); const rect1 = dragItem.getBoundingClientRect(); for (let other of friends) { if (other !== dragItem) { const rect2 = other.getBoundingClientRect(); if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) { if (dragItem.dataset.level === other.dataset.level) { const currentLevel = parseInt(dragItem.dataset.level); if (currentLevel < levels.length - 1) { const newX = parseFloat(other.style.left); const newY = parseFloat(other.style.top); dragItem.remove(); other.remove(); ganarCubatas((currentLevel + 1) * 5); const nuevoNivel = currentLevel + 1; createFriend(nuevoNivel, newX, newY); verificarLogro('calentamiento'); if (nuevoNivel > maxNivelDesbloqueado) { maxNivelDesbloqueado = nuevoNivel; mostrarCinematica(nuevoNivel); actualizaEstilosExtremos(); } break; } } } } } dragItem = null; document.removeEventListener('pointermove', drag); document.removeEventListener('pointerup', endDrag); document.removeEventListener('touchmove', dragTouch); document.removeEventListener('touchend', endDragTouch); actualizarCubatasPorSegundo(); guardarPartida(); }
+function limpiarEventos() { 
+    if (!dragItem) return; 
+
+    // ¡IMPORTANTE! Solo buscamos colegas en la misma sala donde estamos arrastrando
+    const currentBoard = dragItem.parentElement;
+    const friends = currentBoard.querySelectorAll('.friend'); 
+    
+    const rect1 = dragItem.getBoundingClientRect(); 
+
+    for (let other of friends) { 
+        if (other !== dragItem) { 
+            const rect2 = other.getBoundingClientRect(); 
+            
+            // Detectar si están chocando
+            if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) { 
+                
+                // Si tienen el mismo nivel, ¡se fusionan!
+                if (dragItem.dataset.level === other.dataset.level) { 
+                    const currentLevel = parseInt(dragItem.dataset.level); 
+                    
+                    // Si no hemos llegado al límite de niveles
+                    if (currentLevel < levels.length - 1) { 
+                        const newX = parseFloat(other.style.left); 
+                        const newY = parseFloat(other.style.top); 
+                        
+                        dragItem.remove(); 
+                        other.remove(); 
+                        
+                        ganarCubatas((currentLevel + 1) * 5); 
+                        
+                        const nuevoNivel = currentLevel + 1; 
+                        
+                        // Creamos al nuevo colega (la función createFriend ya sabrá si mandarlo al VIP o a la calle)
+                        createFriend(nuevoNivel, newX, newY); 
+                        verificarLogro('calentamiento'); 
+                        
+                        // Subida de nivel máximo
+                        if (nuevoNivel > maxNivelDesbloqueado) { 
+                            maxNivelDesbloqueado = nuevoNivel; 
+                            mostrarCinematica(nuevoNivel); 
+                            actualizaEstilosExtremos(); 
+                        } 
+                        break; 
+                    } 
+                } 
+            } 
+        } 
+    } 
+
+    dragItem = null; 
+    document.removeEventListener('pointermove', drag); 
+    document.removeEventListener('pointerup', endDrag); 
+    document.removeEventListener('touchmove', dragTouch); 
+    document.removeEventListener('touchend', endDragTouch); 
+    
+    actualizarCubatasPorSegundo(); 
+    guardarPartida(); 
+}
+let isVIPRoom = false;
+
+// 🔄 FUNCIÓN PARA CAMBIAR DE MUNDO BLINDADA
+function toggleVIPRoom() {
+    isVIPRoom = !isVIPRoom;
+    const boardNormal = document.getElementById('game-board');
+    const boardVIP = document.getElementById('game-board-vip');
+    const btnVip = document.getElementById('btn-vip-room');
+
+    if (isVIPRoom) {
+        // Apagamos la calle y encendemos el VIP
+        boardNormal.style.display = 'none'; 
+        boardVIP.style.display = 'block';   
+        btnVip.innerText = "VOLVER";
+        btnVip.style.color = "#00ff00";
+        btnVip.style.borderColor = "#00ff00";
+    } else {
+        // Apagamos el VIP y volvemos a la calle
+        boardVIP.style.display = 'none';    
+        boardNormal.style.display = 'block'; 
+        btnVip.innerText = "ZONA VIP";
+        btnVip.style.color = "#ff00ff";
+        btnVip.style.borderColor = "#ff00ff";
+    }
+}
+
 // Array con los nombres en el mismo orden que tus imágenes
 const nombresJuerguistas = [
     "Adrian Juan", "Iñaki Gonzalez", "Ander Garmon", 

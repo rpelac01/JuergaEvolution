@@ -91,10 +91,15 @@
                 <div id="cubatas-segundo">0.0 cubatas/seg</div>
             </div>
         </div>
+        
+        <button id="btn-vip-room" style="display: none; position: absolute; right: 10px; margin: 0; padding: 8px 10px; font-size: 10px; border-color: #ff00ff; color: #ff00ff; background: #000; box-shadow: none;" onclick="toggleVIPRoom()">
+            ZONA VIP
+        </button>
     </header>
 
-    <main id="game-board"></main>
-
+    <main id="game-board" style="flex-grow: 1; height: 100%; width: 100%; position: relative; overflow: hidden; display: block;"></main>
+    
+    <main id="game-board-vip" style="flex-grow: 1; height: 100%; width: 100%; position: relative; overflow: hidden; background-color: #1a001a; background-image: url('chis.jpg'); background-size: cover; background-position: center; display: none;"></main>
     <footer id="bottom-bar">
         <button class="btn-cuadrado boton-arcade" onclick="abrirTienda()">🛒</button>
         <button class="btn-cuadrado boton-arcade" style="color: #ff00ff; border-color: #ff00ff;" onclick="abrirCasino()">🎁</button>
@@ -120,22 +125,22 @@
             <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0; flex-grow: 1; margin: 0; overflow-y: auto;">
                 <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
                 <button class="boton-arcade" style="margin: 5px;" onclick="comprarVelocidad()">🚀 Cajas Rápidas<br><small><span id="coste-vel">50</span> 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarEvento()">🍻 Hora Feliz (2)<br><small>150 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarPasivo()">⚡ Ritmo Fiesta<br><small><span id="coste-pasivo">100</span> 🥃</small></button>
-                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarLimpieza()">🧹 Recoge-Vómito Xtreme<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarEvento()">🍻 Iñaki's Cachimba (2)<br><small>150 🥃</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarPasivo()">⚡ El Kzurro <br><small><span id="coste-pasivo">100</span> 🥃</small></button>
+                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarLimpieza()">🧹 Serrín pal vómito<br><small><span id="coste-limpieza">500</span> 🥃</small></button>
                 
                 <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoRefresco()">🥤 Refresco<br><small>150 🥃 (x3)</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoTapa()">🧆 Bravas<br><small>250 🥃 (Abre 3)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoRefresco()">🥤 Refresco de Maifrien<br><small>150 🥃 (x3)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostBajoTapa()">📦 Estanco de Carlos<br><small>250 🥃 (Abre 3)</small></button>
 
                 <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
                 <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioCharanga()">🎷 Charanga<br><small>1200 🥃 (x3)</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioBarril()">🛢️ Barril<br><small>2000 🥃 (Nvl 4)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="boostMedioBarril()">👨🏼‍🌾 Llegó el Campesino<br><small>2000 🥃 (Nvl 4)</small></button>
 
                 <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
                 <button class="boton-arcade" style="margin: 5px;" onclick="comprarHoraLoca()">🌪️ HORA LOCA<br><small>5000 🥃</small></button>
-                <button class="boton-arcade" style="margin: 5px;" onclick="comprarAmnesia()">⏳ AMNESIA<br><small>8500 🥃</small></button>
-                <button class="boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarAutobus()">🚌 AUTOBÚS<br><small>15000 🥃 (2 de Nvl 5)</small></button>
+                <button class="boton-arcade" style="margin: 5px;" onclick="comprarAmnesia()">🎧 DJ TINO<br><small>8500 🥃</small></button>
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px;" onclick="comprarAutobus()">La novia del Peri x2<br><small>15000 🥃 (2 de Nvl 5)</small></button>
 
                 <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
                 <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px;" onclick="boostExtremoChupinazo()">💥 CHUPINAZO<br><small>50000 🥃</small></button>
