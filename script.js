@@ -1242,15 +1242,16 @@ function sincronizarStockGlobal() {
     const hoy = obtenerDiaDeFiesta();
     diaFiestaActual = hoy;
 
-    // Buscamos el stock de hoy en la base de datos de Firebase
-    db.collection("control_barra").doc(hoy).get().then((doc) => {
+    // 📡 MODO ESPEJO EN DIRECTO (onSnapshot)
+    // Se actualiza en todos los móviles a la vez al instante sin gastar base de datos
+    db.collection("control_barra").doc(hoy).onSnapshot((doc) => {
         if (doc.exists) {
-            // Si ya existe el día, nos traemos lo que queda en la barra
+            // Cuando alguien saca premio, esto se ejecuta solo y al instante
             const datos = doc.data();
             stockChupitosHoy = datos.chupitos;
             stockCubatasHoy = datos.cubatas;
         } else {
-            // Si es un día nuevo (o primera vez), creamos el stock inicial en la nube
+            // Si es un día nuevo, crea el contador a tope
             db.collection("control_barra").doc(hoy).set({
                 chupitos: LIMITE_DIARIO_CHUPITOS,
                 cubatas: LIMITE_DIARIO_CUBATAS
@@ -1258,11 +1259,16 @@ function sincronizarStockGlobal() {
             stockChupitosHoy = LIMITE_DIARIO_CHUPITOS;
             stockCubatasHoy = LIMITE_DIARIO_CUBATAS;
         }
-    }).catch((error) => {
-        console.log("Error sincronizando stock, usando modo offline seguro:", error);
-        // Por si falla internet, dejamos un stock de emergencia muy bajo para no arruinarnos
+        
+        // Refrescamos la pantalla con los datos nuevos
+        actualizarContadorPantalla();
+
+    }, (error) => {
+        console.log("Error sincronizando stock en directo:", error);
+        // Sistema de emergencia por si se cae el WiFi de las fiestas
         stockChupitosHoy = 5;
         stockCubatasHoy = 1;
+        actualizarContadorPantalla();
     });
 }
 function actualizarContadorPantalla() {
