@@ -1,39 +1,20 @@
-# 🍻 Juerga Civil - Evolución 🍻
+# 🍻 Juerga Civil - Evolución
 
-Un juego incremental (Clicker/Merge) hiper-casual diseñado exclusivamente para las fiestas de la peña **Juerga Civil**. Fusiona juerguistas, farmea "cubatas", limpia vómitos, compra mejoras y juégate la economía en el Casino Clandestino.
+Un videojuego web estilo "Merge / Idle" creado específicamente para amenizar y gamificar las fiestas de una peña. Los jugadores gestionan una discoteca virtual, ganan moneda del juego (Cubatas) y pueden gastarla en un sistema de lootboxes (Sobres) para **ganar premios físicos reales en la barra del bar**.
 
-## 🚀 Novedades de la Última Versión
-- **🎨 Estética Neón-Arcade:** La Tienda y el Casino han sido rediseñados con un modo oscuro, bordes verde neón, tipografías retro de 8-bits y diseño a pantalla completa para móviles.
-- **🎁 Regalo Diario (Free-to-Play):** Sistema de fidelización del 3 de Agosto al 7 de Septiembre. Los jugadores ganan cubatas cada día que entran, y una Ficha VIP de Casino todos los Lunes.
-- **🎲 Súper Casino Clandestino:** Rediseño completo con 3 minijuegos:
-  - **🎰 Tragaperras VIP:** Requiere Fichas VIP. Reparte premios físicos en barra (chupitos y cubatas gratis).
-  - **🧊 Ice Queen (NUEVO):** Tragamonedas de 5 rodillos para apostar cubatas. Cuenta con comodines (La Reina 👑) y un mega-jackpot de x100.
-  - **🃏 21 Blackjack (NUEVO):** Juega tus cubatas contra el crupier en partidas rápidas de cartas.
+## ✨ Características Principales
 
-## 🎮 Mecánicas Principales
-1. **Merge (Fusión):** Arrastra dos colegas del mismo nivel para crear uno nuevo que genera más cubatas por segundo.
-2. **Economía Clicker:** Toca las cajas sorpresa que caen del cielo y limpia los vómitos de la pradera para ganar cubatas extra.
-3. **Tienda de Mejoras:** Compra aumentos de velocidad, "Frenesís" (lluvias de cajas) o mejoras permanentes para tu ritmo pasivo.
-4. **Pase VIP (Monetización Real):** El acceso al Casino requiere un pago único de 2€ físicos en la barra de la peña. El camarero valida el acceso mediante un sistema de contraseñas dinámicas (TOTP) que cambian cada 20 segundos.
+* **🧬 Mecánica Merge & Idle:** 19 niveles de evolución de "Juerguistas". Generación de ingresos pasivos (hasta 8 horas de farmeo offline).
+* **🛒 Tienda de Mejoras:** Compra de ritmo base, limpieza automática de eventos aleatorios (vómitos) y "Boosts" de un solo uso (frenesíes, saltos temporales).
+* **🔒 Sistema VIP Físico-Digital:** El acceso al Casino cuesta 2€ reales. El jugador paga en la barra física y el camarero introduce un código TOTP dinámico (cambia cada 20s) en el móvil del cliente para desbloquear la zona.
+* **🎁 Sobres con Control de Stock en la Nube:** Las lootboxes pueden dar premios virtuales o premios físicos (Chupitos, Cubatas). Todo conectado a **Firebase Firestore** mediante `onSnapshot`. Si la barra agota los chupitos físicos, el juego lo detecta en tiempo real y corta los premios en los móviles de todos los jugadores.
+* **🎟️ Cartera de Cupones Anti-Trampas:** Los premios ganados se guardan en un inventario. Para canjearlos, el cliente muestra el móvil al camarero. El ticket incluye un reloj en vivo (para evitar capturas de pantalla) y un botón de "Quemar" que borra el premio definitivamente.
+* **🏆 Golden Ticket (Transacciones Seguras):** Sistema competitivo donde los 5 primeros jugadores en pasarse el juego reciben un chupito gratis. Utiliza `db.runTransaction` en Firebase para evitar reclamaciones simultáneas.
 
-## 🛠️ Comandos de Administrador / Trucos
-Para facilitar el testeo sin tener que jugar horas, el juego incluye códigos secretos. 
-*¿Cómo usarlos?* Ve a **Opciones ⚙️ -> Cambiar Nombre / Trucos** e introduce:
+## 🛠️ Tecnologías Utilizadas
 
-- `DINERO` -> Añade **+50.000 Cubatas** al instante.
-- `MAXIMO` -> Desbloquea automáticamente el **nivel máximo** de juerguista disponible en el código y lo pone en el tablero.
-- `FICHAS` -> Añade **+20 Fichas VIP** de Casino para probar la tragaperras de premios físicos sin límite.
+* **Frontend:** HTML5, CSS3, JavaScript (Vanilla). No frameworks, puro rendimiento móvil.
+* **Backend / Base de datos:** Firebase Firestore (Reglas de seguridad, Transacciones, Listeners en tiempo real).
+* **Almacenamiento Local:** `localStorage` para el guardado de progreso offline.
 
-## 💻 Tecnologías Utilizadas
-- **Frontend:** HTML5, CSS3, JavaScript (Vanilla, sin frameworks pesados).
-- **Backend/BBDD:** Firebase Firestore (Para el sistema de Ranking global en tiempo real).
-- **Almacenamiento:** LocalStorage (Guardado del progreso del usuario y fecha de reclamación de recompensas).
 
-## 📱 Instalación / Despliegue
-Este juego está diseñado como una WebApp adaptada a móviles (Viewport fit, sin zoom, touch-action controlada).
-1. Clona el repositorio o sube los archivos (`index.html`, `style.css`, `script.js` y la carpeta de imágenes) a un servidor web (Vercel, GitHub Pages, Netlify).
-2. Asegúrate de configurar tu propia cuenta en `firebaseConfig` dentro de `script.js` para que el ranking funcione en tu base de datos.
-3. ¡Abre la web en tu móvil, añade a la pantalla de inicio y a disfrutar de la fiesta!
-
----
-*Desarrollado para la supervivencia de los hígados más fuertes. ¡Viva la Juerga Civil!* 🍻

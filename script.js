@@ -1022,16 +1022,6 @@ function startDrag(e) {
 }
 function drag(e) { 
     if (!dragItem || juegoPausado) return; 
-    const boardRect = board.getBoundingClientRect(); 
-    let newX = e.clientX - boardRect.left - offsetX;
-    let newY = e.clientY - boardRect.top - offsetY;
-    newX = Math.max(0, Math.min(newX, boardRect.width - dragItem.offsetWidth));
-    newY = Math.max(0, Math.min(newY, boardRect.height - dragItem.offsetHeight));
-    dragItem.style.left = `${newX}px`; 
-    dragItem.style.top = `${newY}px`; 
-}
-function drag(e) { 
-    if (!dragItem || juegoPausado) return; 
     
     // 🌟 LA MAGIA: El juego averigua en qué sala (Calle o VIP) está el personaje
     const currentBoard = dragItem.parentElement; 
@@ -1107,7 +1097,12 @@ function limpiarEventos() {
                             maxNivelDesbloqueado = nuevoNivel; 
                             mostrarCinematica(nuevoNivel); 
                             actualizaEstilosExtremos(); 
-                        } 
+                            
+                            // 🎟️ TICKET DORADO: Si llega al último nivel, llamamos al notario
+                            if (nuevoNivel === levels.length - 1) {
+                                setTimeout(comprobarGanadorGoldenTicket, 3000);
+                            }
+                        }
                         break; 
                     } 
                 } 
@@ -1459,5 +1454,41 @@ function mostrarNotificacion(texto) {
     setTimeout(() => {
         if (noti.parentNode) noti.remove();
     }, 2500);
+}
+// 🎟️ SISTEMA DE TICKET DORADO (VERSIÓN LIMPIA Y FINAL)
+function comprobarGanadorGoldenTicket() {
+    // Si ya lo intentó antes, bloqueamos
+    if (estadisticasLogros.intentoTicketDorado) return;
+
+    const docRef = db.collection("control_barra").doc("tickets_dorados");
+
+    // Abrimos el notario
+    db.runTransaction((transaction) => {
+        return transaction.get(docRef).then((doc) => {
+            let entregados = 0;
+            if (doc.exists) { entregados = doc.data().entregados; }
+
+            if (entregados < 5) {
+                // Hay hueco, sumamos 1
+                transaction.set(docRef, { entregados: entregados + 1 }, { merge: true });
+                return true;
+            } else {
+                return false; // Ya volaron
+            }
+        });
+    }).then((esGanador) => {
+        // Bloqueamos para que no pueda volver a pedirlo
+        estadisticasLogros.intentoTicketDorado = true;
+        guardarPartida();
+
+        if (esGanador) {
+            mostrarNotificacion("🎟️ ¡ERES DE LOS 5 PRIMEROS EN PASARTE EL JUEGO!");
+            entregarPremioFisico("🎟️ TICKET DORADO: ¡CHUPITO POR PASARTE EL JUEGO!");
+        } else {
+            mostrarNotificacion("😢 Te has pasado el juego, ¡pero los 5 tickets ya volaron!");
+        }
+    }).catch((error) => {
+        console.error("Error con el Ticket Dorado:", error);
+    });
 }
 cargarPartida(); reanudarJuego(); intervalGuardado = setInterval(guardarPartida, 3000);
