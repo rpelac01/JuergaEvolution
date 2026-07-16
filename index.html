@@ -631,7 +631,10 @@
                 <button class="menu-card" onclick="abrirMenuDiario()">
                     <div class="menu-icon bg-calendario">🎁</div><span>REGALO DIARIO</span>
                 </button>
-                <button class="menu-card" onclick="abrirOpciones()" style="grid-column: span 2;">
+                <button class="menu-card" onclick="abrirInventarioCupones()">
+                    <div class="menu-icon bg-rojo" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">🎟️</div><span>CUPONES</span>
+                </button>
+                <button class="menu-card" onclick="abrirOpciones()">
                     <div class="menu-icon bg-azul" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">⚙️</div><span>OPCIONES</span>
                 </button>
             </div>
@@ -702,6 +705,19 @@
         </div>
     </div>
 
+    <!-- ==================== INVENTARIO DE CUPONES ==================== -->
+    <div id="cupones-inventario-modal" class="modal oculto" style="z-index: 700;">
+        <div class="modal-content libreta" style="border-left-color: #00ff00; text-align: center; max-height: 80vh; overflow-y: auto;">
+            <button class="cerrar-btn" style="background: #00ff00; color: black; border-color: #00ff00;" onclick="cerrarModales()">❌</button>
+            <h2 style="color:#00ff00; margin-bottom: 15px; font-size: 20px; text-shadow: 0 0 5px #00ff00;">🎟️ MIS CUPONES</h2>
+            
+            <!-- Aquí dentro el código inyectará los cupones que ganes -->
+            <div id="lista-cupones">
+                <!-- Se llena solo -->
+            </div>
+        </div>
+    </div>
+
     <div id="unlock-cinematic" class="oculto">
         <div class="cone-light"></div>
         <div class="cinematic-content">
@@ -713,14 +729,19 @@
     </div>
 
     <div id="cupon-modal" class="modal oculto" style="z-index: 9999;">
-        <div class="modal-content libreta" style="border-left-color: #ff0000; background: #ffebee; text-align: center;">
-            <button class="cerrar-btn" onclick="cerrarCupon()">❌</button>
-            <h2 style="color:#ff0000; margin-bottom: 5px; font-size: 24px;">🎟️ CUPÓN VÁLIDO</h2>
-            <p id="cupon-desc" style="font-weight:bold; margin-bottom:15px; color:#333;">Premio</p>
-            <div id="cupon-codigo" class="codigo-chupito" style="font-size: 32px; padding: 25px; margin-bottom: 20px;">CODIGO</div>
-            <p style="font-size: 13px; color: #555; margin-bottom: 15px; font-weight: bold;">⚠️ Enseña esta pantalla en la barra.</p>
-            <button onclick="quemarCupon()" style="padding:15px; background:#ff0000; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:16px;">
-                🔥 CAMARERO: QUEMAR CUPÓN
+        <div id="cupon-fondo" class="modal-content libreta" style="width: 90%; max-width: 320px; padding: 20px 15px; border-left-color: #ff0000; background: #ffebee; text-align: center;">
+            <button class="cerrar-btn" onclick="cerrarCupon()" style="top: 10px; right: 10px;">❌</button>
+            
+            <h2 id="cupon-titulo" style="color:#ff0000; margin-bottom: 10px; font-size: 18px;">🎟️ CUPÓN VÁLIDO</h2>
+            
+            <p id="cupon-desc" style="font-weight:bold; margin-bottom:15px; color:#333; font-size: 13px; line-height: 1.4;">Premio</p>
+            
+            <div id="cupon-codigo" class="codigo-chupito" style="font-size: 24px; padding: 15px 10px; margin-bottom: 15px; background: rgba(255,255,255,0.7); border-radius: 8px; border: 2px dashed #ff0000; font-family: 'Press Start 2P', cursive; letter-spacing: 1px;">CODIGO</div>
+            
+            <p style="font-size: 10px; color: #555; margin-bottom: 15px; font-weight: bold;">⚠️ Enseña esta pantalla en la barra.</p>
+            
+            <button onclick="quemarCupon()" style="padding:12px; background:#ff0000; color:white; font-weight:bold; border:3px solid #333; border-radius:8px; cursor:pointer; width:100%; font-size:12px; font-family: 'Press Start 2P', cursive;">
+                🔥 QUEMAR CUPÓN
             </button>
         </div>
     </div>

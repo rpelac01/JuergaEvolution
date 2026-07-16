@@ -42,7 +42,8 @@ let dragItem = null; let offsetX = 0; let offsetY = 0;
 let maxNivelDesbloqueado = 0; 
 let nombreJugador = "Desconocido";
 let fechaSimulada = null;
-
+let inventarioCupones = []; // La mochila donde guardaremos los premios ganados
+let cuponActivoIndex = -1;  // Para saber cuál estamos quemando
 // MOTOR DE ECONOMÍA Y CASINO
 let multiplicadorPasivo = 1;
 let multiplicadorClic = 1; 
@@ -116,6 +117,10 @@ function guardarPartida() {
         tiempoPasivo: tiempoPasivo, 
         costePasivo: costePasivo, 
         amigos: amigosEnTablero, 
+        // ... (resto de variables de guardarPartida)
+        cuponesCanjeados: cuponesCanjeados, 
+        inventarioCupones: inventarioCupones, // 👈 AÑADE ESTO
+        estadisticasLogros: estadisticasLogros,
         timeStamp: Date.now() 
     };
     localStorage.setItem('juergaSave2026', JSON.stringify(estadoJuego));
@@ -133,6 +138,10 @@ function cargarPartida() {
         estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
         tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
         document.getElementById('coste-vel').innerText = costeVelocidad; document.getElementById('coste-limpieza').innerText = costeLimpieza; document.getElementById('coste-pasivo').innerText = costePasivo;
+        // ... (resto de variables de cargarPartida)
+        cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
+        inventarioCupones = estadoJuego.inventarioCupones || []; // 👈 AÑADE ESTO
+        estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros;
         if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); } else { spawnAmigoInicial(); }
         // ... (resto de la función cargarPartida por arriba) ...
         
@@ -202,14 +211,19 @@ function pedirNombre() {
         
         alert("🛠️ ADMIN: Desbloqueado Nivel Máximo (" + (ultimoNivel + 1) + ")."); 
         actualizaEstilosExtremos(); 
+        
+        // 🎟️ NUEVO: Llamamos al notario para testear el Ticket Dorado
+        setTimeout(comprobarGanadorGoldenTicket, 3000);
+        
         return; 
     }
-    if (nomCode === "SOBRES29042007") { 
-        sobresGratisEpico += 5; 
-        guardarPartida();
-        alert("🛠️ ADMIN: +5 Sobres Épicos gratis para testeo."); 
+    // 👇 AÑADE ESTE NUEVO TRUCO AQUÍ 👇
+    if (nomCode === "CUPON2026") { 
+        entregarPremioFisico("🧪 CUPÓN DE PRUEBA (ADMIN)"); 
+        alert("🛠️ ADMIN: +1 Cupón de prueba inyectado en tu cartera."); 
         return; 
     }
+    // 👆 HASTA AQUÍ 👆
 
     // --- GUARDAR NOMBRE REAL ---
     nombreJugador = nomCode.substring(0, 15); 
@@ -1283,5 +1297,167 @@ function actualizarContadorPantalla() {
         txtCubatas.innerText = stockCubatasHoy;
         txtCubatas.style.color = stockCubatasHoy > 0 ? "#00ff00" : "#ff0055";
     }
+}
+// ==========================================================================
+// 🎟️ SISTEMA DE CARTERA DE CUPONES
+// ==========================================================================
+
+function entregarPremioFisico(textoPremio) {
+    // Generamos el código único
+    let codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    // Lo metemos en la mochila
+    inventarioCupones.push({
+        texto: textoPremio,
+        codigo: "#" + codigoGen
+    });
+    
+    guardarPartida(); // Guardamos por si se le apaga el móvil
+    
+    // Le avisamos con estilo
+    mostrarNotificacion("🎟️ ¡PREMIO ENVIADO A TUS CUPONES!");
+}
+
+function abrirInventarioCupones() {
+    ocultarTodosModales();
+    document.getElementById('cupones-inventario-modal').classList.remove('oculto');
+    
+    const contenedor = document.getElementById('lista-cupones');
+    contenedor.innerHTML = "";
+    
+    // Si la mochila está vacía...
+    if (inventarioCupones.length === 0) {
+        contenedor.innerHTML = `
+            <div style="padding: 30px 10px;">
+                <span style="font-size: 40px;">🕸️</span>
+                <p style="color:#666; margin-top: 15px; font-weight:bold; font-size:12px; line-height:1.6;">
+                    No tienes cupones todavía...<br><br>
+                    ¡Prueba suerte abriendo Sobres VIP o pásate el juego para ganar!
+                </p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Si hay cupones, los dibujamos
+    inventarioCupones.forEach((cupon, index) => {
+        contenedor.innerHTML += `
+            <div style="border: 2px dashed #00ff00; background: #111; padding: 15px; margin-bottom: 15px; border-radius: 8px; text-align: center;">
+                <h4 style="color:#ffd700; margin-bottom:10px; font-size:14px; text-shadow: 0 0 5px #ffd700;">${cupon.texto}</h4>
+                <p style="color:#ccc; font-size:10px; margin-bottom:15px; font-family: 'Press Start 2P', cursive;">CÓDIGO: ${cupon.codigo}</p>
+                <button onclick="verCuponParaQuemar(${index})" class="boton-arcade" style="background:#ff0055; width: 100%; border-color: white;">
+                    IR A LA BARRA 🍹
+                </button>
+            </div>
+        `;
+    });
+}
+
+// Cuando pulsan "IR A LA BARRA" en uno de los cupones
+// Cuando pulsan "IR A LA BARRA" en uno de los cupones
+let intervaloRelojCupon;
+function verCuponParaQuemar(index) {
+    cuponActivoIndex = index;
+    const cupon = inventarioCupones[index];
+    
+    // Ocultamos el inventario y mostramos el cupón grande al camarero
+    document.getElementById('cupones-inventario-modal').classList.add('oculto');
+    document.getElementById('cupon-modal').classList.remove('oculto');
+    
+    document.getElementById('cupon-desc').innerText = cupon.texto;
+    document.getElementById('cupon-codigo').innerText = cupon.codigo;
+    
+    // 🌟 DETECCIÓN DE TICKET DORADO 🌟
+    const modalFondo = document.getElementById('cupon-fondo');
+    const modalTitulo = document.getElementById('cupon-titulo');
+    const modalCodigo = document.getElementById('cupon-codigo');
+    
+    if (cupon.texto.toUpperCase().includes("DORADO")) {
+        // Estilo Willy Wonka
+        modalFondo.style.background = "linear-gradient(135deg, #ffd700, #ffaa00)"; // Fondo oro
+        modalFondo.style.borderLeftColor = "#ffffff";
+        modalTitulo.style.color = "#ffffff";
+        modalTitulo.style.textShadow = "0 0 5px rgba(0,0,0,0.5)";
+        modalCodigo.style.borderColor = "#ffffff";
+    } else {
+        // Estilo normal (Rojo)
+        modalFondo.style.background = "#ffebee";
+        modalFondo.style.borderLeftColor = "#ff0000";
+        modalTitulo.style.color = "#ff0000";
+        modalTitulo.style.textShadow = "none";
+        modalCodigo.style.borderColor = "#ff0000";
+    }
+
+    // RELOJ ANTI-CAPTURAS DE PANTALLA 🛡️
+    let zonaReloj = document.getElementById('reloj-anticaptura');
+    if (!zonaReloj) {
+        zonaReloj = document.createElement('div');
+        zonaReloj.id = 'reloj-anticaptura';
+        zonaReloj.style.marginTop = "15px";
+        zonaReloj.style.color = "#000"; // En negro para que lea bien sobre el oro o rosa
+        zonaReloj.style.fontSize = "10px";
+        zonaReloj.style.fontFamily = "'Press Start 2P', cursive";
+        zonaReloj.style.animation = "parpadeo 1s infinite"; 
+        document.querySelector('#cupon-modal .modal-content').appendChild(zonaReloj);
+    }
+
+    clearInterval(intervaloRelojCupon);
+    intervaloRelojCupon = setInterval(() => {
+        let ahora = new Date();
+        zonaReloj.innerText = "⏳ HORA REAL: " + ahora.toLocaleTimeString();
+    }, 1000);
+}
+
+// Botón que solo debe tocar el camarero
+function quemarCupon() {
+    if (confirm("⚠️ ¿ERES EL CAMARERO?\n\nSi aceptas, el premio desaparecerá de tu móvil para siempre.")) {
+        if (cuponActivoIndex > -1) {
+            // Borramos el cupón de la mochila
+            inventarioCupones.splice(cuponActivoIndex, 1);
+            guardarPartida();
+            
+            cuponActivoIndex = -1;
+            clearInterval(intervaloRelojCupon);
+            
+            alert("✅ ¡PREMIO ENTREGADO! Que aproveche.");
+            cerrarModales();
+        }
+    }
+}
+// ==========================================================================
+// 🔔 SISTEMA DE NOTIFICACIONES FLOTANTES
+// ==========================================================================
+function mostrarNotificacion(texto) {
+    // Si ya hay una notificación en pantalla, la quitamos
+    let vieja = document.getElementById('noti-juego');
+    if (vieja) vieja.remove(); 
+
+    // Creamos el nuevo cartel
+    const noti = document.createElement('div');
+    noti.id = 'noti-juego';
+    noti.innerText = texto;
+    noti.style.position = 'fixed';
+    noti.style.top = '20px';
+    noti.style.left = '50%';
+    noti.style.transform = 'translateX(-50%)';
+    noti.style.background = '#ff0055'; 
+    noti.style.color = 'white';
+    noti.style.padding = '12px 24px';
+    noti.style.borderRadius = '8px';
+    noti.style.zIndex = '999999';
+    noti.style.fontWeight = 'bold';
+    noti.style.fontFamily = "'Press Start 2P', cursive";
+    noti.style.fontSize = '10px';
+    noti.style.textAlign = 'center';
+    noti.style.boxShadow = '0px 4px 10px rgba(0,0,0,0.5)';
+    noti.style.border = '2px solid white';
+    noti.style.pointerEvents = 'none'; 
+    
+    document.body.appendChild(noti);
+    
+    // Desaparece sola a los 2.5 segundos
+    setTimeout(() => {
+        if (noti.parentNode) noti.remove();
+    }, 2500);
 }
 cargarPartida(); reanudarJuego(); intervalGuardado = setInterval(guardarPartida, 3000);
