@@ -55,7 +55,21 @@ let cuponActivoTipo = "";
 
 let estadisticasLogros = { cajasAbiertas: 0, vomitosLipiados: 0, frenesisActivados: 0, ansiasActivado: 0, cubatasTotalesGanados: 0 };
 let logrosDesbloqueados = { 'calentamiento': false, 'estomago_hierro': false, 'lluvia_litros': false, 'tesorero_pena': false, 'vip_barra': false, 'frenesi_loco': false, 'el_ansias': false, 'la_resaca': false };
+// 📈 CONFIGURACIÓN DEL STOCK DIARIO (Modifica estos números a tu gusto)
+const LIMITE_DIARIO_CHUPITOS = 30; // Chupitos gratis máximos por noche
+const LIMITE_DIARIO_CUBATAS = 10;   // Cubatas reales máximos por noche
 
+// Variables de control local
+let stockChupitosHoy = 0;
+let stockCubatasHoy = 0;
+let diaFiestaActual = "";
+
+// Función que calcula en qué "Noche de Fiesta" estamos (resta 5 horas para que las 4:00 AM sigan siendo "hoy")
+function obtenerDiaDeFiesta() {
+    let fecha = new Date();
+    fecha.setHours(fecha.getHours() - 5); 
+    return fecha.toDateString(); // Devuelve algo como "Thu Jul 16 2026"
+}
 const infoLogros = {
     'calentamiento': { titulo: "🐣 El Calentamiento", desc: "Fusiona tus dos primeros colegas.", premio: 50 },
     'estomago_hierro': { titulo: "🤮 Estómago de Hierro", desc: "Limpia 50 vómitos manuales con el dedo.", premio: 300, meta: 50, campo: "vomitosLipiados" },
@@ -157,8 +171,10 @@ function cargarPartida() {
                 }, 600); 
             }
         }
+    // ... (resto de cargarPartida)
     } else { spawnAmigoInicial(); pedirNombre(); }
     ganarCubatas(0);  
+    sincronizarStockGlobal(); // 👈 ¡AÑADE ESTA LÍNEA AQUÍ!
 }
 
 function spawnAmigoInicial() { const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(0, xCentro, yCentro); }
@@ -480,7 +496,31 @@ const SOBRES = {
 };
 
 let sobreAbriendo = false;
-
+// 🛡️ EL INTERCEPTOR DE STOCK 
+function procesarStock(premioElegido) {
+    const hoy = obtenerDiaDeFiesta();
+    
+    if (premioElegido.tipo === 'chupito') {
+        if (stockChupitosHoy > 0) {
+            stockChupitosHoy--; // Quitamos 1 de la memoria
+            db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }); // Quitamos 1 de la nube
+            return premioElegido;
+        } else {
+            // Si no hay stock, camuflamos el premio y damos cubatas
+            return { tipo: 'cubatas', min: 50000, max: 50000, texto: "AGOTADO HOY: +50.000 🥃" };
+        }
+    } 
+    else if (premioElegido.tipo === 'cubata_real' || premioElegido.tipo === 'jackpot') {
+        if (stockCubatasHoy > 0) {
+            stockCubatasHoy--;
+            db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) });
+            return premioElegido;
+        } else {
+            return { tipo: 'cubatas', min: 100000, max: 100000, texto: "AGOTADO HOY: +100.000 🥃" };
+        }
+    }
+    return premioElegido;
+}
 function elegirPremio(premios) {
     const total = premios.reduce((s, p) => s + p.peso, 0);
     let tirada = Math.random() * total;
@@ -586,7 +626,8 @@ function abrirWalkout(elementoCarta, tier) {
     cardContainer.appendChild(cartaClonada);
 
     // Tirar los dados
-    const premio = elegirPremio(cfg.premios);
+    let premio = elegirPremio(cfg.premios);
+    premio = procesarStock(premio);
     const esPremioFisico = (premio.tipo === 'chupito' || premio.tipo === 'cubata_real' || premio.tipo === 'jackpot');
 
     // 4. ELEGIMOS EL CAMINO DE ANIMACIÓN
@@ -682,7 +723,8 @@ function cerrarWalkout() {
     }
 }
 function resolverSobre(cfg, resultado, caja) {
-    const premio = elegirPremio(cfg.premios);
+    let premio = elegirPremio(cfg.premios);
+    premio = procesarStock(premio);
     caja.innerText = "🎁";
 
     if (premio.tipo === 'nada') {
@@ -1194,6 +1236,46 @@ function aceptarReglas() {
     // Si no tienen nombre, se lo pedimos
     if (nombreJugador === "Desconocido") {
         pedirNombre();
+    }
+}
+function sincronizarStockGlobal() {
+    const hoy = obtenerDiaDeFiesta();
+    diaFiestaActual = hoy;
+
+    // Buscamos el stock de hoy en la base de datos de Firebase
+    db.collection("control_barra").doc(hoy).get().then((doc) => {
+        if (doc.exists) {
+            // Si ya existe el día, nos traemos lo que queda en la barra
+            const datos = doc.data();
+            stockChupitosHoy = datos.chupitos;
+            stockCubatasHoy = datos.cubatas;
+        } else {
+            // Si es un día nuevo (o primera vez), creamos el stock inicial en la nube
+            db.collection("control_barra").doc(hoy).set({
+                chupitos: LIMITE_DIARIO_CHUPITOS,
+                cubatas: LIMITE_DIARIO_CUBATAS
+            });
+            stockChupitosHoy = LIMITE_DIARIO_CHUPITOS;
+            stockCubatasHoy = LIMITE_DIARIO_CUBATAS;
+        }
+    }).catch((error) => {
+        console.log("Error sincronizando stock, usando modo offline seguro:", error);
+        // Por si falla internet, dejamos un stock de emergencia muy bajo para no arruinarnos
+        stockChupitosHoy = 5;
+        stockCubatasHoy = 1;
+    });
+}
+function actualizarContadorPantalla() {
+    const txtChupitos = document.getElementById('stock-visual-chupitos');
+    const txtCubatas = document.getElementById('stock-visual-cubatas');
+    
+    if (txtChupitos && txtCubatas) {
+        // Ponemos el número en rojo si se agotan, y en verde si quedan
+        txtChupitos.innerText = stockChupitosHoy;
+        txtChupitos.style.color = stockChupitosHoy > 0 ? "#00ff00" : "#ff0055";
+        
+        txtCubatas.innerText = stockCubatasHoy;
+        txtCubatas.style.color = stockCubatasHoy > 0 ? "#00ff00" : "#ff0055";
     }
 }
 cargarPartida(); reanudarJuego(); intervalGuardado = setInterval(guardarPartida, 3000);

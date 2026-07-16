@@ -209,7 +209,11 @@
             <button class="cerrar-btn" style="top: 20px; right: 20px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
             
             <h3 style="color: #00ff00; text-shadow: 0px 0px 8px #00ff00; text-align: center; font-size: 16px; margin-top: 5px; margin-bottom: 5px; border-bottom: 2px dashed #00ff00; padding-bottom: 15px;">🎁 SOBRES DE LA PEÑA</h3>
-
+            <div id="panel-stock-vivo" style="background: #111; border: 2px solid #ffd700; border-radius: 8px; padding: 10px; margin-bottom: 15px; font-family: 'Press Start 2P', cursive; font-size: 10px; color: white; text-align: center;">
+                ⏳ STOCK DE LA BARRA ⏳<br><br>
+                🥂 Chupitos: <span id="stock-visual-chupitos" style="color: #00ff00;">--</span><br><br>
+                🍹 Cubatas: <span id="stock-visual-cubatas" style="color: #00ff00;">--</span>
+            </div>
             <!-- ================= RESULTADOS LIMPIOS (Sin la caja gigante) ================= -->
             <div style="text-align: center; min-height: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 10px;">
                 <!-- El icono se mantiene oculto/pequeño para la animación pero sin el borde feo -->
@@ -277,7 +281,7 @@
                         <!-- Stats en ROJO PELIGRO con borde NEGRO -->
                         <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #111111;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffcc00;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffcc00;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl" style="color: #ffcc00;">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior AMARILLA OBRA -->
@@ -310,7 +314,7 @@
                         <!-- Stats en AZUL PANTALÓN con borde NEGRO -->
                         <div class="stats-sobre" style="background: rgba(0, 115, 207, 0.98); border-top: 2px solid #111111;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #fed90f;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #fed90f;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl" style="color: #fed90f;">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior ROJO DUFF -->
@@ -346,7 +350,7 @@
                         <!-- Stats en ROSA UNO con borde NEGRO -->
                         <div class="stats-sobre" style="background: rgba(255, 0, 127, 0.98); border-top: 2px solid #111111;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffffff;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffffff;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl" style="color: #ffffff;">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior BLANCA Pura -->
@@ -380,7 +384,7 @@
                         <!-- Stats en color AMBAR CERVEZA con borde superior color malta -->
                         <div class="stats-sobre" style="background: rgba(210, 105, 30, 0.95); border-top: 2px solid #6d4110;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior NARANJA -->
@@ -414,7 +418,7 @@
                         <!-- Stats VERDE CAMPO -->
                         <div class="stats-sobre" style="background: rgba(45, 90, 39, 0.98); border-top: 2px solid #111111;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior AMARILLA MAÍZ -->
@@ -449,7 +453,7 @@
                         <!-- Stats AZUL con borde superior AMARILLO -->
                         <div class="stats-sobre" style="background: rgba(0, 80, 157, 0.98); border-top: 2px solid #000;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior AMARILLA -->
@@ -484,7 +488,7 @@
                         <!-- Stats NEGRAS (contrastan bien con el rojo) -->
                         <div class="stats-sobre" style="background: rgba(33, 33, 33, 0.98); border-top: 2px solid #e3000f;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior AMARILLA -->
@@ -518,7 +522,7 @@
                         <!-- Stats ROJAS para contrastar -->
                         <div class="stats-sobre" style="background: rgba(227, 0, 15, 0.98); border-top: 2px solid #0057b8;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl">COSTE</span></div>
                         </div>
                         
                         <!-- Línea inferior AZUL -->
@@ -554,7 +558,7 @@
                         <!-- Barra inferior AZUL con letras AMARILLAS -->
                         <div class="stats-sobre" style="background: rgba(0, 51, 153, 0.98); border-top: 2px solid #ffd700;">
                             <div class="stat-col"><span class="stat-icono" style="color: #ffffff;">🔥</span><span class="stat-lbl" style="color: #ffd700;">PEÑA</span></div>
-                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">2.5M</span><span class="stat-lbl" style="color: #ffd700;">COSTE</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">75k</span><span class="stat-lbl" style="color: #ffd700;">COSTE</span></div>
                         </div>
                         
                         <!-- Remate inferior AMARILLO -->
@@ -589,7 +593,7 @@
             
             <div style="background: #111; padding:15px; border-radius:10px; border: 3px dashed #ff00ff; margin-bottom:15px;">
                 <p style="font-size: 16px; color: #00ff00; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
-                <p style="font-size: 12px; color: #ccc;">Ve a la barra de la peña, dale 2€ en mano al camarero y él tecleará la contraseña secreta en tu móvil.</p>
+                <p style="font-size: 12px; color: #ccc;">Ve a el carro de la peña, dale 2€ en mano al camarero y él tecleará la contraseña secreta en tu móvil.</p>
             </div>
             
             <button onclick="verificarPagoCasino()" style="padding:15px; background:#ff00ff; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:15px; box-shadow: 2px 4px 0 #000;">
