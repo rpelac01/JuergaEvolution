@@ -256,14 +256,19 @@ function actualizaEstilosExtremos() {
     const btn2 = document.getElementById('btn-extremo-barralibre');
     const btnVip = document.getElementById('btn-vip-room'); 
 
-    // Cambiamos el 11 por un 8 (Nivel 9)
     if(maxNivelDesbloqueado >= 8) { 
-        if(btn1 && btn2) { btn1.className = "btn-unlocked-extremo"; btn2.className = "btn-unlocked-extremo"; }
-        // Encendemos el botón VIP para que se vea
+        if(btn1 && btn2) { 
+            // Añadimos 'boton-arcade' para que no pierda la tipografía
+            btn1.className = "boton-arcade btn-unlocked-extremo"; 
+            btn2.className = "boton-arcade btn-unlocked-extremo"; 
+        }
         if(btnVip) btnVip.style.display = 'block'; 
     } else {
-        if(btn1 && btn2) { btn1.className = "btn-lock"; btn2.className = "btn-lock"; }
-        // Mantenemos oculto el botón VIP
+        if(btn1 && btn2) { 
+            // Mantenemos 'boton-arcade' cuando están bloqueados también
+            btn1.className = "boton-arcade btn-lock"; 
+            btn2.className = "boton-arcade btn-lock"; 
+        }
         if(btnVip) btnVip.style.display = 'none';
     }
 }
