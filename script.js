@@ -119,7 +119,8 @@ function guardarPartida() {
         tiempoRecogida: tiempoRecogida, 
         costeLimpieza: costeLimpieza, 
         tiempoPasivo: tiempoPasivo, 
-        costePasivo: costePasivo, 
+        costePasivo: costePasivo,
+        costeAmnesia: costeAmnesia, 
         amigos: amigosEnTablero, 
         // ... (resto de variables de guardarPartida)
         cuponesCanjeados: cuponesCanjeados, 
@@ -140,8 +141,11 @@ function cargarPartida() {
         sobresGratisEpico = estadoJuego.sobresGratisEpico || 0;
         regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
         estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
-        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;
+        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;costeAmnesia = estadoJuego.costeAmnesia || 8500;
         document.getElementById('coste-vel').innerText = costeVelocidad; document.getElementById('coste-limpieza').innerText = costeLimpieza; document.getElementById('coste-pasivo').innerText = costePasivo;
+        if (document.getElementById('coste-amnesia')) {
+            document.getElementById('coste-amnesia').innerText = costeAmnesia;
+        }
         // ... (resto de variables de cargarPartida)
         cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
         inventarioCupones = estadoJuego.inventarioCupones || []; // 👈 AÑADE ESTO
@@ -293,8 +297,11 @@ function crearCajaInstantanea() {
 function boostMedioCharanga() {
     if (cubatas >= 1200) {
         cubatas -= 1200; ganarCubatas(0); cerrarModales();
-        multiplicadorPasivo = 3; crearCronometroFlotante('charanga-banner', '🎷 LA CHARANGA (X3)', 30);
-        setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
+        multiplicadorPasivo = 3; 
+        // ❌ ELIMINA tu línea de crearCronometroFlotante, ya que la vaciamos antes
+        
+        clearTimeout(timeoutMultiplicador); // Matamos el reloj anterior si existía
+        timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida();
     } else alert("¡Te faltan cubatas!");
 }
@@ -305,46 +312,95 @@ function boostMedioBarril() {
 }
 
 // 🔥 BOOSTS ÉPICOS
+
+let djTinoEnCooldown = false; // El candado de seguridad
 function comprarHoraLoca() {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
-    if (cubatas >= 5000) { cubatas -= 5000; ganarCubatas(0); cerrarModales(); boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 300; clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); crearCronometroFlotante('frenesi-banner', '🌪️ HORA LOCA', 15); estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); guardarPartida(); } 
-    else alert("¡Te faltan cubatas!");
-}
-function comprarAmnesia() {
-    let coste = 8500;
-    if (cubatas >= coste) {
-        cubatas -= coste;
-        let cps = 0; document.querySelectorAll('.friend').forEach(f => { cps += (parseInt(f.dataset.level) + 1); });
-        cps = (cps / (tiempoPasivo / 1000)) * multiplicadorPasivo;
-        let gananciasInstantaneas = Math.floor(cps * 900); 
-        ganarCubatas(gananciasInstantaneas);
-        alert("⏳ ¡Amnesia! Has avanzado en el tiempo y ganado " + gananciasInstantaneas + " 🥃");
-        cerrarModales();
+    if (cubatas >= 5000) { 
+        cubatas -= 5000; ganarCubatas(0); cerrarModales(); 
+        boostVelocidadActivo = true; 
+        let backupSpawn = tiempoSpawnActual; 
+        tiempoSpawnActual = 500; // Rebajado a 500ms para que sea frenético pero jugable
+        clearInterval(intervalCajas); 
+        intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
+        estadisticasLogros.frenesisActivados++; 
+        verificarLogro('frenesi_loco'); 
+        setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); 
+        guardarPartida(); 
     } else alert("¡Te faltan cubatas!");
 }
-function comprarAutobus() { if (document.querySelectorAll('.friend').length > 18) { alert("¡No hay espacio para 2!"); return; } if (cubatas >= 15000) { cubatas -= 15000; ganarCubatas(0); cerrarModales(); alert("🚌 ¡Llegó el autobús de refuerzos!"); for(let i = 0; i < 2; i++) { setTimeout(() => { const rX = Math.random() * (board.clientWidth - 95); const rY = Math.random() * (board.clientHeight - 150) + 50; createFriend(4, rX, rY); }, i * 400); } guardarPartida(); } else alert("¡Te faltan cubatas!"); }
+// Variable global para guardar el precio (ponla junto a las otras arriba del todo, o justo encima de la función)
+let costeAmnesia = 8500;
 
+function comprarAmnesia() {
+    if (cubatas >= costeAmnesia) {
+        cubatas -= costeAmnesia;
+        
+        // Calculamos cuánto gana en 15 minutos (900 segundos)
+        let cps = 0; 
+        document.querySelectorAll('.friend').forEach(f => { cps += (parseInt(f.dataset.level) + 1); });
+        cps = (cps / (tiempoPasivo / 1000)) * multiplicadorPasivo;
+        let gananciasInstantaneas = Math.floor(cps * 900); 
+        
+        ganarCubatas(gananciasInstantaneas);
+        alert("⏳ ¡Amnesia! Has avanzado 15 minutos y ganado " + gananciasInstantaneas + " 🥃");
+        
+        // 📈 LA INFLACIÓN: El precio se multiplica x2.5 en cada compra
+        costeAmnesia = Math.floor(costeAmnesia * 2.5);
+        
+        // 🛑 EL TOPE: Nunca costará más de 500.000 cubatas
+        if (costeAmnesia > 500000) {
+            costeAmnesia = 500000;
+        }
+        
+        // Actualizamos el número en el botón del menú
+        const textoCoste = document.getElementById('coste-amnesia');
+        if (textoCoste) textoCoste.innerText = costeAmnesia;
+        
+        cerrarModales();
+        guardarPartida();
+    } else {
+        alert("¡Te faltan cubatas!");
+    }
+}
+function comprarAutobus() { 
+    if (document.querySelectorAll('.friend').length > 18) { alert("¡No hay espacio para 2!"); return; } 
+    if (cubatas >= 15000) { 
+        cubatas -= 15000; ganarCubatas(0); cerrarModales(); 
+        alert("🚌 ¡Llegó el autobús de refuerzos!"); 
+        for(let i = 0; i < 2; i++) { 
+            setTimeout(() => { 
+                const rX = Math.random() * (window.innerWidth - 95); 
+                const rY = Math.random() * (window.innerHeight - 150) + 50; 
+                createFriend(5, rX, rY); // Subido a índice 5 (Nivel 6) para que compense
+            }, i * 400); 
+        } 
+        guardarPartida(); 
+    } else alert("¡Te faltan cubatas!"); 
+}
 // 💀 BOOSTS EXTREMOS 
 function boostExtremoChupinazo() {
-    // Bajamos el aviso al Nivel 9 (índice 8)
     if (maxNivelDesbloqueado < 8) { alert("🔒 BLOQUEADO: Requieres subir y desbloquear al menos un Juerguista de Nivel 9."); return; }
     if (document.querySelectorAll('.friend').length >= 20) { alert("¡Pradera llena!"); return; }
-    if (cubatas >= 50000) {
-        cubatas -= 50000; ganarCubatas(0); cerrarModales();
-        const xC = (board.clientWidth / 2) - 45; const yC = (board.clientHeight / 2) - 45;
+    
+    // Subimos el precio para que no reviente la economía de los niveles altos
+    if (cubatas >= 150000) {
+        cubatas -= 150000; ganarCubatas(0); cerrarModales();
+        const xC = (window.innerWidth / 2) - 45; 
+        const yC = (window.innerHeight / 2) - 45;
         createFriend(8, xC, yC); 
         guardarPartida();
     } else alert("¡Te faltan cubatas!");
 }
 
 function boostExtremoBarraLibre() {
-    // Bajamos el aviso al Nivel 9 (índice 8)
     if (maxNivelDesbloqueado < 8) { alert("🔒 BLOQUEADO: Requieres al menos un Juerguista de Nivel 9."); return; }
     if (cubatas >= 120000) {
         cubatas -= 120000; ganarCubatas(0); cerrarModales();
         multiplicadorPasivo = 10; 
-        crearCronometroFlotante('barralibre-banner', '👑 BARRA LIBRE x10', 30);
-        setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
+        
+        clearTimeout(timeoutMultiplicador); // Protegemos el nuevo reloj
+        timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida();
     } else alert("¡Te faltan cubatas!");
 }
@@ -912,7 +968,53 @@ function iniciarBuclePasivo() {
     actualizarCubatasPorSegundo(); 
 }
 
-function generarVomito() { if (juegoPausado) return; const friends = document.querySelectorAll('.friend'); friends.forEach(f => { const vomito = document.createElement('div'); vomito.classList.add('vomito'); vomito.innerText = '🤮'; let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); let y = parseFloat(f.style.top) + 95; vomito.style.left = `${x}px`; vomito.style.top = `${y}px`; const nivelAmigo = parseInt(f.dataset.level); vomito.dataset.valor = (nivelAmigo + 1) * 2; vomito.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); if (juegoPausado) return; const valorVomito = parseInt(vomito.dataset.valor); ganarCubatas(valorVomito); mostrarTextoFlotante(x, y, valorVomito); vomito.remove(); estadisticasLogros.vomitosLipiados++; verificarLogro('estomago_hierro'); }); board.appendChild(vomito); }); }
+function generarVomito() { 
+    if (juegoPausado) return; 
+    const friends = document.querySelectorAll('.friend'); 
+    
+    friends.forEach(f => { 
+        const vomito = document.createElement('div'); 
+        vomito.classList.add('vomito'); 
+        vomito.innerText = '🤮'; 
+        
+        let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); 
+        let y = parseFloat(f.style.top) + 95; 
+        
+        vomito.style.left = `${x}px`; 
+        vomito.style.top = `${y}px`; 
+        
+        const nivelAmigo = parseInt(f.dataset.level); 
+        vomito.dataset.valor = (nivelAmigo + 1) * 2; 
+        
+        vomito.addEventListener('pointerdown', (e) => { 
+            e.stopPropagation(); e.preventDefault(); 
+            if (juegoPausado) return; 
+            
+            // 📳 JUICE: Mini vibración de limpieza
+            if (navigator.vibrate) navigator.vibrate(40);
+            
+            const valorVomito = parseInt(vomito.dataset.valor); 
+            ganarCubatas(valorVomito); 
+            
+            // Enviamos el texto flotante a la sala correcta
+            const salaActual = f.parentElement;
+            const texto = document.createElement('div'); 
+            texto.classList.add('floating-text'); 
+            texto.innerText = `+${valorVomito}`; 
+            texto.style.left = `${x}px`; 
+            texto.style.top = `${y}px`; 
+            salaActual.appendChild(texto); 
+            setTimeout(() => { texto.remove(); }, 1000);
+            
+            vomito.remove(); 
+            estadisticasLogros.vomitosLipiados++; 
+            verificarLogro('estomago_hierro'); 
+        }); 
+        
+        // 🛠️ EL ARREGLO: Añadimos el vómito a la sala donde esté su dueño, no siempre a la calle
+        f.parentElement.appendChild(vomito); 
+    }); 
+}
 function recogerVomitoAutomatico() { if (juegoPausado) return; const vomitos = document.querySelectorAll('.vomito'); let totalRecolectado = 0; vomitos.forEach(v => { const valor = parseInt(v.dataset.valor); totalRecolectado += valor; mostrarTextoFlotante(parseFloat(v.style.left), parseFloat(v.style.top), valor); v.remove(); }); if (totalRecolectado > 0) ganarCubatas(totalRecolectado); }
 function cambiarTab(pestana) { 
     // Ocultamos ambos contenidos
@@ -989,7 +1091,21 @@ function comprarVelocidad() {
     }
 }
 function comprarEvento() { if (nivelAparicion === 1) { alert("¡La Hora Feliz ya está activa!"); return; } if (cubatas >= 150) { cubatas -= 150; ganarCubatas(0); nivelAparicion = 1; cerrarModales(); crearCronometroFlotante('horafeliz-banner', 'HORA FELIZ', 30); setTimeout(() => { nivelAparicion = 0; }, 30000); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
-function comprarPasivo() { if (cubatas >= costePasivo) { cubatas -= costePasivo; ganarCubatas(0); tiempoPasivo = Math.max(400, tiempoPasivo - 400); costePasivo = Math.floor(costePasivo * 1.6); document.getElementById('coste-pasivo').innerText = costePasivo; iniciarBuclePasivo(); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
+function comprarPasivo() { 
+    if (cubatas >= costePasivo) { 
+        cubatas -= costePasivo; 
+        ganarCubatas(0); 
+        
+        tiempoPasivo = Math.max(400, tiempoPasivo - 400); 
+        costePasivo = Math.floor(costePasivo * 1.6); 
+        document.getElementById('coste-pasivo').innerText = costePasivo; 
+        
+        iniciarBuclePasivo(); 
+        guardarPartida(); 
+    } else {
+        alert("¡Te faltan cubatas!"); 
+    }
+}
 function comprarLimpieza() { if (cubatas >= costeLimpieza) { cubatas -= costeLimpieza; ganarCubatas(0); tiempoRecogida = Math.max(400, tiempoRecogida / 2); costeLimpieza = Math.floor(costeLimpieza * 2.5); document.getElementById('coste-limpieza').innerText = costeLimpieza; clearInterval(intervalRecoger); intervalRecoger = setInterval(recogerVomitoAutomatico, tiempoRecogida); verificarLogro('vip_barra'); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
 // Función desactivada para que no salgan carteles molestos tapando la pantalla
 function crearCronometroFlotante(id, texto, duracionSegundos) { 
@@ -1189,26 +1305,29 @@ function dragTouch(e) {
 function endDrag() { limpiarEventos(); }
 function endDragTouch() { limpiarEventos(); }
 function limpiarEventos() { 
-    if (!dragItem) return; 
+    // 🛡️ EL ESCUDO ANTICRASH MULTITÁCTIL
+    if (!dragItem || !dragItem.parentElement) {
+        dragItem = null; 
+        document.removeEventListener('pointermove', drag); 
+        document.removeEventListener('pointerup', endDrag); 
+        document.removeEventListener('touchmove', dragTouch); 
+        document.removeEventListener('touchend', endDragTouch); 
+        return;
+    }
 
-    // ¡IMPORTANTE! Solo buscamos colegas en la misma sala donde estamos arrastrando
     const currentBoard = dragItem.parentElement;
     const friends = currentBoard.querySelectorAll('.friend'); 
-    
     const rect1 = dragItem.getBoundingClientRect(); 
 
     for (let other of friends) { 
         if (other !== dragItem) { 
             const rect2 = other.getBoundingClientRect(); 
             
-            // Detectar si están chocando
             if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) { 
                 
-                // Si tienen el mismo nivel, ¡se fusionan!
                 if (dragItem.dataset.level === other.dataset.level) { 
                     const currentLevel = parseInt(dragItem.dataset.level); 
                     
-                    // Si no hemos llegado al límite de niveles
                     if (currentLevel < levels.length - 1) { 
                         const newX = parseFloat(other.style.left); 
                         const newY = parseFloat(other.style.top); 
@@ -1217,20 +1336,16 @@ function limpiarEventos() {
                         other.remove(); 
                         
                         ganarCubatas((currentLevel + 1) * 5); 
-                        
                         const nuevoNivel = currentLevel + 1; 
                         
-                        // Creamos al nuevo colega (la función createFriend ya sabrá si mandarlo al VIP o a la calle)
                         createFriend(nuevoNivel, newX, newY); 
                         verificarLogro('calentamiento'); 
                         
-                        // Subida de nivel máximo
                         if (nuevoNivel > maxNivelDesbloqueado) { 
                             maxNivelDesbloqueado = nuevoNivel; 
                             mostrarCinematica(nuevoNivel); 
                             actualizaEstilosExtremos(); 
                             
-                            // 🎟️ TICKET DORADO: Si llega al último nivel, llamamos al notario
                             if (nuevoNivel === levels.length - 1) {
                                 setTimeout(comprobarGanadorGoldenTicket, 3000);
                             }
