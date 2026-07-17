@@ -20,6 +20,10 @@ function subirPuntuacion() {
         nombre: nombreJugador,
         nivelMaximo: maxNivelDesbloqueado + 1,
         cubatasTotales: estadisticasLogros.cubatasTotalesGanados || cubatas,
+        // 👇 NUEVOS DATOS PARA EL RANKING 👇
+        esVIP: casinoVIP,
+        chupitosReales: estadisticasLogros.chupitosGanados || 0,
+        cubatasReales: estadisticasLogros.cubatasRealesGanados || 0,
         fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch((error) => console.log("Error de nube:", error));
 }
@@ -482,14 +486,30 @@ function quemarCupon() {
 }
 
 function entregarPremioFisico(textoPremio) {
-    setTimeout(() => {
-        cerrarModales(); 
-        document.getElementById('cupon-modal').classList.remove('oculto');
-        document.getElementById('cupon-desc').innerText = textoPremio;
-        let codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
-        document.getElementById('cupon-codigo').innerText = "#" + codigoGen;
-        cuponActivoTipo = "CASINO"; // Permitir que el camarero lo queme sin problemas
-    }, 1500); 
+    // Generamos el código único
+    let codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    // Lo metemos en la mochila
+    inventarioCupones.push({
+        texto: textoPremio,
+        codigo: "#" + codigoGen
+    });
+    
+    // 📊 NUEVO: Contamos los premios para fardar en el Ranking
+    let textoMayus = textoPremio.toUpperCase();
+    if(textoMayus.includes("CHUPITO")) {
+        estadisticasLogros.chupitosGanados = (estadisticasLogros.chupitosGanados || 0) + 1;
+    }
+    // (Si es el Jackpot que trae ambas palabras, sumará en los dos)
+    if(textoMayus.includes("CUBATA")) {
+        estadisticasLogros.cubatasRealesGanados = (estadisticasLogros.cubatasRealesGanados || 0) + 1;
+    }
+    
+    guardarPartida(); // Guardamos por si se le apaga el móvil
+    subirPuntuacion(); // Actualizamos Firebase al instante para el ranking
+    
+    // Le avisamos con estilo
+    mostrarNotificacion("🎟️ ¡PREMIO ENVIADO A TUS CUPONES!");
 }
 
 // ==========================================================================
@@ -833,12 +853,51 @@ function mostrarTextoFlotante(x, y, cantidad) { const texto = document.createEle
 function mostrarAvisoFlotante(x, y, mensaje) { const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.style.color = "#ff4444"; texto.innerText = mensaje; texto.style.left = `${x}px`; texto.style.top = `${y}px`; texto.style.zIndex = "400"; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000); }
 function actualizarInterfazRanking() {
     const contenedor = document.getElementById('ranking-content');
-    contenedor.innerHTML = '<h3 style="color:#333;">Cargando... 📡</h3>';
+    contenedor.innerHTML = '<h3 style="color:#333; margin-top:20px;">Cargando... 📡</h3>';
+    
     db.collection("ranking").orderBy("nivelMaximo", "desc").limit(10).get().then((querySnapshot) => {
-            let html = '<h3 style="margin-bottom:10px;">TOP 10 JUERGAS</h3><div style="text-align:left; font-size: 14px;">';
-            let i = 1; querySnapshot.forEach((doc) => { let p = doc.data(); html += `<div style="padding: 8px; border-bottom: 1px solid #ccc; display:flex; justify-content:space-between;"><span>${i}. ${p.nombre}</span><span style="font-weight:bold; color:#ff0055;">Nvl ${p.nivelMaximo}</span></div>`; i++; });
-            html += '</div>'; contenedor.innerHTML = html;
-        }).catch((error) => { console.error("Error ranking: ", error); contenedor.innerHTML = "Error de conexión."; });
+        let html = '<h3 style="margin-bottom:15px; color:#ff0055; font-family: \'Press Start 2P\', cursive; font-size:12px; text-shadow: 2px 2px 0px #ccc;">🏆 TOP 10 PEÑA 🏆</h3><div style="text-align:left; font-size: 14px;">';
+        let i = 1; 
+        
+        querySnapshot.forEach((doc) => { 
+            let p = doc.data(); 
+            
+            // 👑 Si es VIP, le ponemos corona. Si no, nada.
+            let corona = p.esVIP ? '<span title="VIP" style="font-size:16px; margin-left:5px; filter: drop-shadow(0 0 2px gold);">👑</span>' : '';
+            
+            // Contadores (si son cero o no existen, ponemos 0)
+            let chupis = p.chupitosReales || 0;
+            let cubis = p.cubatasReales || 0;
+            
+            // Colores de fondo intercalados para que se lea mejor
+            let fondoFila = (i % 2 === 0) ? '#f5f5f5' : '#ffffff';
+            
+            html += `
+            <div style="padding: 12px; border-bottom: 3px solid #333; display:flex; justify-content:space-between; align-items:center; background: ${fondoFila}; border-radius: 6px; margin-bottom: 4px;">
+                
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-weight:bold; font-size:15px; color:#111;">
+                        ${i}. ${p.nombre} ${corona}
+                    </span>
+                    <span style="font-size:11px; color:#555; font-weight:bold; background: #eee; padding: 3px 6px; border-radius: 4px; border: 1px solid #ccc; width: fit-content;">
+                        🥂 ${chupis}  |  🍹 ${cubis}
+                    </span>
+                </div>
+                
+                <div style="background:#ff0055; color:white; padding:6px 10px; border-radius:8px; font-weight:bold; font-size:12px; border:2px solid #333; box-shadow: 2px 2px 0 #000;">
+                    Nvl ${p.nivelMaximo}
+                </div>
+                
+            </div>`; 
+            i++; 
+        });
+        html += '</div>'; 
+        contenedor.innerHTML = html;
+        
+    }).catch((error) => { 
+        console.error("Error ranking: ", error); 
+        contenedor.innerHTML = "<p style='color:red;'>Error de conexión.</p>"; 
+    });
 }
 function actualizarCubatasPorSegundo() { const friends = document.querySelectorAll('.friend'); let ingresosTotales = 0; friends.forEach(f => { ingresosTotales += (parseInt(f.dataset.level) + 1); }); let cps = (ingresosPorBucle = ingresosTotales / (tiempoPasivo / 1000)) * multiplicadorPasivo; document.getElementById('cubatas-segundo').innerText = `${cps.toFixed(1)} cubatas/seg`; }
 
@@ -900,15 +959,17 @@ function comprarLimpieza() { if (cubatas >= costeLimpieza) { cubatas -= costeLim
 function crearCronometroFlotante(id, texto, duracionSegundos) { 
     return; 
 }
-function mostrarCinematica(nivel) { pausarJuego(); const cinematic = document.getElementById('unlock-cinematic'); const imagen = document.getElementById('unlock-img'); const texto = document.getElementById('unlock-desc'); imagen.src = levels[nivel]; texto.innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; cinematic.classList.remove('oculto'); setTimeout(() => { cinematic.classList.add('activo'); }, 20); cinematic.onclick = () => { cinematic.classList.add('oculto'); cinematic.classList.remove('activo'); reanudarJuego(); }; }
+function mostrarCinematica(nivel) { pausarJuego(); if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); const cinematic = document.getElementById('unlock-cinematic'); const imagen = document.getElementById('unlock-img'); const texto = document.getElementById('unlock-desc'); imagen.src = levels[nivel]; texto.innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; cinematic.classList.remove('oculto'); setTimeout(() => { cinematic.classList.add('activo'); }, 20); cinematic.onclick = () => { cinematic.classList.add('oculto'); cinematic.classList.remove('activo'); reanudarJuego(); }; }
 function crearCaja() { 
-    if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
-    const caja = document.createElement('div'); 
-    caja.classList.add('caja'); 
+    // 🛡️ Buscamos cajas normales y doradas para el límite
+    if (juegoPausado || document.querySelectorAll('.caja, .caja-dorada').length > 7) return; 
     
-    // ⚖️ EL TÉRMINO MEDIO PERFECTO:
-    // De normal tardan 5 segundos en caer.
-    // Si compran mejoras, baja a 4s, y como máximo absoluto bajarán a 3.5s (nunca volverá a ser un agobio).
+    // 🎲 EL DADO: 5% de probabilidad de que sea la Caja Dorada
+    const esDorada = Math.random() < 0.05;
+    
+    const caja = document.createElement('div'); 
+    caja.classList.add(esDorada ? 'caja-dorada' : 'caja'); 
+    
     let segundosCaida = 5.0; 
     if (tiempoSpawnActual <= 4000) segundosCaida = 4.0;
     if (tiempoSpawnActual <= 2000) segundosCaida = 3.5; 
@@ -925,17 +986,46 @@ function crearCaja() {
     
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
-        if (document.querySelectorAll('.friend').length >= 20) { 
+        
+        // 📳 JUICE: Vibración al tocar la caja (corta para normal, larga para dorada)
+        if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
+
+        // Si la pradera está llena y NO es dorada, bloqueamos
+        if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
             return; 
         } 
+        
         const rect = caja.getBoundingClientRect(); 
         const boardRect = board.getBoundingClientRect(); 
+        const x = rect.left - boardRect.left;
+        const y = rect.top - boardRect.top;
+        
         caja.remove(); 
-        ganarCubatas(1 * multiplicadorClic); 
-        createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
+        
+        if (esDorada) {
+            // 🌟 PREMIO ÉPICO
+            ganarCubatas(5000);
+            mostrarTextoFlotanteEpico(x - 20, y, "¡+5000 🥃!");
+        } else {
+            // 📦 PREMIO NORMAL
+            ganarCubatas(1 * multiplicadorClic); 
+            createFriend(nivelAparicion, x, y); 
+        }
+        
         guardarPartida(); 
     }); 
+}
+
+// Función auxiliar para lanzar el texto gigante
+function mostrarTextoFlotanteEpico(x, y, mensaje) {
+    const texto = document.createElement('div');
+    texto.classList.add('floating-text-epic');
+    texto.innerText = mensaje;
+    texto.style.left = `${x}px`;
+    texto.style.top = `${y}px`;
+    board.appendChild(texto);
+    setTimeout(() => { texto.remove(); }, 1500);
 }
 
 function crearCajaOffline() { 

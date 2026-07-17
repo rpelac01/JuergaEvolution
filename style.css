@@ -377,3 +377,38 @@ html, body {
 #walkout-premio { font-family: 'Press Start 2P', cursive; font-size: 14px; text-shadow: 0px 4px 10px #000; text-align: center; line-height: 1.5; }
 .anim-premio { animation: showPremio 0.6s forwards; }
 @keyframes showPremio { 0% { transform: scale(0.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* ==========================================
+   🌟 LA CAJA DORADA Y JUICE VISUAL
+   ========================================== */
+
+/* Efecto visual de la Caja Dorada usando tu misma imagen */
+.caja-dorada { 
+    width: 95px; height: 95px; 
+    background-image: url('caja.png'); 
+    background-size: contain; background-repeat: no-repeat; background-position: center; 
+    cursor: pointer; z-index: 15; transition: top 3s linear; 
+    /* Le damos un tono dorado brillante y lo hacemos latir */
+    filter: drop-shadow(0 0 15px #ffd700) brightness(1.5) sepia(1) hue-rotate(350deg) saturate(3);
+    animation: latidoDorado 0.6s infinite alternate;
+}
+
+@keyframes latidoDorado {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px #ffd700) brightness(1.5) sepia(1) hue-rotate(350deg) saturate(3); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 30px #ffffff) brightness(2) sepia(1) hue-rotate(350deg) saturate(5); }
+}
+
+/* Efecto de texto GIGANTE para premios gordos */
+.floating-text-epic { 
+    position: absolute; color: #ffd700; font-size: 35px; font-weight: bold; 
+    text-shadow: 0 0 15px #fff, 3px 3px 0 #000, -3px -3px 0 #000; 
+    pointer-events: none; z-index: 400; 
+    animation: floatUpEpic 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+}
+
+@keyframes floatUpEpic { 
+    0% { transform: translateY(0) scale(0.5); opacity: 0; } 
+    20% { transform: translateY(-40px) scale(1.2); opacity: 1; } 
+    80% { transform: translateY(-70px) scale(1); opacity: 1; } 
+    100% { transform: translateY(-120px) scale(1.5); opacity: 0; } 
+}
