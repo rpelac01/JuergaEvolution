@@ -961,14 +961,19 @@ function crearCronometroFlotante(id, texto, duracionSegundos) {
 }
 function mostrarCinematica(nivel) { pausarJuego(); if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); const cinematic = document.getElementById('unlock-cinematic'); const imagen = document.getElementById('unlock-img'); const texto = document.getElementById('unlock-desc'); imagen.src = levels[nivel]; texto.innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; cinematic.classList.remove('oculto'); setTimeout(() => { cinematic.classList.add('activo'); }, 20); cinematic.onclick = () => { cinematic.classList.add('oculto'); cinematic.classList.remove('activo'); reanudarJuego(); }; }
 function crearCaja() { 
-    // 🛡️ Buscamos cajas normales y doradas para el límite
-    if (juegoPausado || document.querySelectorAll('.caja, .caja-dorada').length > 7) return; 
+    // Buscamos cajas normales (como la dorada ahora tiene las dos clases, el límite funciona perfecto)
+    if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
     
     // 🎲 EL DADO: 5% de probabilidad de que sea la Caja Dorada
     const esDorada = Math.random() < 0.05;
     
     const caja = document.createElement('div'); 
-    caja.classList.add(esDorada ? 'caja-dorada' : 'caja'); 
+    
+    // 🔥 EL ARREGLO: Le damos la clase normal SIEMPRE, y si es dorada, le sumamos el brillo
+    caja.classList.add('caja'); 
+    if (esDorada) {
+        caja.classList.add('caja-dorada');
+    }
     
     let segundosCaida = 5.0; 
     if (tiempoSpawnActual <= 4000) segundosCaida = 4.0;
@@ -987,7 +992,7 @@ function crearCaja() {
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
         
-        // 📳 JUICE: Vibración al tocar la caja (corta para normal, larga para dorada)
+        // 📳 JUICE: Vibración al tocar la caja
         if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
 
         // Si la pradera está llena y NO es dorada, bloqueamos
@@ -1004,9 +1009,10 @@ function crearCaja() {
         caja.remove(); 
         
         if (esDorada) {
-            // 🌟 PREMIO ÉPICO
+            // 🌟 PREMIO ÉPICO (Dinero + Personaje de Nivel 5)
             ganarCubatas(5000);
             mostrarTextoFlotanteEpico(x - 20, y, "¡+5000 🥃!");
+            createFriend(4, x, y); 
         } else {
             // 📦 PREMIO NORMAL
             ganarCubatas(1 * multiplicadorClic); 
