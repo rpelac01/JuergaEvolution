@@ -951,7 +951,43 @@ function actualizarTiendaPersonajes() {
 
 
 function comprarPersonaje(nivel, precio) { if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); cerrarModales(); const xCentro = (board.clientWidth / 2) - 45; const yCentro = (board.clientHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
-function comprarVelocidad() { if (boostVelocidadActivo) { alert("¡El Frenesí ya está activo!"); return; } if (cubatas >= costeVelocidad) { cubatas -= costeVelocidad; ganarCubatas(0); cerrarModales(); tiempoSpawnBase = Math.max(500, tiempoSpawnBase - 800); costeVelocidad = Math.floor(costeVelocidad * 1.5); document.getElementById('coste-vel').innerText = costeVelocidad; boostVelocidadActivo = true; tiempoSpawnActual = 800; clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); crearCronometroFlotante('frenesi-banner', 'FRENESÍ DE CAJAS', 30); estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = tiempoSpawnBase; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 30000); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
+function comprarVelocidad() { 
+    if (boostVelocidadActivo) { alert("¡El Frenesí ya está activo!"); return; } 
+    
+    if (cubatas >= costeVelocidad) { 
+        cubatas -= costeVelocidad; 
+        ganarCubatas(0); 
+        cerrarModales(); 
+        
+        // 🔥 ARREGLO BALANCEO: Restamos solo 150ms por mejora, con un tope mínimo de 1200ms (1.2s)
+        tiempoSpawnBase = Math.max(1200, tiempoSpawnBase - 150); 
+        costeVelocidad = Math.floor(costeVelocidad * 1.5); 
+        document.getElementById('coste-vel').innerText = costeVelocidad; 
+        
+        boostVelocidadActivo = true; 
+        
+        // El Frenesí temporal ahora escupe una caja cada medio segundo
+        tiempoSpawnActual = 500; 
+        
+        clearInterval(intervalCajas); 
+        intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
+        
+        // Contador de logros
+        estadisticasLogros.frenesisActivados++; 
+        verificarLogro('frenesi_loco'); 
+        
+        setTimeout(() => { 
+            boostVelocidadActivo = false; 
+            tiempoSpawnActual = tiempoSpawnBase; 
+            clearInterval(intervalCajas); 
+            if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
+        }, 30000); // El frenesí dura 30 segundos
+        
+        guardarPartida(); 
+    } else {
+        alert("¡Te faltan cubatas!");
+    }
+}
 function comprarEvento() { if (nivelAparicion === 1) { alert("¡La Hora Feliz ya está activa!"); return; } if (cubatas >= 150) { cubatas -= 150; ganarCubatas(0); nivelAparicion = 1; cerrarModales(); crearCronometroFlotante('horafeliz-banner', 'HORA FELIZ', 30); setTimeout(() => { nivelAparicion = 0; }, 30000); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
 function comprarPasivo() { if (cubatas >= costePasivo) { cubatas -= costePasivo; ganarCubatas(0); tiempoPasivo = Math.max(400, tiempoPasivo - 400); costePasivo = Math.floor(costePasivo * 1.6); document.getElementById('coste-pasivo').innerText = costePasivo; iniciarBuclePasivo(); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
 function comprarLimpieza() { if (cubatas >= costeLimpieza) { cubatas -= costeLimpieza; ganarCubatas(0); tiempoRecogida = Math.max(400, tiempoRecogida / 2); costeLimpieza = Math.floor(costeLimpieza * 2.5); document.getElementById('coste-limpieza').innerText = costeLimpieza; clearInterval(intervalRecoger); intervalRecoger = setInterval(recogerVomitoAutomatico, tiempoRecogida); verificarLogro('vip_barra'); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
