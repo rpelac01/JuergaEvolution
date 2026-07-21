@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 🚨 BOTÓN MAGICO DE PRUEBA (100% CAMINANTE) 🚨 -->
+    <button onclick="stockChupitosHoy = 999; let backup = SOBRES.epico.premios; SOBRES.epico.premios = [{ tipo: 'chupito', peso: 100, texto: '🥂 ¡CAMINANTE ASEGURADO!' }]; sobresGratisEpico++; abrirWalkout(null, 'epico'); setTimeout(() => { SOBRES.epico.premios = backup; }, 2000);" style="position: absolute; top: 10px; left: 10px; z-index: 999999; background: #ffd700; color: #000; padding: 15px; border-radius: 8px; border: 3px solid white; cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 10px; box-shadow: 0 0 15px #ffd700;">
+        ⚽ FORZAR CAMINANTE
+    </button>
     <!-- ==================== MANUAL OBLIGATORIO DE INICIO ==================== -->
     <div id="pantalla-reglas" class="modal">
         <div class="modal-content tienda-arcade" style="width: 95%; max-width: 500px; height: 90vh; max-height: 800px; padding: 20px; display: flex; flex-direction: column; border: 4px solid #00ff00; box-shadow: 0 0 20px #00ff00, inset 0 0 20px #003300; overflow: hidden; background: #000;">
@@ -74,7 +78,7 @@
             <!-- Panel inferior con el progreso y el botón -->
             <div style="text-align: center; padding-top: 10px; border-top: 2px dashed #00ff00;">
                 <p id="progreso-lectura" style="color: #ff0055; font-size: 12px; font-weight: bold; margin-bottom: 10px; font-family: 'Press Start 2P', cursive;">LEÍDO: 0/7</p>
-                <button id="btn-entrar-juego" class="boton-arcade desactivado" style="width: 100%; font-size: 14px; padding: 15px;" disabled onclick="aceptarReglas()">
+                <button id="btn-entrar-juego" class="boton-arcade" style="width: 100%; font-size: 14px; padding: 15px;" onclick="aceptarReglas()">
                     ¡A BEBER! 🍻
                 </button>
             </div>
@@ -742,28 +746,50 @@
             </button>
         </div>
     </div>
-   <!-- ==================== CINEMÁTICA WALKOUT ÉPICO ==================== -->
+   <!-- ==================== CINEMÁTICA FIFA 21 (EDICIÓN DJMARIIO PREMIUM) ==================== -->
     <div id="walkout-modal" class="oculto">
-        <!-- Luces de estadio -->
-        <div id="walkout-flares"></div>
-        
-        <!-- Puertas Doradas (Solo se ven en premios épicos) -->
-        <div id="puerta-izq" class="walkout-puerta oculto"></div>
-        <div id="puerta-der" class="walkout-puerta oculto"></div>
-        
-        <!-- Fase 1: El Sobre latiendo en suspense -->
-        <div id="walkout-card-container"></div>
-        
-        <!-- Fase 2: Recompensa (Texto o Carta FIFA) -->
-        <div id="walkout-reward-container" class="oculto">
-            <img id="walkout-reward-img" src="" class="oculto">
-            <h2 id="walkout-premio"></h2>
+        <!-- Contenedor que hace el efecto de cámara avanzando -->
+        <div id="walkout-camera">
+            
+            <!-- Pared Izquierda (Con el Neón apagado del Caminante) -->
+            <div class="tunnel-wall left-wall">
+                <div class="neon-tube"></div>
+                <div class="neon-tube apagada-caminante"></div> <!-- ¡El chivato del premio gordo! -->
+                <div class="neon-tube"></div>
+            </div>
+            
+            <!-- Pared Derecha (Todos los neones encendidos) -->
+            <div class="tunnel-wall right-wall">
+                <div class="neon-tube"></div>
+                <div class="neon-tube"></div>
+                <div class="neon-tube"></div>
+            </div>
+
+            <!-- Fuegos artificiales de Icono -->
+            <div id="walkout-flares"></div>
+
+            <!-- Las puertas pesadas del fondo -->
+            <div id="walkout-doors">
+                <div id="puerta-izq" class="heavy-door"><div class="gold-crack right"></div></div>
+                <div id="puerta-der" class="heavy-door"><div class="gold-crack left"></div></div>
+            </div>
         </div>
         
-        <button id="walkout-btn-cerrar" class="boton-arcade oculto" style="margin-top: 30px; z-index: 20;" onclick="cerrarWalkout()">RECOGER PREMIO</button>
+        <!-- Fogonazo cegador (Fuera de la cámara para que cubra todo) -->
+        <div id="walkout-flash"></div>
+        
+        <!-- La Carta de Premio que sale volando -->
+        <div id="walkout-reward-container" class="oculto">
+            <div id="reward-card-glow">
+                <img id="walkout-reward-img" src="" class="oculto">
+                <h2 id="walkout-premio"></h2>
+            </div>
+            <button id="walkout-btn-cerrar" class="boton-arcade oculto" style="margin-top: 40px; z-index: 20; padding: 20px; font-size: 16px; background: #ffd700; color: #000; border-color: #fff;" onclick="cerrarWalkout()">🍻 ACEPTAR PREMIO</button>
+        </div>
+    </div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="script.js?v=5"></script>
+    <script src="script.js"></script>
 </body>
 </html>

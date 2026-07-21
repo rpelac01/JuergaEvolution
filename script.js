@@ -108,7 +108,6 @@ function guardarPartida() {
         nombre: nombreJugador, 
         cubatas: cubatas, 
         maxNivelDesbloqueado: maxNivelDesbloqueado, 
-        // 👻 ¡Fantasma de haPagadoEuro eliminado de aquí!
         sobresGratisEpico: sobresGratisEpico, 
         regalosReclamados: regalosReclamados, 
         cuponesCanjeados: cuponesCanjeados, 
@@ -122,10 +121,7 @@ function guardarPartida() {
         costePasivo: costePasivo,
         costeAmnesia: costeAmnesia, 
         amigos: amigosEnTablero, 
-        // ... (resto de variables de guardarPartida)
-        cuponesCanjeados: cuponesCanjeados, 
-        inventarioCupones: inventarioCupones, // 👈 AÑADE ESTO
-        estadisticasLogros: estadisticasLogros,
+        inventarioCupones: inventarioCupones, 
         timeStamp: Date.now() 
     };
     localStorage.setItem('juergaSave2026', JSON.stringify(estadoJuego));
@@ -139,59 +135,62 @@ function cargarPartida() {
         cubatas = estadoJuego.cubatas || 0; 
         maxNivelDesbloqueado = estadoJuego.maxNivelDesbloqueado || 0; 
         sobresGratisEpico = estadoJuego.sobresGratisEpico || 0;
-        regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
-        estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
-        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; costeVelocidad = estadoJuego.costeVelocidad || 50; tiempoRecogida = estadoJuego.tiempoRecogida || 5000; costeLimpieza = estadoJuego.costeLimpieza || 500; tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costePasivo = estadoJuego.costePasivo || 100;costeAmnesia = estadoJuego.costeAmnesia || 8500;
-        document.getElementById('coste-vel').innerText = costeVelocidad; document.getElementById('coste-limpieza').innerText = costeLimpieza; document.getElementById('coste-pasivo').innerText = costePasivo;
+        regalosReclamados = estadoJuego.regalosReclamados || regalosReclamados; 
+        cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
+        estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros; 
+        logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
+        tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; 
+        tiempoSpawnActual = tiempoSpawnBase; 
+        costeVelocidad = estadoJuego.costeVelocidad || 50; 
+        tiempoRecogida = estadoJuego.tiempoRecogida || 5000; 
+        costeLimpieza = estadoJuego.costeLimpieza || 500; 
+        tiempoPasivo = estadoJuego.tiempoPasivo || 3000; 
+        costePasivo = estadoJuego.costePasivo || 100;
+        costeAmnesia = estadoJuego.costeAmnesia || 8500;
+        inventarioCupones = estadoJuego.inventarioCupones || [];
+        
+        document.getElementById('coste-vel').innerText = costeVelocidad; 
+        document.getElementById('coste-limpieza').innerText = costeLimpieza; 
+        document.getElementById('coste-pasivo').innerText = costePasivo;
         if (document.getElementById('coste-amnesia')) {
             document.getElementById('coste-amnesia').innerText = costeAmnesia;
         }
-        // ... (resto de variables de cargarPartida)
-        cuponesCanjeados = estadoJuego.cuponesCanjeados || cuponesCanjeados;
-        inventarioCupones = estadoJuego.inventarioCupones || []; // 👈 AÑADE ESTO
-        estadisticasLogros = estadoJuego.estadisticasLogros || estadisticasLogros;
-        if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); } else { spawnAmigoInicial(); }
-        // ... (resto de la función cargarPartida por arriba) ...
+        
+        if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { 
+            estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); 
+        } else { 
+            spawnAmigoInicial(); 
+        }
         
         if (estadoJuego.timeStamp) {
             const tiempoFueraMs = Date.now() - estadoJuego.timeStamp;
             let tiempoFueraSegundos = tiempoFueraMs / 1000;
             
-            // Logro de la resaca (4 horas fuera)
             if (tiempoFueraSegundos >= 14400) { verificarLogro('la_resaca'); }
-            
-            // 🛑 NUEVO TOPE OFFLINE: Limitamos la fiesta a 8 horas (28800 segundos).
-            // Si duermen más de 8 horas, los personajes dejan de generar hasta que abran el juego.
-            if (tiempoFueraSegundos > 28800) {
-                tiempoFueraSegundos = 28800;
-            }
+            if (tiempoFueraSegundos > 28800) { tiempoFueraSegundos = 28800; }
 
             let ingresosPorBucle = 0; 
             document.querySelectorAll('.friend').forEach(f => { ingresosPorBucle += (parseInt(f.dataset.level) + 1); });
             
-            // 💸 ELIMINADO EL LÍMITE DE 3000. ¡Ahora ganas exactamente lo que produces en ese tiempo!
             let cubatasGanadosOffline = Math.floor((ingresosPorBucle / (tiempoPasivo / 1000)) * tiempoFueraSegundos); 
-            
-            // 📦 Límite de cajas ajustado a 6 (para que no te inunde la pantalla al volver)
             let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); 
             if (cajasNuevasOffline > 6) cajasNuevasOffline = 6;
             
             if (cubatasGanadosOffline > 0 || cajasNuevasOffline > 0) { 
                 cubatas += cubatasGanadosOffline; 
                 estadisticasLogros.cubatasTotalesGanados += cubatasGanadosOffline; 
-                
                 setTimeout(() => { 
                     alert(`🍻 ¡DE VUELTA!\nHas estado fuera y tus colegas han seguido de fiesta.\n\nHan recolectado:\n🍹 +${cubatasGanadosOffline} cubatas\n📦 +${cajasNuevasOffline} cajas`); 
-                    for (let i = 0; i < cajasNuevasOffline; i++) { 
-                        crearCajaOffline(); 
-                    } 
+                    for (let i = 0; i < cajasNuevasOffline; i++) { crearCajaOffline(); } 
                 }, 600); 
             }
         }
-    // ... (resto de cargarPartida)
-    } else { spawnAmigoInicial(); pedirNombre(); }
+    } else { 
+        spawnAmigoInicial(); 
+        pedirNombre(); 
+    }
     ganarCubatas(0);  
-    sincronizarStockGlobal(); // 👈 ¡AÑADE ESTA LÍNEA AQUÍ!
+    sincronizarStockGlobal();
 }
 
 function spawnAmigoInicial() { const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(0, xCentro, yCentro); }
@@ -202,38 +201,21 @@ function pedirNombre() {
     
     let nomCode = nombre.toUpperCase().trim();
     
-    // --- TRUCOS DE ADMIN ---
-    if (nomCode === "DINERO29042007") { 
-        ganarCubatas(50000); 
-        alert("🛠️ ADMIN: +50.000 Cubatas."); 
-        return; 
-    }
+    if (nomCode === "DINERO29042007") { ganarCubatas(50000); alert("🛠️ ADMIN: +50.000 Cubatas."); return; }
     if (nomCode === "MAXIMO29042007") { 
-        // Calcula automáticamente cuál es el último nivel de tu array 'levels'
         let ultimoNivel = levels.length - 1; 
-        
         maxNivelDesbloqueado = ultimoNivel; 
-        const xC = (board.clientWidth / 2) - 45; 
-        const yC = (board.clientHeight / 2) - 45; 
+        // 🛠️ EL ARREGLO
+        const xC = (window.innerWidth / 2) - 45; 
+        const yC = (window.innerHeight / 2) - 45; 
         createFriend(ultimoNivel, xC, yC); 
-        
         alert("🛠️ ADMIN: Desbloqueado Nivel Máximo (" + (ultimoNivel + 1) + ")."); 
         actualizaEstilosExtremos(); 
-        
-        // 🎟️ NUEVO: Llamamos al notario para testear el Ticket Dorado
         setTimeout(comprobarGanadorGoldenTicket, 3000);
-        
         return; 
     }
-    // 👇 AÑADE ESTE NUEVO TRUCO AQUÍ 👇
-    if (nomCode === "CUPON2026") { 
-        entregarPremioFisico("🧪 CUPÓN DE PRUEBA (ADMIN)"); 
-        alert("🛠️ ADMIN: +1 Cupón de prueba inyectado en tu cartera."); 
-        return; 
-    }
-    // 👆 HASTA AQUÍ 👆
+    if (nomCode === "CUPON2026") { entregarPremioFisico("🧪 CUPÓN DE PRUEBA (ADMIN)"); alert("🛠️ ADMIN: +1 Cupón de prueba inyectado en tu cartera."); return; }
 
-    // --- GUARDAR NOMBRE REAL ---
     nombreJugador = nomCode.substring(0, 15); 
     guardarPartida(); 
 }
@@ -291,12 +273,6 @@ function boostBajoTapa() {
         for(let i = 0; i < 3; i++) setTimeout(crearCajaInstantanea, i*200); 
     } else alert("¡Te faltan cubatas!");
 }
-function crearCajaInstantanea() {
-    const caja = document.createElement('div'); caja.classList.add('caja'); caja.style.transition = "none";
-    const randomX = Math.random() * (board.clientWidth - 95); caja.style.left = `${randomX}px`; caja.style.top = `${board.clientHeight * 0.72}px`;
-    board.appendChild(caja);
-    caja.addEventListener('pointerdown', () => { if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); ganarCubatas(1 * multiplicadorClic); createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); });
-}
 
 // 🟡 BOOSTS NIVEL MEDIO
 function boostMedioCharanga() {
@@ -310,11 +286,7 @@ function boostMedioCharanga() {
         guardarPartida();
     } else alert("¡Te faltan cubatas!");
 }
-function boostMedioBarril() {
-    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está llena!"); return; }
-    if (cubatas >= 2000) { cubatas -= 2000; ganarCubatas(0); cerrarModales(); const xCentro = (board.clientWidth / 2) - 45; const yCentro = (board.clientHeight / 2) - 45; createFriend(3, xCentro, yCentro); guardarPartida(); } 
-    else alert("¡Te faltan cubatas!");
-}
+
 
 // 🔥 BOOSTS ÉPICOS
 
@@ -659,162 +631,159 @@ function abrirSobre(tier) {
         resolverSobre(cfg, resultado, caja);
     }, 1300);
 }
-// ================= CINEMÁTICA DE CAMINANTE (WALKOUT ÉPICO Y RÁPIDO) =================
+// ================= CINEMÁTICA DE CAMINANTE (EDICIÓN DJMARIIO PREMIUM) =================
 function abrirWalkout(elementoCarta, tier) {
     if (sobreAbriendo) return;
     const cfg = SOBRES[tier];
     if (!cfg) return;
 
-    // Cobrar los cubatas
+    // Cobro del sobre
     const esGratis = (tier === 'epico' && sobresGratisEpico > 0);
     if (!esGratis) {
-        if (cubatas < cfg.coste) {
-            alert("¡Te faltan cubatas para este sobre!");
-            return;
-        }
-        cubatas -= cfg.coste;
-        ganarCubatas(0);
+        if (cubatas < cfg.coste) { alert("¡Te faltan cubatas para este sobre!"); return; }
+        cubatas -= cfg.coste; ganarCubatas(0);
     } else {
         sobresGratisEpico--;
     }
     guardarPartida();
 
     sobreAbriendo = true;
-
-    // 1. OCULTAMOS LA TIENDA Y PREPARAMOS EL CINE
     document.getElementById('casino-modal').classList.add('oculto');
     
-    const modalWalkout = document.getElementById('walkout-modal');
+    // --- ACTORES DE LA PELÍCULA ---
+    const modal = document.getElementById('walkout-modal');
+    const camera = document.getElementById('walkout-camera');
+    const neones = document.querySelectorAll('.neon-tube:not(.apagada-caminante)');
+    const neonCaminante = document.querySelector('.apagada-caminante');
     const flares = document.getElementById('walkout-flares');
-    const pIzq = document.getElementById('puerta-izq');
-    const pDer = document.getElementById('puerta-der');
-    const cardContainer = document.getElementById('walkout-card-container');
+    const doors = document.getElementById('walkout-doors');
+    const flash = document.getElementById('walkout-flash');
     const rewardContainer = document.getElementById('walkout-reward-container');
     const rewardImg = document.getElementById('walkout-reward-img');
     const premioTxt = document.getElementById('walkout-premio');
     const btnCerrar = document.getElementById('walkout-btn-cerrar');
 
-    // 2. RESET TOTAL (Para arreglar el bug de la imagen del chupito atascada)
-    cardContainer.innerHTML = '';
-    cardContainer.className = 'anim-suspense-carta'; 
-    cardContainer.classList.remove('oculto');
+    // --- RESETEO DEL ESCENARIO ---
+    modal.classList.remove('oculto');
+    camera.classList.remove('camera-moving');
+    doors.classList.remove('doors-glowing', 'doors-open');
+    flares.classList.remove('flares-on');
+    flash.classList.remove('flash-boom');
+    neones.forEach(n => n.classList.remove('on'));
+    if(neonCaminante) neonCaminante.classList.remove('on');
     rewardContainer.classList.add('oculto');
-    
-    // Forzamos que la imagen se oculte y borramos la fuente anterior
+    rewardContainer.classList.remove('card-fly-in');
     rewardImg.classList.add('oculto');
-    rewardImg.className = '';
-    rewardImg.src = ''; 
-    
-    premioTxt.className = '';
     btnCerrar.classList.add('oculto');
-    modalWalkout.classList.remove('puertas-abiertas');
-    pIzq.classList.add('oculto');
-    pDer.classList.add('oculto');
-    flares.className = 'anim-flares'; 
-    
-    modalWalkout.classList.remove('oculto');
 
-    // 3. CLONAMOS TU CARTA
-    const cartaClonada = elementoCarta.cloneNode(true);
-    cartaClonada.removeAttribute('onclick'); 
-    cartaClonada.style.margin = "0"; 
-    cardContainer.appendChild(cartaClonada);
-
-    // Tirar los dados
+    // Tirar los dados del premio
     let premio = elegirPremio(cfg.premios);
     premio = procesarStock(premio);
     const esPremioFisico = (premio.tipo === 'chupito' || premio.tipo === 'cubata_real' || premio.tipo === 'jackpot');
 
-    // 4. ELEGIMOS EL CAMINO DE ANIMACIÓN
-    if (esPremioFisico) {
-        // ========================================================
-        // CAMINO 1: MODO LENTO (CAMINANTE FIFA) - PREMIO GORDO
-        // ========================================================
-        setTimeout(() => {
-            cardContainer.className = 'anim-explosion-carta';
-
+    // =================================================================
+    // 🎬 ACCIÓN: EMPIEZA LA CINEMÁTICA
+    // =================================================================
+    
+    // T=0.0s: La cámara empieza a avanzar lentamente en la oscuridad
+    setTimeout(() => {
+        camera.classList.add('camera-moving');
+        
+        if (esPremioFisico) {
+            // ⚽ RUTA CAMINANTE ICONO (SUSPENSE EXTREMO)
+            
+            // T=0.8s: PUM. Se encienden las luces (¡Falta la izquierda!)
             setTimeout(() => {
-                cardContainer.classList.add('oculto');
-                rewardContainer.classList.remove('oculto');
-
-                flares.className = 'anim-flares-doradas';
-                pIzq.classList.remove('oculto');
-                pDer.classList.remove('oculto');
-
-                // Ponemos la carta de premio que toque
-                if (premio.tipo === 'chupito') {
-                    rewardImg.src = 'CHUPITO.jpg';
-                } else {
-                    rewardImg.src = 'cubata.jpg'; 
-                }
-
-                setTimeout(() => {
-                    modalWalkout.classList.add('puertas-abiertas');
-                    
-                    // Aseguramos que se muestra la imagen
-                    rewardImg.classList.remove('oculto');
-                    rewardImg.classList.add('anim-recompensa-epic');
-                    
-                    premioTxt.style.color = "#ffd700";
-                    premioTxt.innerText = premio.texto;
-                    premioTxt.classList.add('anim-premio');
-                    
-                    btnCerrar.dataset.premioFisico = premio.texto;
-                    btnCerrar.classList.remove('oculto');
-
-                    sobreAbriendo = false;
-                    actualizarBotonesSobres();
-                    guardarPartida();
-                }, 400);
-
-            }, 500); 
-        }, 2600); // MÁXIMO SUSPENSE: 2.6 Segundos esperando
-
-    } else {
-        // ========================================================
-        // CAMINO 2: MODO RÁPIDO - CUBATAS O NADA
-        // ========================================================
-        setTimeout(() => {
-            cardContainer.className = 'anim-explosion-carta';
-
-            setTimeout(() => {
-                cardContainer.classList.add('oculto');
-                rewardContainer.classList.remove('oculto');
-
-                // Aseguramos al 100% que la foto no sale aquí
-                rewardImg.classList.add('oculto');
-
-                if (premio.tipo === 'nada') {
-                    premioTxt.style.color = "#ff4444";
-                    premioTxt.innerText = premio.texto;
-                } else if (premio.tipo === 'cubatas') {
-                    const cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min));
-                    ganarCubatas(cantidad);
-                    premioTxt.style.color = "#00ff00";
-                    premioTxt.innerText = premio.texto.replace('{x}', cantidad);
-                }
+                neones.forEach(n => n.classList.add('on'));
+                if (navigator.vibrate) navigator.vibrate(100);
                 
-                premioTxt.classList.add('anim-premio');
-                btnCerrar.classList.remove('oculto');
-
-                sobreAbriendo = false;
-                actualizarBotonesSobres();
-                guardarPartida();
-            }, 300); // Explosión rápida de 0.3 segundos
-        }, 600); // APERTURA RÁPIDA: Solo 0.6 Segundos de espera
-    }
+                // T=2.2s: Empiezan a caer las chispas blancas de Icono
+                setTimeout(() => {
+                    flares.classList.add('flares-on');
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                    
+                    // T=3.2s: Brillo dorado extremo en el centro de las puertas
+                    setTimeout(() => {
+                        doors.classList.add('doors-glowing');
+                        if (navigator.vibrate) navigator.vibrate(200);
+                        
+                        // T=4.0s: Las puertas revientan hacia los lados
+                        setTimeout(() => {
+                            doors.classList.add('doors-open');
+                            if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+                            
+                            // T=4.3s: Fogonazo blanco que ciega la pantalla
+                            setTimeout(() => {
+                                flash.classList.add('flash-boom');
+                                
+                                // T=4.5s: La carta sale disparada hacia la cara del jugador
+                                setTimeout(() => {
+                                    rewardContainer.classList.remove('oculto');
+                                    rewardContainer.classList.add('card-fly-in');
+                                    
+                                    rewardImg.src = premio.tipo === 'chupito' ? 'CHUPITO.jpg' : 'cubata.jpg';
+                                    rewardImg.classList.remove('oculto');
+                                    
+                                    premioTxt.innerText = premio.texto;
+                                    btnCerrar.dataset.premioFisico = premio.texto;
+                                    
+                                    // A los 1.5s de salir la carta, mostramos el botón de recoger
+                                    setTimeout(() => {
+                                        btnCerrar.classList.remove('oculto');
+                                        sobreAbriendo = false;
+                                        actualizarBotonesSobres();
+                                    }, 1500);
+                                    
+                                }, 200); // Retardo tras el flash
+                            }, 300); // Retardo tras empezar a abrir puertas
+                        }, 800); // Tiempo viendo el brillo dorado
+                    }, 1000); // Tiempo viendo las chispas blancas
+                }, 1400); // Tiempo mirando la luz apagada (pura tensión)
+            }, 800); // Tiempo en oscuridad total
+            
+        } else {
+            // ❌ RUTA PANEL / ORO NORMAL (Rápido)
+            setTimeout(() => {
+                // Todo encendido, cero misterio
+                neones.forEach(n => n.classList.add('on'));
+                if(neonCaminante) neonCaminante.classList.add('on');
+                
+                setTimeout(() => {
+                    doors.classList.add('doors-open');
+                    
+                    setTimeout(() => {
+                        rewardContainer.classList.remove('oculto');
+                        rewardContainer.classList.add('card-fly-in');
+                        
+                        const cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min));
+                        ganarCubatas(cantidad);
+                        premioTxt.style.color = "#00ff00";
+                        premioTxt.innerText = premio.texto.replace('{x}', cantidad);
+                        
+                        setTimeout(() => {
+                            btnCerrar.classList.remove('oculto');
+                            sobreAbriendo = false;
+                            actualizarBotonesSobres();
+                        }, 1000);
+                        
+                    }, 300);
+                }, 600);
+            }, 500);
+        }
+    }, 50); // Pequeño margen para que el CSS reinicie bien
 }
-// Cerrar la cinemática
+
+// Botón para recoger y cerrar
 function cerrarWalkout() {
-    const modalWalkout = document.getElementById('walkout-modal');
+    const modal = document.getElementById('walkout-modal');
     const btnCerrar = document.getElementById('walkout-btn-cerrar');
     
-    modalWalkout.classList.add('oculto');
+    modal.classList.add('oculto');
     
-    // Si habia ganado un premio fisico, lanzamos el cupón real ahora
+    // Si era premio físico, lanzamos la notificación del cupón a la mochila
     if (btnCerrar.dataset.premioFisico) {
         entregarPremioFisico(btnCerrar.dataset.premioFisico);
-        btnCerrar.dataset.premioFisico = ""; // Limpiar
+        btnCerrar.dataset.premioFisico = ""; 
     }
 }
 function resolverSobre(cfg, resultado, caja) {
@@ -1055,9 +1024,46 @@ function actualizarTiendaPersonajes() {
             </button>`; 
     } 
 }
+function comprarPersonaje(nivel, precio) { 
+    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } 
+    if (cubatas >= precio) { 
+        cubatas -= precio; ganarCubatas(0); cerrarModales(); 
+        // 🛠️ EL ARREGLO
+        const xCentro = (window.innerWidth / 2) - 45; 
+        const yCentro = (window.innerHeight / 2) - 45; 
+        createFriend(nivel, xCentro, yCentro); 
+        guardarPartida(); 
+    } else alert("¡Te faltan cubatas!"); 
+}
 
+function boostMedioBarril() {
+    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está llena!"); return; }
+    if (cubatas >= 2000) { 
+        cubatas -= 2000; ganarCubatas(0); cerrarModales(); 
+        // 🛠️ EL ARREGLO
+        const xCentro = (window.innerWidth / 2) - 45; 
+        const yCentro = (window.innerHeight / 2) - 45; 
+        createFriend(3, xCentro, yCentro); 
+        guardarPartida(); 
+    } else alert("¡Te faltan cubatas!");
+}
 
-function comprarPersonaje(nivel, precio) { if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); cerrarModales(); const xCentro = (board.clientWidth / 2) - 45; const yCentro = (board.clientHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); } else alert("¡Te faltan cubatas!"); }
+function crearCajaInstantanea() {
+    const caja = document.createElement('div'); caja.classList.add('caja'); caja.style.transition = "none";
+    // 🛠️ EL ARREGLO
+    const randomX = Math.random() * (window.innerWidth - 95); 
+    caja.style.left = `${randomX}px`; 
+    caja.style.top = `${window.innerHeight * 0.6}px`;
+    board.appendChild(caja);
+    caja.addEventListener('pointerdown', () => { 
+        if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } 
+        const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); 
+        caja.remove(); ganarCubatas(1 * multiplicadorClic); 
+        createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
+        estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); 
+    });
+}
+
 function comprarVelocidad() { 
     if (boostVelocidadActivo) { alert("¡El Frenesí ya está activo!"); return; } 
     
@@ -1118,19 +1124,13 @@ function crearCronometroFlotante(id, texto, duracionSegundos) {
 }
 function mostrarCinematica(nivel) { pausarJuego(); if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); const cinematic = document.getElementById('unlock-cinematic'); const imagen = document.getElementById('unlock-img'); const texto = document.getElementById('unlock-desc'); imagen.src = levels[nivel]; texto.innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; cinematic.classList.remove('oculto'); setTimeout(() => { cinematic.classList.add('activo'); }, 20); cinematic.onclick = () => { cinematic.classList.add('oculto'); cinematic.classList.remove('activo'); reanudarJuego(); }; }
 function crearCaja() { 
-    // Buscamos cajas normales (como la dorada ahora tiene las dos clases, el límite funciona perfecto)
     if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
     
-    // 🎲 EL DADO: 5% de probabilidad de que sea la Caja Dorada
     const esDorada = Math.random() < 0.05;
-    
     const caja = document.createElement('div'); 
     
-    // 🔥 EL ARREGLO: Le damos la clase normal SIEMPRE, y si es dorada, le sumamos el brillo
     caja.classList.add('caja'); 
-    if (esDorada) {
-        caja.classList.add('caja-dorada');
-    }
+    if (esDorada) caja.classList.add('caja-dorada');
     
     let segundosCaida = 5.0; 
     if (tiempoSpawnActual <= 4000) segundosCaida = 4.0;
@@ -1138,8 +1138,10 @@ function crearCaja() {
     
     caja.style.transition = `top ${segundosCaida}s linear`; 
     
-    const randomX = Math.random() * (board.clientWidth - 95); 
-    const randomY = Math.random() * (board.clientHeight - 120) + 20; 
+    // 🛠️ EL ARREGLO: Usamos la ventana completa, nunca el board oculto
+    const randomX = Math.random() * (window.innerWidth - 95); 
+    const randomY = Math.random() * (window.innerHeight - 200) + 20; 
+    
     caja.style.left = `${randomX}px`; 
     caja.style.top = `-95px`; 
     board.appendChild(caja); 
@@ -1149,10 +1151,8 @@ function crearCaja() {
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
         
-        // 📳 JUICE: Vibración al tocar la caja
         if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
 
-        // Si la pradera está llena y NO es dorada, bloqueamos
         if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
             return; 
@@ -1166,20 +1166,16 @@ function crearCaja() {
         caja.remove(); 
         
         if (esDorada) {
-            // 🌟 PREMIO ÉPICO (Dinero + Personaje de Nivel 5)
             ganarCubatas(5000);
             mostrarTextoFlotanteEpico(x - 20, y, "¡+5000 🥃!");
             createFriend(4, x, y); 
         } else {
-            // 📦 PREMIO NORMAL
             ganarCubatas(1 * multiplicadorClic); 
             createFriend(nivelAparicion, x, y); 
         }
-        
         guardarPartida(); 
     }); 
 }
-
 // Función auxiliar para lanzar el texto gigante
 function mostrarTextoFlotanteEpico(x, y, mensaje) {
     const texto = document.createElement('div');
@@ -1197,8 +1193,9 @@ function crearCajaOffline() {
     caja.classList.add('caja'); 
     caja.style.transition = "none"; 
     
-    const randomX = Math.random() * (board.clientWidth - 95); 
-    const randomY = Math.random() * (board.clientHeight - 120) + 20; 
+    // 🛠️ EL ARREGLO
+    const randomX = Math.random() * (window.innerWidth - 95); 
+    const randomY = Math.random() * (window.innerHeight - 200) + 20; 
     
     caja.style.left = `${randomX}px`; 
     caja.style.top = `${randomY}px`; 
@@ -1437,112 +1434,68 @@ function renderizarJuerguistas() {
     });
 }
 // ==========================================================================
-// 📖 SISTEMA DE MANUAL OBLIGATORIO AL INICIO
+// 📖 SISTEMA DE MANUAL OBLIGATORIO AL INICIO (LA SOLUCIÓN INFALIBLE)
 // ==========================================================================
+const pantallaReglas = document.getElementById('pantalla-reglas');
 
-document.addEventListener("DOMContentLoaded", () => {
-    const pantallaReglas = document.getElementById('pantalla-reglas');
-    
-    // Comprobamos si ya aceptaron las reglas en una visita anterior
-    const reglasLeidas = localStorage.getItem('juergaReglas2026') === 'true';
-    
-    if (reglasLeidas) {
-        // Si ya las leyeron, ocultamos el modal y dejamos jugar
-        pantallaReglas.classList.add('oculto');
-    } else {
-        // Si es su primera vez, pausamos el juego en segundo plano
-        pausarJuego();
-        
-        const detalles = document.querySelectorAll('.regla-item');
-        const total = detalles.length;
-        let abiertas = new Set(); // Guardamos cuáles se han abierto
-        
-        const textoProgreso = document.getElementById('progreso-lectura');
-        const btnEntrar = document.getElementById('btn-entrar-juego');
+// 1. Comprobamos la memoria de forma segura
+let reglasLeidas = false;
+try {
+    reglasLeidas = localStorage.getItem('juergaReglas2026') === 'true';
+} catch(e) {}
 
-        detalles.forEach((detalle, index) => {
-            detalle.addEventListener('toggle', (e) => {
-                // Si el usuario abre el desplegable, lo registramos
-                if (detalle.open) {
-                    abiertas.add(index);
-                    
-                    // Actualizamos el contador visual
-                    textoProgreso.innerText = `LEÍDO: ${abiertas.size}/${total}`;
-                    
-                    // Si ya ha abierto las 7...
-                    if (abiertas.size === total) {
-                        textoProgreso.innerText = "¡TODO LISTO!";
-                        textoProgreso.style.color = "#00ff00"; // Cambia a verde
+if (reglasLeidas) {
+    if (pantallaReglas) pantallaReglas.classList.add('oculto');
+} else {
+    pausarJuego();
+    
+    const detalles = document.querySelectorAll('.regla-item');
+    const textoProgreso = document.getElementById('progreso-lectura');
+    const btnEntrar = document.getElementById('btn-entrar-juego');
+    
+    let abiertas = new Set();
+
+    // 2. LA SOLUCIÓN INFALIBLE: Escuchar el 'click' directo en los títulos
+    detalles.forEach((detalle, index) => {
+        const titulo = detalle.querySelector('summary');
+        
+        if (titulo) {
+            titulo.addEventListener('click', () => {
+                // Esperamos 50 milisegundos para que al navegador le dé tiempo a abrir la pestaña visualmente
+                setTimeout(() => {
+                    if (detalle.open) {
+                        abiertas.add(index);
                         
-                        // Activamos el botón
-                        btnEntrar.disabled = false;
-                        btnEntrar.classList.remove('desactivado');
+                        // Actualizamos el contador
+                        if (textoProgreso) {
+                            textoProgreso.innerText = `LEÍDO: ${abiertas.size}/${detalles.length}`;
+                        }
+                        
+                        // Si llegamos a 7, activamos el botón
+                        if (abiertas.size === detalles.length && btnEntrar) {
+                            if (textoProgreso) {
+                                textoProgreso.innerText = "¡TODO LISTO!";
+                                textoProgreso.style.color = "#00ff00";
+                            }
+                            btnEntrar.disabled = false;
+                            btnEntrar.classList.remove('desactivado');
+                        }
                     }
-                }
+                }, 50);
             });
-        });
-    }
-});
-
-function aceptarReglas() {
-    // Guardamos en la memoria del móvil que ya han leído las reglas
-    localStorage.setItem('juergaReglas2026', 'true');
-    
-    // Ocultamos la pantalla
-    document.getElementById('pantalla-reglas').classList.add('oculto');
-    
-    // Reanudamos el juego (cajas, vómitos, farmeo)
-    reanudarJuego();
-    
-    // Si no tienen nombre, se lo pedimos
-    if (nombreJugador === "Desconocido") {
-        pedirNombre();
-    }
-}
-function sincronizarStockGlobal() {
-    const hoy = obtenerDiaDeFiesta();
-    diaFiestaActual = hoy;
-
-    // 📡 MODO ESPEJO EN DIRECTO (onSnapshot)
-    // Se actualiza en todos los móviles a la vez al instante sin gastar base de datos
-    db.collection("control_barra").doc(hoy).onSnapshot((doc) => {
-        if (doc.exists) {
-            // Cuando alguien saca premio, esto se ejecuta solo y al instante
-            const datos = doc.data();
-            stockChupitosHoy = datos.chupitos;
-            stockCubatasHoy = datos.cubatas;
-        } else {
-            // Si es un día nuevo, crea el contador a tope
-            db.collection("control_barra").doc(hoy).set({
-                chupitos: LIMITE_DIARIO_CHUPITOS,
-                cubatas: LIMITE_DIARIO_CUBATAS
-            });
-            stockChupitosHoy = LIMITE_DIARIO_CHUPITOS;
-            stockCubatasHoy = LIMITE_DIARIO_CUBATAS;
         }
-        
-        // Refrescamos la pantalla con los datos nuevos
-        actualizarContadorPantalla();
-
-    }, (error) => {
-        console.log("Error sincronizando stock en directo:", error);
-        // Sistema de emergencia por si se cae el WiFi de las fiestas
-        stockChupitosHoy = 5;
-        stockCubatasHoy = 1;
-        actualizarContadorPantalla();
     });
 }
-function actualizarContadorPantalla() {
-    const txtChupitos = document.getElementById('stock-visual-chupitos');
-    const txtCubatas = document.getElementById('stock-visual-cubatas');
+
+function aceptarReglas() {
+    try { localStorage.setItem('juergaReglas2026', 'true'); } catch(e) {}
     
-    if (txtChupitos && txtCubatas) {
-        // Ponemos el número en rojo si se agotan, y en verde si quedan
-        txtChupitos.innerText = stockChupitosHoy;
-        txtChupitos.style.color = stockChupitosHoy > 0 ? "#00ff00" : "#ff0055";
-        
-        txtCubatas.innerText = stockCubatasHoy;
-        txtCubatas.style.color = stockCubatasHoy > 0 ? "#00ff00" : "#ff0055";
+    if (pantallaReglas) pantallaReglas.classList.add('oculto');
+    
+    reanudarJuego();
+    
+    if (nombreJugador === "Desconocido") {
+        pedirNombre();
     }
 }
 // ==========================================================================
