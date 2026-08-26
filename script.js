@@ -21,10 +21,7 @@ try {
     // 🛡️ ESCUDO ANTI-BOTS Y SPAM (FIREBASE APP CHECK)
     if (typeof firebase.appCheck === "function") {
         const appCheck = firebase.appCheck();
-        appCheck.activate(
-          '6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', // Tu clave de reCAPTCHA
-          true 
-        );
+        appCheck.activate('6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', true);
     }
 } catch (e) {
     console.warn("Firebase bloqueado o sin conexión. Jugando en modo local.");
@@ -129,19 +126,8 @@ let boostVelocidadActivo = false;
 let intervalCajas; let intervalVomitar; let intervalRecoger; let intervalPasivo;
 
 // ==========================================================================
-// 💾 SISTEMA DE GUARDADO BLINDADO Y FIRMA HASH
+// 💾 SISTEMA DE GUARDADO BLINDADO CON FIRMA EN LÍNEA
 // ==========================================================================
-function generarFirma(datos) {
-    const salt = "JuergaCivilSecret_2026_Key!";
-    const str = `${datos.cubatas}_${datos.maxNivelDesbloqueado}_${datos.nombre}_${salt}`;
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return hash.toString();
-}
-
 function guardarPartida() {
     if (juegoPausado && !boostVelocidadActivo) return; 
     const amigosEnTablero = [];
@@ -168,7 +154,13 @@ function guardarPartida() {
         timeStamp: Date.now() 
     };
 
-    estadoJuego.firma = generarFirma(estadoJuego);
+    // 🛡️ FIRMA INVISIBLE (Ya no hay función global)
+    const salt = "JuergaCivilSecret_2026_Key!";
+    const str = `${estadoJuego.cubatas}_${estadoJuego.maxNivelDesbloqueado}_${estadoJuego.nombre}_${salt}`;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+    estadoJuego.firma = hash.toString();
+
     localStorage.setItem('juergaSave2026', JSON.stringify(estadoJuego));
 }
 
@@ -178,9 +170,16 @@ function cargarPartida() {
         let estadoJuego;
         try { estadoJuego = JSON.parse(guardado); } catch (e) { estadoJuego = null; }
 
-        // 🛡️ EL CANDADO DEFINITIVO: Exige firma sí o sí
         if (estadoJuego) {
-            if (!estadoJuego.firma || estadoJuego.firma !== generarFirma(estadoJuego)) {
+            // 🛡️ CANDADO MATEMÁTICO INVISIBLE
+            const salt = "JuergaCivilSecret_2026_Key!";
+            const str = `${estadoJuego.cubatas}_${estadoJuego.maxNivelDesbloqueado}_${estadoJuego.nombre}_${salt}`;
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+            const firmaCalculada = hash.toString();
+
+            // Si el hacker manda un payload sin firma, o con una firma inventada, se bloquea.
+            if (!estadoJuego.firma || String(estadoJuego.firma) !== firmaCalculada) {
                 alert("🚨 Modificación ilegal de datos detectada. Partida reseteada.");
                 localStorage.removeItem('juergaSave2026');
                 location.reload();
@@ -251,6 +250,7 @@ function cargarPartida() {
     }
     ganarCubatas(0);  
     sincronizarStockGlobal();
+    verificarEstadoVIPEnNube();
 }
 
 function spawnAmigoInicial() { 
@@ -731,7 +731,6 @@ function cerrarWalkout() {
     if (btnCerrar.dataset.premioFisico) { entregarPremioFisico(btnCerrar.dataset.premioFisico); btnCerrar.dataset.premioFisico = ""; }
 }
 
-// 👇 LA NUEVA FUNCIÓN PARA MOSTRAR QUE LOS SOBRES DE LA PEÑA SON GRATIS
 function actualizarBotonesSobres() {
     const etiquetas = document.querySelectorAll('.etiqueta-precio');
     etiquetas.forEach(etiqueta => {
