@@ -515,6 +515,9 @@ function escucharAutorizacionVIP() {
             const modalPago = document.getElementById('pago-casino-modal');
             if (modalPago) modalPago.classList.add('oculto');
             mostrarNotificacion("👑 ¡PASE VIP AUTORIZADO POR LA BARRA!");
+            
+            // Forzamos a que el Casino se abra automáticamente al recibir el VIP
+            abrirCasino(); 
         }
     });
 }
@@ -533,16 +536,22 @@ function verificarEstadoVIPEnNube() {
 
 function abrirPanelCamarero() {
     let pass = prompt("Contraseña Maestra de la Barra:");
-    if (pass === "DeXTer_2007") { 
-        let jugador = prompt("📝 Escribe el nombre exacto del jugador que ha pagado los 2€ para activar su VIP:");
-        if (jugador && db) {
-            db.collection("pases_vip").doc(jugador).set({
-                jugador: jugador, autorizado: true
-            }, { merge: true }).then(() => {
-                alert("✅ ¡ÉXITO! El jugador '" + jugador + "' ahora es VIP.");
-            }).catch(err => alert("Error: " + err));
-        }
-    } else if (pass !== null) { alert("¡Largo de aquí, cotilla!"); }
+    if (!pass) return;
+
+    let jugador = prompt("📝 Escribe el nombre exacto del jugador que ha pagado los 2€ para activar su VIP:");
+    if (jugador && db) {
+        // Enviamos el intento directamente a Firebase. 
+        // Si la clave es errónea, el servidor nos dará un portazo.
+        db.collection("pases_vip").doc(jugador).set({
+            jugador: jugador, 
+            autorizado: true,
+            claveStaff: pass // 👈 La clave viaja oculta al servidor para que él la valide
+        }, { merge: true }).then(() => {
+            alert("✅ ¡ÉXITO! El jugador '" + jugador + "' ahora es VIP.");
+        }).catch(err => {
+            alert("❌ ACCESO DENEGADO: Contraseña incorrecta.");
+        });
+    }
 }
 
 // ==========================================================================
