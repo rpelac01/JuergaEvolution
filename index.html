@@ -7,10 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 🚨 BOTÓN MAGICO DE PRUEBA (100% CAMINANTE) 🚨 -->
-    <button onclick="stockChupitosHoy = 999; let backup = SOBRES.epico.premios; SOBRES.epico.premios = [{ tipo: 'chupito', peso: 100, texto: '🥂 ¡CAMINANTE ASEGURADO!' }]; sobresGratisEpico++; abrirWalkout(null, 'epico'); setTimeout(() => { SOBRES.epico.premios = backup; }, 2000);" style="position: absolute; top: 10px; left: 10px; z-index: 999999; background: #ffd700; color: #000; padding: 15px; border-radius: 8px; border: 3px solid white; cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 10px; box-shadow: 0 0 15px #ffd700;">
-        ⚽ FORZAR CAMINANTE
-    </button>
+    
     <!-- ==================== MANUAL OBLIGATORIO DE INICIO ==================== -->
     <div id="pantalla-reglas" class="modal">
         <div class="modal-content tienda-arcade" style="width: 95%; max-width: 500px; height: 90vh; max-height: 800px; padding: 20px; display: flex; flex-direction: column; border: 4px solid #00ff00; box-shadow: 0 0 20px #00ff00, inset 0 0 20px #003300; overflow: hidden; background: #000;">
@@ -639,6 +636,9 @@
                 <button class="menu-card" onclick="abrirOpciones()">
                     <div class="menu-icon bg-azul" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">⚙️</div><span>OPCIONES</span>
                 </button>
+                <button class="menu-card" onclick="abrirManualDirecto()">
+                    <div class="menu-icon bg-verde" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">📖</div><span>MANUAL</span>
+                </button>
             </div>
         </div>
     </div>
@@ -658,8 +658,59 @@
                 </div>
         </div>
     </div>
+        <!-- ==================== MODAL MANUAL DIRECTO ARCADE ==================== -->
+    <div id="manual-modal" class="modal oculto" style="z-index: 650;">
+        <div class="modal-content tienda-arcade" style="width: 92%; max-width: 480px; height: 85vh; max-height: 750px; padding: 20px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);">
+            
+            <button class="cerrar-btn" style="top: 15px; right: 15px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
+            
+            <h3 style="color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; line-height: 1.4;">
+                📖 GUÍA DE LA JUERGA
+            </h3>
+            
+            <div style="flex-grow: 1; overflow-y: auto; padding-right: 8px; text-align: left; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.6; color: #eee;">
+                
+                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">1. 🎮 CÓMO JUGAR</h4>
+                    <p>• <b>Cajas:</b> Caen del cielo. Tócalas para revelar un juerguista.</p>
+                    <p>• <b>Fusión:</b> Arrastra dos colegas del mismo nivel para evolucionarlos.</p>
+                    <p>• <b>Vómitos:</b> Tócalos para limpiar la pradera y sumar cubatas extra.</p>
+                </div>
 
-    
+                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">2. 🍹 ECONOMÍA</h4>
+                    <p>• Tus personajes generan <b>Cubatas (🥃)</b> solos por segundo.</p>
+                    <p>• Ganarás cubatas incluso si sales del juego (hasta 8h).</p>
+                </div>
+
+                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">3. 👑 ZONA VIP Y BAR</h4>
+                    <p>• Al llegar al <b>Nivel 9</b> se desbloquea el Reservado VIP y los Boosts Extremos.</p>
+                    <p>• En la tienda (🛒) puedes comprar mejoras permanentes y frenesí de cajas.</p>
+                </div>
+
+                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">4. 🎁 SOBRES Y PREMIOS REALES</h4>
+                    <p>• <b>Pase VIP:</b> Cuesta 2€ en la barra física para desbloquear los sobres para siempre.</p>
+                    <p>• Compra sobres con cubatas del juego. ¡Pueden tocar consumiciones de verdad!</p>
+                    <p>• Si ganas un premio físico, se guardará en <b>🎟️ CUPONES</b>. Ve a la barra para que el camarero lo queme.</p>
+                </div>
+
+                <div style="margin-bottom: 10px; background: #1a1500; border: 1px solid #ffd700; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #ffd700; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">5. 🏆 COMPETICIÓN TICKET DORADO</h4>
+                    <p>Los primeros en llegar al nivel máximo (Nivel 19) ganan premio físico directo:</p>
+                    <p style="color: #ffd700; font-weight: bold; margin-top: 4px;">🥇 1º, 2º y 3º puesto ➔ 🍹 CUBATA GRATIS</p>
+                    <p style="color: #00ff00; font-weight: bold; margin-top: 2px;">🥈 4º y 5º puesto ➔ 🥂 CHUPITO GRATIS</p>
+                </div>
+                
+            </div>
+
+            <button class="boton-arcade" style="width: 100%; margin: 10px 0 0 0; font-size: 11px; padding: 12px;" onclick="cerrarModales()">
+                ¡A SEGUIR JUGANDO! 🍻
+            </button>
+        </div>
+    </div>
+        
 
     <div id="logros-modal" class="modal oculto">
         <div class="modal-content libreta">
@@ -786,7 +837,6 @@
             </div>
             <button id="walkout-btn-cerrar" class="boton-arcade oculto" style="margin-top: 40px; z-index: 20; padding: 20px; font-size: 16px; background: #ffd700; color: #000; border-color: #fff;" onclick="cerrarWalkout()">🍻 ACEPTAR PREMIO</button>
         </div>
-    </div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
