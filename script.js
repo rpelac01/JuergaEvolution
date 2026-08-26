@@ -1171,18 +1171,34 @@
     }
 
     // ==========================================================================
-    // 🚀 ARRANQUE OFICIAL (Bloqueo de menú solucionado)
+    // 🚀 ARRANQUE OFICIAL (Bloqueo y Pausas Solucionados)
     // ==========================================================================
+    
+    // Como quitaste el manual obligatorio, arrancamos el juego directamente sin pausas.
     cargarPartida(); 
-    
-    // Si ya leyeron el manual, arrancamos, si no, se queda en pause
-    if (localStorage.getItem('juergaReglas2026') === 'true') {
-        reanudarJuego();
-    } else {
-        juegoPausado = true;
-    }
-    
+    reanudarJuego(); 
     intervalGuardado = setInterval(guardarPartida, 3000);
+
+    // ==========================================================================
+    // 🔒 PANEL DE STAFF (CAMARERO)
+    // ==========================================================================
+    // Esta función permite al camarero aprobar los pases VIP en la base de datos
+    function abrirPanelCamarero() {
+        let pass = prompt("Contraseña Maestra de la Barra:");
+        if (pass === "DeXTer_2007") { 
+            let jugador = prompt("📝 Escribe el nombre exacto del jugador que ha pagado los 2€ para activar su VIP:");
+            if (jugador && db) {
+                db.collection("pases_vip").doc(jugador).set({
+                    jugador: jugador,
+                    autorizado: true
+                }, { merge: true }).then(() => {
+                    alert("✅ ¡ÉXITO! El jugador '" + jugador + "' ahora es VIP y ya puede abrir sobres.");
+                }).catch(err => alert("Error: " + err));
+            }
+        } else if (pass !== null) {
+            alert("¡Largo de aquí, cotilla!");
+        }
+    }
 
     // ==========================================================================
     // 🌐 EXPORTACIÓN DE FUNCIONES (Para que el HTML pueda pulsarlas)
@@ -1206,8 +1222,7 @@
     window.boostExtremoBarraLibre = boostExtremoBarraLibre;
     window.abrirWalkout = abrirWalkout;
     window.cerrarWalkout = cerrarWalkout;
-    window.verificarPagoCasino = verificarPagoCasino;
-    window.abrirPanelCamarero = abrirPanelCamarero;
+    window.abrirPanelCamarero = abrirPanelCamarero; 
     window.cambiarNombre = cambiarNombre;
     window.borrarPartida = borrarPartida;
     window.abrirJuerguistas = abrirJuerguistas;
@@ -1225,5 +1240,5 @@
     window.quemarCupon = quemarCupon;
     window.cerrarCupon = cerrarCupon;
     window.abrirManualDirecto = abrirManualDirecto;
-    window.aceptarReglas = aceptarReglas; 
+    window.solicitarPaseVIP = solicitarPaseVIP; 
 })();
