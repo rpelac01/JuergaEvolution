@@ -54,8 +54,25 @@ html, body {
 .libreta { background: #fff9c4; border-left: 20px solid #555; border-radius: 5px 15px 15px 5px; padding-top: 35px; }
 .libreta-tab { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #a5d6a7; border: 3px solid #333; padding: 5px 20px; border-radius: 10px 10px 0 0; font-weight: bold; font-size: 18px; letter-spacing: 1px; z-index: 205; }
 .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 5px; }
-.menu-card { background: white; border: 3px solid #333; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 5px; cursor: pointer; box-shadow: 3px 3px 0 #333; }
-.menu-card:active { transform: translateY(3px); box-shadow: 0 0 0 #000; }
+.menu-card { 
+    background: white; 
+    border: 3px solid #333; 
+    border-radius: 8px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 12px 5px; 
+    cursor: pointer; 
+    box-shadow: 3px 3px 0 #333; 
+    pointer-events: auto !important; /* Añadido: Activa los clics */
+    position: relative; /* Añadido: Lo pone por encima de otros elementos invisibles */
+    z-index: 10; /* Añadido: Lo trae al frente */
+}
+.menu-card:active { 
+    transform: translateY(3px); 
+    box-shadow: 0 0 0 #000; 
+}
 .menu-icon { width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; font-size: 28px; border: 3px solid #333; border-radius: 50%; margin-bottom: 8px; }
 .bg-rojo { background: #ffcccc; } .bg-amarillo { background: #fff59d; } .bg-azul { background: #bbdefb; } .bg-calendario { background: #e1bee7; } .bg-verde { background: #c8e6c9; }
 .menu-card span { font-weight: bold; font-size: 12px; color: #333; }

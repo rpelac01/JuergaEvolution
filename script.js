@@ -423,56 +423,156 @@
         if (casinoVIP) { document.getElementById('casino-modal').classList.remove('oculto'); actualizarBotonesSobres(); } 
         else { document.getElementById('pago-casino-modal').classList.remove('oculto'); }
     }
-    function generarCodigoDinamico(offset = 0) {
-        const ventanaTiempo = Math.floor(Date.now() / 20000) + offset;
-        let semilla = 7351; let codigo = ((ventanaTiempo + semilla) * 1234) % 10000;
-        return codigo.toString().padStart(4, '0');
-    }
+    
 
     let intervaloCamarero;
-    function abrirPanelCamarero() {
-        let pass = prompt("Contraseña Maestra de la Barra:");
-        if (pass === "DeXTer_2007") { 
-            cerrarModales(); document.getElementById('camarero-modal').classList.remove('oculto');
-            document.getElementById('codigo-vivo').innerText = generarCodigoDinamico();
-            intervaloCamarero = setInterval(() => {
-                if(document.getElementById('camarero-modal').classList.contains('oculto')) clearInterval(intervaloCamarero); 
-                else document.getElementById('codigo-vivo').innerText = generarCodigoDinamico();
-            }, 1000);
-        } else if (pass !== null) alert("¡Largo de aquí, cotilla!");
+   
+    // ==========================================================================
+    // 🔒 GESTIÓN DEL PASE VIP DESDE LA NUBE
+    // ==========================================================================
+    function solicitarPaseVIP() {
+        if (!db) {
+            alert("Error de conexión a internet.");
+            return;
+        }
+        if (nombreJugador === "Desconocido") {
+            pedirNombre();
+            if (nombreJugador === "Desconocido") return;
+        }
+
+        // Registra la solicitud del jugador en la nube
+        db.collection("pases_vip").doc(nombreJugador).set({
+            jugador: nombreJugador,
+            solicitadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+            autorizado: false
+        }).then(() => {
+            alert("📩 Solicitud enviada.\n\nEnseña tu pantalla en barra, paga 2€ y el camarero autorizará tu cuenta.");
+            escucharAutorizacionVIP();
+        }).catch((err) => {
+            console.error("Error al solicitar VIP:", err);
+        });
     }
-    function verificarPagoCasino() {
-        let password = prompt("🕵️‍♂️ SEGURATA: 'El código cambia cada 20s. Dale tu móvil al camarero para que lo teclee.'\n\nCódigo actual:");
-        if (password === null || password === "") return;
-        if (password === generarCodigoDinamico() || password === generarCodigoDinamico(-1)) {
-            casinoVIP = true; localStorage.setItem('casinoVIP', 'true');
-            document.getElementById('pago-casino-modal').classList.add('oculto');
-            abrirCasino(); alert("¡Pase VIP Confirmado! Bienvenido al Clandestino.");
-        } else alert("❌ SEGURATA: 'Código incorrecto o caducado.'");
+
+    function escucharAutorizacionVIP() {
+        if (!db || nombreJugador === "Desconocido") return;
+
+        db.collection("pases_vip").doc(nombreJugador).onSnapshot((doc) => {
+            if (doc.exists && doc.data().autorizado === true) {
+                casinoVIP = true;
+                localStorage.setItem('casinoVIP', 'true');
+                guardarPartida();
+                subirPuntuacion();
+                
+                const modalPago = document.getElementById('pago-casino-modal');
+                if (modalPago) modalPago.classList.add('oculto');
+                
+                mostrarNotificacion("👑 ¡PASE VIP AUTORIZADO POR LA BARRA!");
+            }
+        });
+    }
+
+    // Al cargar partida, verifica si su VIP sigue siendo legítimo
+    function verificarEstadoVIPEnNube() {
+        if (!db || nombreJugador === "Desconocido") return;
+        db.collection("pases_vip").doc(nombreJugador).get().then((doc) => {
+            if (doc.exists && doc.data().autorizado === true) {
+                casinoVIP = true;
+                localStorage.setItem('casinoVIP', 'true');
+            } else if (!doc.exists || doc.data().autorizado !== true) {
+                casinoVIP = false;
+                localStorage.setItem('casinoVIP', 'false');
+            }
+            guardarPartida();
+        }).catch(() => {});
     }
 
     // ==========================================================================
     // 🎟️ CUPONES Y WALKOUTS
     // ==========================================================================
     function cerrarCupon() { document.getElementById('cupon-modal').classList.add('oculto'); cuponActivoTipo = ""; reanudarJuego(); }
+    function entregarPremioFisico(textoPremio) {
+        if (!db) {
+            alert("⚠️ Error de conexión. No se pudo validar el cupón en la barra.");
+            return;
+        }
+
+        // Código alfanumérico único de 6 caracteres
+        const codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const codigoCompleto = "#" + codigoGen;
+
+        // Registramos el cupón en Firestore ANTES de darlo al jugador
+        db.collection("cupones_validos").doc(codigoGen).set({
+            codigo: codigoCompleto,
+            premio: textoPremio,
+            jugador: nombreJugador,
+            creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+            activo: true
+        }).then(() => {
+            // Solo si la nube lo confirma, lo guardamos en la mochila local
+            inventarioCupones.push({
+                texto: textoPremio,
+                codigo: codigoCompleto
+            });
+
+            let textoMayus = textoPremio.toUpperCase();
+            if (textoMayus.includes("CHUPITO")) estadisticasLogros.chupitosGanados = (estadisticasLogros.chupitosGanados || 0) + 1;
+            if (textoMayus.includes("CUBATA")) estadisticasLogros.cubatasRealesGanados = (estadisticasLogros.cubatasRealesGanados || 0) + 1;
+
+            guardarPartida();
+            subirPuntuacion();
+            mostrarNotificacion("🎟️ ¡PREMIO REGISTRADO Y GUARDADO!");
+        }).catch((err) => {
+            console.error("Error al registrar cupón en nube:", err);
+            alert("❌ Error al registrar el premio en la barra. Revisa tu conexión a internet.");
+        });
+    }
     function quemarCupon() {
-        if (confirm("⚠️ ¿ERES EL CAMARERO?\n\nSi aceptas, el premio desaparecerá de tu móvil para siempre.")) {
-            if (cuponActivoIndex > -1) {
+        if (cuponActivoIndex === -1 || !db) return;
+
+        const cupon = inventarioCupones[cuponActivoIndex];
+        const idCupon = cupon.codigo.replace("#", "");
+
+        if (confirm("⚠️ ¿ERES EL CAMARERO?\n\nVerificando autenticidad en la base de datos...")) {
+            const docRef = db.collection("cupones_validos").doc(idCupon);
+
+            // Verificamos en el servidor si el cupón es real y no ha sido usado
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    if (!doc.exists) {
+                        throw "CUPON_FALSO";
+                    }
+                    const data = doc.data();
+                    if (!data.activo) {
+                        throw "CUPON_YA_CANJEADO";
+                    }
+                    // Si es legal y está activo, lo quemamos en la nube
+                    transaction.update(docRef, {
+                        activo: false,
+                        canjeadoEn: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    return true;
+                });
+            }).then(() => {
+                // Eliminamos de la mochila local del jugador
                 inventarioCupones.splice(cuponActivoIndex, 1);
-                guardarPartida(); cuponActivoIndex = -1;
+                guardarPartida();
+                cuponActivoIndex = -1;
                 clearInterval(intervaloRelojCupon);
-                alert("✅ ¡PREMIO ENTREGADO! Que aproveche."); cerrarModales();
-            }
+
+                alert("✅ ¡CUPÓN VÁLIDO Y CANJEADO!\nPuedes servir la consumición.");
+                cerrarModales();
+            }).catch((error) => {
+                if (error === "CUPON_FALSO") {
+                    alert("🚨 ALERTA: Este cupón es FALSO o inventado. No servir consumición.");
+                } else if (error === "CUPON_YA_CANJEADO") {
+                    alert("⚠️ Este cupón YA FUE CANJEADO anteriormente.");
+                } else {
+                    alert("❌ Error de conexión al validar con la barra.");
+                }
+            });
         }
     }
-    function entregarPremioFisico(textoPremio) {
-        let codigoGen = Math.random().toString(36).substring(2, 8).toUpperCase();
-        inventarioCupones.push({ texto: textoPremio, codigo: "#" + codigoGen });
-        let textoMayus = textoPremio.toUpperCase();
-        if (textoMayus.includes("CHUPITO")) estadisticasLogros.chupitosGanados = (estadisticasLogros.chupitosGanados || 0) + 1;
-        if (textoMayus.includes("CUBATA")) estadisticasLogros.cubatasRealesGanados = (estadisticasLogros.cubatasRealesGanados || 0) + 1;
-        guardarPartida(); subirPuntuacion(); mostrarNotificacion("🎟️ ¡PREMIO ENVIADO A TUS CUPONES!");
-    }
+
 
     const SOBRES = {
         epico: {
