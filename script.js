@@ -22,8 +22,8 @@ try {
     if (typeof firebase.appCheck === "function") {
         const appCheck = firebase.appCheck();
         appCheck.activate(
-          '6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', // Tu clave real de reCAPTCHA
-          true // Permite refresco automático
+          '6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', // Tu clave de reCAPTCHA
+          true 
         );
     }
 } catch (e) {
@@ -126,7 +126,7 @@ let costePasivo = 100;
 let costeAmnesia = 8500;
 let boostVelocidadActivo = false;
 
-let intervalCajas; let intervalVomitar; let intervalRecoger; let intervalPasivo; let intervalGuardado;
+let intervalCajas; let intervalVomitar; let intervalRecoger; let intervalPasivo;
 
 // ==========================================================================
 // 💾 SISTEMA DE GUARDADO BLINDADO Y FIRMA HASH
@@ -178,16 +178,15 @@ function cargarPartida() {
         let estadoJuego;
         try { estadoJuego = JSON.parse(guardado); } catch (e) { estadoJuego = null; }
 
-        if (estadoJuego && estadoJuego.firma) {
-            if (estadoJuego.firma !== generarFirma(estadoJuego)) {
-                alert("🚨 Modificación de datos no permitida. Partida reseteada.");
+        // 🛡️ EL CANDADO DEFINITIVO: Exige firma sí o sí
+        if (estadoJuego) {
+            if (!estadoJuego.firma || estadoJuego.firma !== generarFirma(estadoJuego)) {
+                alert("🚨 Modificación ilegal de datos detectada. Partida reseteada.");
                 localStorage.removeItem('juergaSave2026');
                 location.reload();
                 return;
             }
-        }
 
-        if (estadoJuego) {
             nombreJugador = estadoJuego.nombre || "Desconocido"; 
             cubatas = estadoJuego.cubatas || 0; 
             maxNivelDesbloqueado = estadoJuego.maxNivelDesbloqueado || 0; 
@@ -252,7 +251,6 @@ function cargarPartida() {
     }
     ganarCubatas(0);  
     sincronizarStockGlobal();
-    verificarEstadoVIPEnNube();
 }
 
 function spawnAmigoInicial() { 
@@ -384,106 +382,98 @@ function boostExtremoBarraLibre() {
     } else alert("¡Te faltan cubatas!");
 }
 
-    // ==========================================================================
-    // 🎁 EVENTOS Y REGALO DIARIO (RACHA DE 5 DÍAS)
-    // ==========================================================================
-    const DIAS_EVENTO = [
-        { fecha: '2026-09-03', nombre: 'Jueves 3', premioDesc: '3 🎁 Sobres', cantidad: 3 },
-        { fecha: '2026-09-04', nombre: 'Viernes 4', premioDesc: '4 🎁 Sobres', cantidad: 4 },
-        { fecha: '2026-09-05', nombre: 'Sábado 5', premioDesc: '5 🎁 Sobres', cantidad: 5 },
-        { fecha: '2026-09-06', nombre: 'Domingo 6', premioDesc: '6 🎁 Sobres', cantidad: 6 },
-        { fecha: '2026-09-07', nombre: 'Lunes 7 (El Gordo)', premioDesc: '7 🎁 Sobres', cantidad: 7, esFinal: true }
-    ];
+// ==========================================================================
+// 🎁 EVENTOS Y REGALO DIARIO (RACHA DE 5 DÍAS)
+// ==========================================================================
+const DIAS_EVENTO = [
+    { fecha: '2026-09-03', nombre: 'Jueves 3', premioDesc: '3 🎁 Sobres', cantidad: 3 },
+    { fecha: '2026-09-04', nombre: 'Viernes 4', premioDesc: '4 🎁 Sobres', cantidad: 4 },
+    { fecha: '2026-09-05', nombre: 'Sábado 5', premioDesc: '5 🎁 Sobres', cantidad: 5 },
+    { fecha: '2026-09-06', nombre: 'Domingo 6', premioDesc: '6 🎁 Sobres', cantidad: 6 },
+    { fecha: '2026-09-07', nombre: 'Lunes 7 (El Gordo)', premioDesc: '7 🎁 Sobres', cantidad: 7, esFinal: true }
+];
 
-    function abrirMenuDiario() { 
-        ocultarTodosModales(); 
-        pausarJuego(); 
-        document.getElementById('diario-modal').classList.remove('oculto'); 
-        renderizarCalendario(); 
+function abrirMenuDiario() { 
+    ocultarTodosModales(); 
+    pausarJuego(); 
+    document.getElementById('diario-modal').classList.remove('oculto'); 
+    renderizarCalendario(); 
+}
+
+function renderizarCalendario() {
+    const contenedor = document.getElementById('calendario-contenedor');
+    contenedor.innerHTML = ''; 
+    
+    const hoy = new Date();
+    hoy.setHours(hoy.getHours() - 5); 
+    
+    const year = hoy.getFullYear();
+    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+    const day = String(hoy.getDate()).padStart(2, '0');
+    const hoyStr = `${year}-${month}-${day}`;
+
+    let todosAnterioresReclamados = true;
+    for (let i = 0; i < 4; i++) {
+        if (localStorage.getItem('recompensa-' + DIAS_EVENTO[i].fecha) !== 'true') {
+            todosAnterioresReclamados = false;
+            break;
+        }
     }
 
-    function renderizarCalendario() {
-        const contenedor = document.getElementById('calendario-contenedor');
-        contenedor.innerHTML = ''; 
-        
-        // Restamos 5 horas para el "efecto trasnochar"
-        const hoy = new Date();
-        hoy.setHours(hoy.getHours() - 5); 
-        
-        const year = hoy.getFullYear();
-        const month = String(hoy.getMonth() + 1).padStart(2, '0');
-        const day = String(hoy.getDate()).padStart(2, '0');
-        const hoyStr = `${year}-${month}-${day}`;
+    DIAS_EVENTO.forEach((dia) => {
+        const yaReclamado = localStorage.getItem('recompensa-' + dia.fecha) === 'true';
+        let estadoHTML = "";
+        let claseExtra = "";
 
-        // Comprobamos si ha reclamado los 4 primeros días sin fallar
-        let todosAnterioresReclamados = true;
-        for (let i = 0; i < 4; i++) {
-            if (localStorage.getItem('recompensa-' + DIAS_EVENTO[i].fecha) !== 'true') {
-                todosAnterioresReclamados = false;
-                break;
+        if (dia.fecha < hoyStr) {
+            if (yaReclamado) {
+                estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
+                claseExtra = "reclamado";
+            } else {
+                estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white;" disabled>❌ PASÓ</button>`;
+                claseExtra = "reclamado"; 
             }
+        } else if (dia.fecha === hoyStr) {
+            if (yaReclamado) {
+                estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
+                claseExtra = "reclamado";
+            } else {
+                if (dia.esFinal && !todosAnterioresReclamados) {
+                    estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white; font-size:9px;" disabled>❌ FALTAN DÍAS</button>`;
+                    claseExtra = "reclamado";
+                } else {
+                    estadoHTML = `<button class="btn-reclamar" onclick="reclamarPremio('${dia.fecha}', ${dia.cantidad})">🎁 RECLAMAR</button>`;
+                    claseExtra = "hoy"; 
+                }
+            }
+        } else {
+            estadoHTML = `<button class="btn-reclamar desactivado" style="background:#555; border-color:#222; color:#ccc;" disabled>🔒 ESPERA</button>`;
         }
 
-        DIAS_EVENTO.forEach((dia) => {
-            const yaReclamado = localStorage.getItem('recompensa-' + dia.fecha) === 'true';
-            
-            let estadoHTML = "";
-            let claseExtra = "";
+        let avisoFinal = dia.esFinal ? '<p style="font-size:8px; color:#ff4444; margin-top:4px;">(Requiere no fallar ni un día)</p>' : '';
 
-            if (dia.fecha < hoyStr) {
-                // El día ya pasó
-                if (yaReclamado) {
-                    estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
-                    claseExtra = "reclamado";
-                } else {
-                    estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white;" disabled>❌ PASÓ</button>`;
-                    claseExtra = "reclamado"; 
-                }
-            } else if (dia.fecha === hoyStr) {
-                // Es el día actual
-                if (yaReclamado) {
-                    estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
-                    claseExtra = "reclamado";
-                } else {
-                    // Si es el Lunes y se ha saltado algún día... ¡Castigado!
-                    if (dia.esFinal && !todosAnterioresReclamados) {
-                        estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white; font-size:9px;" disabled>❌ FALTAN DÍAS</button>`;
-                        claseExtra = "reclamado";
-                    } else {
-                        estadoHTML = `<button class="btn-reclamar" onclick="reclamarPremio('${dia.fecha}', ${dia.cantidad})">🎁 RECLAMAR</button>`;
-                        claseExtra = "hoy"; 
-                    }
-                }
-            } else {
-                // Días del futuro
-                estadoHTML = `<button class="btn-reclamar desactivado" style="background:#555; border-color:#222; color:#ccc;" disabled>🔒 ESPERA</button>`;
-            }
-
-            // Avisito en la UI para el último día
-            let avisoFinal = dia.esFinal ? '<p style="font-size:8px; color:#ff4444; margin-top:4px;">(Requiere no fallar ni un día)</p>' : '';
-
-            // Dibujamos la fila
-            contenedor.innerHTML += `
-                <div class="calendar-day ${claseExtra}">
-                    <div class="day-info">
-                        <h4 style="color: ${dia.fecha === hoyStr ? '#ff0055' : '#333'};">${dia.nombre}</h4>
-                        <p style="color: #ffd700; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0px #000;">${dia.premioDesc}</p>
-                        ${avisoFinal}
-                    </div>
-                    ${estadoHTML}
+        contenedor.innerHTML += `
+            <div class="calendar-day ${claseExtra}">
+                <div class="day-info">
+                    <h4 style="color: ${dia.fecha === hoyStr ? '#ff0055' : '#333'};">${dia.nombre}</h4>
+                    <p style="color: #ffd700; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0px #000;">${dia.premioDesc}</p>
+                    ${avisoFinal}
                 </div>
-            `;
-        });
-    }
+                ${estadoHTML}
+            </div>
+        `;
+    });
+}
 
-    function reclamarPremio(fechaStr, cantidadSobres) {
-        sobresGratisEpico += cantidadSobres; 
-        alert(`🎁 ¡RECOMPENSA DIARIA!\n\nHas recibido ${cantidadSobres} Sobre(s) Épico(s) GRATIS. ¡Ve al Casino a abrirlos!`); 
-        localStorage.setItem('recompensa-' + fechaStr, 'true');
-        guardarPartida(); 
-        renderizarCalendario(); 
-        actualizarBotonesSobres(); 
-    }
+function reclamarPremio(fechaStr, cantidadSobres) {
+    sobresGratisEpico += cantidadSobres; 
+    alert(`🎁 ¡RECOMPENSA DIARIA!\n\nHas recibido ${cantidadSobres} Sobre(s) de la Peña GRATIS. ¡Ve al Casino a abrirlos!`); 
+    localStorage.setItem('recompensa-' + fechaStr, 'true');
+    guardarPartida(); 
+    renderizarCalendario(); 
+    actualizarBotonesSobres(); 
+}
+
 function abrirCasino() {
     cerrarModales(); 
     if (casinoVIP) { 
@@ -616,7 +606,7 @@ function quemarCupon() {
 
 const SOBRES = {
     epico: {
-        nombre: "Sobre Épico", coste: 75000,
+        nombre: "Sobre VIP", coste: 75000,
         premios: [
             { tipo: 'cubatas',     peso: 90.5, min: 25000, max: 65000, texto: "🥃 +{x} cubatas" },
             { tipo: 'chupito',     peso: 7, texto: "🥂 ¡CHUPITO GANADO!" },
@@ -741,13 +731,18 @@ function cerrarWalkout() {
     if (btnCerrar.dataset.premioFisico) { entregarPremioFisico(btnCerrar.dataset.premioFisico); btnCerrar.dataset.premioFisico = ""; }
 }
 
+// 👇 LA NUEVA FUNCIÓN PARA MOSTRAR QUE LOS SOBRES DE LA PEÑA SON GRATIS
 function actualizarBotonesSobres() {
-    const costeEpico = document.getElementById('coste-sobre-epico');
-    const btnEpico = document.getElementById('btn-sobre-epico');
-    if (costeEpico && btnEpico) {
-        if (sobresGratisEpico > 0) { costeEpico.innerText = "GRATIS x" + sobresGratisEpico; btnEpico.classList.add('btn-unlocked-extremo'); } 
-        else { costeEpico.innerText = SOBRES.epico.coste; btnEpico.classList.remove('btn-unlocked-extremo'); }
-    }
+    const etiquetas = document.querySelectorAll('.etiqueta-precio');
+    etiquetas.forEach(etiqueta => {
+        if (sobresGratisEpico > 0) {
+            etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (Tienes ' + sobresGratisEpico + ')</span>';
+            etiqueta.style.borderColor = '#00ff00';
+        } else {
+            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 75000';
+            etiqueta.style.borderColor = '#00ff00';
+        }
+    });
 }
 
 // ==========================================================================
