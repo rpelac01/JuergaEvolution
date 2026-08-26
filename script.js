@@ -1,5 +1,5 @@
 // ==========================================================================
-// 🔥 1. CONEXIÓN A LA NUBE (FIREBASE) Y PROTECCIÓN OFFLINE
+// 🔥 1. CONEXIÓN A LA NUBE (FIREBASE) Y PROTECCIÓN ANTI-BOTS
 // ==========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyDYPbqh0-tLpwJK-hHXuG1fwABr-fkGXtA",
@@ -17,6 +17,15 @@ try {
         firebase.initializeApp(firebaseConfig);
     }
     db = firebase.firestore();
+
+    // 🛡️ ESCUDO ANTI-BOTS Y SPAM (FIREBASE APP CHECK)
+    if (typeof firebase.appCheck === "function") {
+        const appCheck = firebase.appCheck();
+        appCheck.activate(
+          '6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', // Tu clave real de reCAPTCHA
+          true // Permite refresco automático
+        );
+    }
 } catch (e) {
     console.warn("Firebase bloqueado o sin conexión. Jugando en modo local.");
 }
@@ -120,7 +129,7 @@ let boostVelocidadActivo = false;
 let intervalCajas; let intervalVomitar; let intervalRecoger; let intervalPasivo; let intervalGuardado;
 
 // ==========================================================================
-// 💾 SISTEMA DE GUARDADO BLINDADO
+// 💾 SISTEMA DE GUARDADO BLINDADO Y FIRMA HASH
 // ==========================================================================
 function generarFirma(datos) {
     const salt = "JuergaCivilSecret_2026_Key!";
@@ -243,6 +252,7 @@ function cargarPartida() {
     }
     ganarCubatas(0);  
     sincronizarStockGlobal();
+    verificarEstadoVIPEnNube();
 }
 
 function spawnAmigoInicial() { 
@@ -374,59 +384,106 @@ function boostExtremoBarraLibre() {
     } else alert("¡Te faltan cubatas!");
 }
 
-// ==========================================================================
-// 🎁 EVENTOS, REGALOS Y CASINO
-// ==========================================================================
-const FECHA_INICIO = new Date('2026-08-03T00:00:00');
-const FECHA_FIN = new Date('2026-09-07T23:59:59');
+    // ==========================================================================
+    // 🎁 EVENTOS Y REGALO DIARIO (RACHA DE 5 DÍAS)
+    // ==========================================================================
+    const DIAS_EVENTO = [
+        { fecha: '2026-09-03', nombre: 'Jueves 3', premioDesc: '3 🎁 Sobres', cantidad: 3 },
+        { fecha: '2026-09-04', nombre: 'Viernes 4', premioDesc: '4 🎁 Sobres', cantidad: 4 },
+        { fecha: '2026-09-05', nombre: 'Sábado 5', premioDesc: '5 🎁 Sobres', cantidad: 5 },
+        { fecha: '2026-09-06', nombre: 'Domingo 6', premioDesc: '6 🎁 Sobres', cantidad: 6 },
+        { fecha: '2026-09-07', nombre: 'Lunes 7 (El Gordo)', premioDesc: '7 🎁 Sobres', cantidad: 7, esFinal: true }
+    ];
 
-function abrirMenuDiario() { 
-    ocultarTodosModales(); pausarJuego(); 
-    document.getElementById('diario-modal').classList.remove('oculto'); 
-    renderizarCalendario(); 
-}
-
-function renderizarCalendario() {
-    const contenedor = document.getElementById('calendario-contenedor');
-    contenedor.innerHTML = ''; 
-    const hoy = new Date();
-    const hoyStr = hoy.toISOString().split('T')[0];
-    const yaReclamado = localStorage.getItem('recompensa-' + hoyStr) === 'true';
-
-    if (hoy < FECHA_INICIO || hoy > FECHA_FIN) {
-        contenedor.innerHTML = '<p style="text-align:center; padding:20px; font-weight:bold; color:#333;">📅 El evento de recompensas no está activo actualmente.</p>';
-        return;
+    function abrirMenuDiario() { 
+        ocultarTodosModales(); 
+        pausarJuego(); 
+        document.getElementById('diario-modal').classList.remove('oculto'); 
+        renderizarCalendario(); 
     }
-    const diaEvento = Math.floor((hoy - FECHA_INICIO) / (1000 * 60 * 60 * 24));
-    const esLunes = (hoy.getDay() === 1);
-    const premio = esLunes ? "1 🎁 (Sobre Épico Gratis)" : (1000 + (diaEvento * 200)) + " 🥃";
 
-    contenedor.innerHTML = `
-        <div class="calendar-day ${yaReclamado ? 'reclamado' : 'hoy'}">
-            <div class="day-info">
-                <h4>Día ${diaEvento + 1} del Evento</h4>
-                <p style="color: #ff0055;">Premio: ${premio}</p>
-            </div>
-            ${yaReclamado ? '<button class="btn-reclamar desactivado" disabled>✅ RECLAMADO</button>' : `<button class="btn-reclamar" onclick="reclamarPremio('${hoyStr}', ${esLunes})">🎁 RECLAMAR</button>`}
-        </div>
-    `;
-}
+    function renderizarCalendario() {
+        const contenedor = document.getElementById('calendario-contenedor');
+        contenedor.innerHTML = ''; 
+        
+        // Restamos 5 horas para el "efecto trasnochar"
+        const hoy = new Date();
+        hoy.setHours(hoy.getHours() - 5); 
+        
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        const hoyStr = `${year}-${month}-${day}`;
 
-function reclamarPremio(fechaStr, esLunes) {
-    if (esLunes) { 
-        sobresGratisEpico += 1; 
-        alert("🎁 ¡PREMIO LUNERO! Has recibido 1 Sobre Épico GRATIS."); 
-    } else {
-        let diaEvento = Math.floor((new Date(fechaStr) - FECHA_INICIO) / (1000 * 60 * 60 * 24));
-        let premioCubatas = 1000 + (diaEvento * 200);
-        ganarCubatas(premioCubatas);
-        alert("🥃 ¡RECOMPENSA DIARIA! Has ganado +" + premioCubatas + " cubatas.");
+        // Comprobamos si ha reclamado los 4 primeros días sin fallar
+        let todosAnterioresReclamados = true;
+        for (let i = 0; i < 4; i++) {
+            if (localStorage.getItem('recompensa-' + DIAS_EVENTO[i].fecha) !== 'true') {
+                todosAnterioresReclamados = false;
+                break;
+            }
+        }
+
+        DIAS_EVENTO.forEach((dia) => {
+            const yaReclamado = localStorage.getItem('recompensa-' + dia.fecha) === 'true';
+            
+            let estadoHTML = "";
+            let claseExtra = "";
+
+            if (dia.fecha < hoyStr) {
+                // El día ya pasó
+                if (yaReclamado) {
+                    estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
+                    claseExtra = "reclamado";
+                } else {
+                    estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white;" disabled>❌ PASÓ</button>`;
+                    claseExtra = "reclamado"; 
+                }
+            } else if (dia.fecha === hoyStr) {
+                // Es el día actual
+                if (yaReclamado) {
+                    estadoHTML = `<button class="btn-reclamar desactivado" disabled>✅ LISTO</button>`;
+                    claseExtra = "reclamado";
+                } else {
+                    // Si es el Lunes y se ha saltado algún día... ¡Castigado!
+                    if (dia.esFinal && !todosAnterioresReclamados) {
+                        estadoHTML = `<button class="btn-reclamar desactivado" style="background:#ff4444; border-color:#880000; color:white; font-size:9px;" disabled>❌ FALTAN DÍAS</button>`;
+                        claseExtra = "reclamado";
+                    } else {
+                        estadoHTML = `<button class="btn-reclamar" onclick="reclamarPremio('${dia.fecha}', ${dia.cantidad})">🎁 RECLAMAR</button>`;
+                        claseExtra = "hoy"; 
+                    }
+                }
+            } else {
+                // Días del futuro
+                estadoHTML = `<button class="btn-reclamar desactivado" style="background:#555; border-color:#222; color:#ccc;" disabled>🔒 ESPERA</button>`;
+            }
+
+            // Avisito en la UI para el último día
+            let avisoFinal = dia.esFinal ? '<p style="font-size:8px; color:#ff4444; margin-top:4px;">(Requiere no fallar ni un día)</p>' : '';
+
+            // Dibujamos la fila
+            contenedor.innerHTML += `
+                <div class="calendar-day ${claseExtra}">
+                    <div class="day-info">
+                        <h4 style="color: ${dia.fecha === hoyStr ? '#ff0055' : '#333'};">${dia.nombre}</h4>
+                        <p style="color: #ffd700; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0px #000;">${dia.premioDesc}</p>
+                        ${avisoFinal}
+                    </div>
+                    ${estadoHTML}
+                </div>
+            `;
+        });
     }
-    localStorage.setItem('recompensa-' + fechaStr, 'true');
-    guardarPartida(); 
-    renderizarCalendario(); 
-}
 
+    function reclamarPremio(fechaStr, cantidadSobres) {
+        sobresGratisEpico += cantidadSobres; 
+        alert(`🎁 ¡RECOMPENSA DIARIA!\n\nHas recibido ${cantidadSobres} Sobre(s) Épico(s) GRATIS. ¡Ve al Casino a abrirlos!`); 
+        localStorage.setItem('recompensa-' + fechaStr, 'true');
+        guardarPartida(); 
+        renderizarCalendario(); 
+        actualizarBotonesSobres(); 
+    }
 function abrirCasino() {
     cerrarModales(); 
     if (casinoVIP) { 
@@ -499,7 +556,7 @@ function abrirPanelCamarero() {
 }
 
 // ==========================================================================
-// 🎟️ CUPONES Y WALKOUTS
+// 🎟️ CUPONES Y WALKOUTS (SEGUROS)
 // ==========================================================================
 function cerrarCupon() { 
     document.getElementById('cupon-modal').classList.add('oculto'); 
@@ -1036,9 +1093,45 @@ function renderizarJuerguistas() {
     });
 }
 
+function comprobarGanadorGoldenTicket() {
+    if (estadisticasLogros.intentoTicketDorado || !db) return;
+    const docRef = db.collection("control_barra").doc("tickets_dorados");
+
+    db.runTransaction((transaction) => {
+        return transaction.get(docRef).then((doc) => {
+            let entregados = 0; if (doc.exists && doc.data().entregados !== undefined) entregados = doc.data().entregados; 
+            if (entregados < 5) { const puesto = entregados + 1; transaction.set(docRef, { entregados: puesto }, { merge: true }); return puesto; } 
+            else return false; 
+        });
+    }).then((puesto) => {
+        estadisticasLogros.intentoTicketDorado = true; guardarPartida();
+        if (puesto !== false) {
+            if (puesto <= 3) { mostrarNotificacion(`🎟️ ¡QUEDASTE #${puesto}! HAS GANADO UN CUBATA`); entregarPremioFisico(`🎟️ TICKET DORADO (${puesto}º PUESTO): ¡UN CUBATA EN BARRA!`); } 
+            else { mostrarNotificacion(`🎟️ ¡QUEDASTE #${puesto}! HAS GANADO UN CHUPITO`); entregarPremioFisico(`🎟️ TICKET DORADO (${puesto}º PUESTO): ¡UN CHUPITO EN BARRA!`); }
+        } else mostrarNotificacion("😢 Te has pasado el juego, ¡pero los 5 premios ya se agotaron!");
+    }).catch(() => {});
+}
+
+function sincronizarStockGlobal() {
+    if (!db) return;
+    const hoy = obtenerDiaDeFiesta();
+    db.collection("control_barra").doc(hoy).onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            stockChupitosHoy = data.chupitos !== undefined ? data.chupitos : LIMITE_DIARIO_CHUPITOS;
+            stockCubatasHoy = data.cubatas !== undefined ? data.cubatas : LIMITE_DIARIO_CUBATAS;
+        } else {
+            stockChupitosHoy = LIMITE_DIARIO_CHUPITOS; stockCubatasHoy = LIMITE_DIARIO_CUBATAS;
+            db.collection("control_barra").doc(hoy).set({ chupitos: LIMITE_DIARIO_CHUPITOS, cubatas: LIMITE_DIARIO_CUBATAS });
+        }
+        const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
+        if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
+    }, () => {});
+}
+
 // ==========================================================================
 // 🚀 ARRANQUE OFICIAL
 // ==========================================================================
 cargarPartida(); 
 reanudarJuego(); 
-intervalGuardado = setInterval(guardarPartida, 3000);
+setInterval(guardarPartida, 3000);
