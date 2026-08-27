@@ -546,3 +546,60 @@ html, body {
     display: flex; align-items: center; justify-content: center; 
     font-size: 8px; color: #fff; font-family: 'Press Start 2P', cursive; text-shadow: 1px 1px 0 #000;
 }
+/* ==================== TUTORIAL ==================== */
+#tutorial-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100dvh;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+}
+
+#tutorial-box {
+    background: #000;
+    border: 3px solid #00ff00;
+    border-radius: 12px;
+    padding: 20px 15px;
+    width: 88%;
+    max-width: 340px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 255, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: absolute;
+    transition: all 0.3s ease;
+}
+
+#tutorial-icono {
+    font-size: 32px;
+}
+
+#tutorial-texto {
+    font-family: 'Arial', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #eee;
+    margin: 0;
+}
+
+#tutorial-btn {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 10px;
+    width: 100%;
+}
+
+/* Efecto de foco sobre el botón activo */
+.tutorial-focus {
+    position: relative;
+    z-index: 10001 !important;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 20px #00ff00 !important;
+    border-color: #00ff00 !important;
+    pointer-events: none !important;
+}
