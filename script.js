@@ -73,10 +73,37 @@ let nivelAparicion = 0; const maxNivelCalidad = 6;
 let nivelTractor = 0;   const maxNivelTractor = 10;
 
 let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 100;
-let costeCalidad = 1000;
 let tiempoPasivo = 3000; let costeTractor = 500;
 let limpiezaActivada = false;
 let boostVelocidadActivo = false;
+
+function calcularIngresoColega(level) {
+    // Nvl 1: 1 🥃 | Nvl 2: 3 🥃 | Nvl 3: 8 🥃 | Nvl 4: 20 🥃 | Nvl 8: ~750 🥃 | Nvl 12: ~30.000 🥃
+    return Math.floor(Math.pow(2.4, level));
+}
+// 🎲 TABLA DE PROBABILIDADES VIP (TOPE ESTRICTO EN NIVEL 3)
+const TABLA_CALIDAD_VIP = [
+    { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 15000 },
+    { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 75000 },
+    { nivel: 2, prob: [{ nvl: 0, p: 0.75 }, { nvl: 1, p: 0.25 }], desc: "25% Nv.2", sig: "50% Nv.2", coste: 350000 },
+    { nivel: 3, prob: [{ nvl: 0, p: 0.50 }, { nvl: 1, p: 0.50 }], desc: "50% Nv.2", sig: "80% Nv.2 / 20% Nv.3", coste: 1500000 },
+    { nivel: 4, prob: [{ nvl: 1, p: 0.80 }, { nvl: 2, p: 0.20 }], desc: "20% Nv.3", sig: "50% Nv.3", coste: 8000000 },
+    { nivel: 5, prob: [{ nvl: 1, p: 0.50 }, { nvl: 2, p: 0.50 }], desc: "50% Nv.3", sig: "75% Nv.3 (Tope)", coste: 35000000 },
+    { nivel: 6, prob: [{ nvl: 1, p: 0.25 }, { nvl: 2, p: 0.75 }], desc: "75% Nv.3 / 25% Nv.2", sig: "MÁXIMO", coste: 0 }
+];
+
+function calcularNivelCajaNormal() {
+    const info = TABLA_CALIDAD_VIP[nivelAparicion] || TABLA_CALIDAD_VIP[0];
+    const r = Math.random();
+    let acumulado = 0;
+    for (let item of info.prob) {
+        acumulado += item.p;
+        if (r <= acumulado) {
+            return item.nvl;
+        }
+    }
+    return info.prob[info.prob.length - 1].nvl;
+}
 
 let regalosReclamados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
 let cuponesCanjeados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
@@ -129,7 +156,7 @@ function guardarPartida() {
         cuponesCanjeados: cuponesCanjeados, estadisticasLogros: estadisticasLogros, 
         logrosDesbloqueados: logrosDesbloqueados, 
         tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, nivelVelocidad: nivelVelocidad,
-        nivelAparicion: nivelAparicion, costeCalidad: costeCalidad,
+        nivelAparicion: nivelAparicion,
         tiempoPasivo: tiempoPasivo, costeTractor: costeTractor, nivelTractor: nivelTractor, limpiezaActivada: limpiezaActivada,
         amigos: amigosEnTablero, inventarioCupones: inventarioCupones, timeStamp: Date.now() 
     };
@@ -169,7 +196,7 @@ function cargarPartida() {
             
             tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; 
             costeVelocidad = estadoJuego.costeVelocidad || 100; nivelVelocidad = estadoJuego.nivelVelocidad || 0;
-            nivelAparicion = estadoJuego.nivelAparicion || 0; costeCalidad = estadoJuego.costeCalidad || 1000;
+            nivelAparicion = estadoJuego.nivelAparicion || 0;
             tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costeTractor = estadoJuego.costeTractor || 500;
             nivelTractor = estadoJuego.nivelTractor || 0; limpiezaActivada = estadoJuego.limpiezaActivada || false;
             
@@ -185,8 +212,9 @@ function cargarPartida() {
                 if (tiempoFueraSegundos > 28800) { tiempoFueraSegundos = 28800; }
 
                 let ingresosPorBucle = 0; 
-                document.querySelectorAll('.friend').forEach(f => { ingresosPorBucle += (parseInt(f.dataset.level) + 1); });
-                
+                document.querySelectorAll('.friend').forEach(f => { 
+                    ingresosPorBucle += calcularIngresoColega(parseInt(f.dataset.level)); 
+                });
                 let cubatasGanadosOffline = Math.floor((ingresosPorBucle / (tiempoPasivo / 1000)) * tiempoFueraSegundos); 
                 let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); 
                 if (cajasNuevasOffline > 6) cajasNuevasOffline = 6;
@@ -202,7 +230,7 @@ function cargarPartida() {
         }
     } else { spawnAmigoInicial(); pedirNombre(); }
     ganarCubatas(0); sincronizarStockGlobal(); verificarEstadoVIPEnNube();
-    actualizaEstilosExtremos();
+    actualizaEstilosExtremos(); 
 }
 
 function spawnAmigoInicial() { 
@@ -235,7 +263,7 @@ function actualizaEstilosExtremos() {
 function abrirTienda() { 
     pausarJuego(); ocultarTodosModales(); 
     document.getElementById('shop-modal').classList.remove('oculto'); 
-    renderizarMejoras(); // 👈 ESTO ERA LO QUE FALTABA
+    renderizarMejoras();
     actualizarTiendaPersonajes(); 
 }
 
@@ -249,10 +277,30 @@ function renderizarMejoras() {
     let btnVel = nivelVelocidad >= maxNivelVelocidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarVelocidad()">${costeVelocidad.toLocaleString('es-ES')} 🥃</button>`;
     html += `<div class="upgrade-row"><div class="upgrade-icon">🚀</div><div class="upgrade-info"><h4>Reparto Rápido</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctVel}%;"></div><span class="barra-texto">NVL ${nivelVelocidad}/${maxNivelVelocidad}</span></div></div>${btnVel}</div>`;
     
-    // 2. CARTA: Calidad
+    // 2. CARTA: Juerguista VIP (PROBABILIDADES HASTA NIVEL 3)
+    const datosVIP = TABLA_CALIDAD_VIP[nivelAparicion] || TABLA_CALIDAD_VIP[0];
     let pctCal = (nivelAparicion / maxNivelCalidad) * 100;
-    let btnCal = nivelAparicion >= maxNivelCalidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarCalidad()">${costeCalidad.toLocaleString('es-ES')} 🥃</button>`;
-    html += `<div class="upgrade-row"><div class="upgrade-icon">💎</div><div class="upgrade-info"><h4>Juerguista VIP</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctCal}%;"></div><span class="barra-texto">NVL ${nivelAparicion}/${maxNivelCalidad}</span></div></div>${btnCal}</div>`;
+    let btnCal = nivelAparicion >= maxNivelCalidad 
+        ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` 
+        : `<button class="boton-arcade" onclick="comprarCalidad()">${datosVIP.coste.toLocaleString('es-ES')} 🥃</button>`;
+    
+    let textoProgresoVIP = nivelAparicion >= maxNivelCalidad
+        ? `<p style="font-size:7.5px; color:#00ff00;">Prob: ${datosVIP.desc} (Tope)</p>`
+        : `<p style="font-size:7.5px; color:#ccc;">Prob: <span style="color:#fff;">${datosVIP.desc}</span> ➔ <span style="color:#ffd700;">${datosVIP.sig}</span></p>`;
+
+    html += `
+    <div class="upgrade-row">
+        <div class="upgrade-icon">💎</div>
+        <div class="upgrade-info">
+            <h4>Juerguista VIP</h4>
+            ${textoProgresoVIP}
+            <div class="barra-progreso-bg">
+                <div class="barra-progreso-fill" style="width:${pctCal}%;"></div>
+                <span class="barra-texto">NVL ${nivelAparicion}/${maxNivelCalidad}</span>
+            </div>
+        </div>
+        ${btnCal}
+    </div>`;
 
     // 3. CARTA: Tractor
     let pctTrac = (nivelTractor / maxNivelTractor) * 100;
@@ -315,11 +363,16 @@ function comprarVelocidad() {
 
 function comprarCalidad() {
     if (nivelAparicion >= maxNivelCalidad) return;
-    if (cubatas >= costeCalidad) {
-        cubatas -= costeCalidad; nivelAparicion++; 
-        costeCalidad = Math.floor(costeCalidad * 4); 
-        ganarCubatas(0); guardarPartida(); renderizarMejoras();
-    } else alert("¡Te faltan cubatas!");
+    const datosActuales = TABLA_CALIDAD_VIP[nivelAparicion];
+    if (cubatas >= datosActuales.coste) {
+        cubatas -= datosActuales.coste;
+        nivelAparicion++;
+        ganarCubatas(0);
+        guardarPartida();
+        renderizarMejoras();
+    } else {
+        alert("¡Te faltan cubatas!");
+    }
 }
 
 function comprarTractor() {
@@ -440,6 +493,7 @@ function abrirPanelCamarero() {
 function cargarPeticionesVIP() {
     if (!db) return;
     const lista = document.getElementById('lista-peticiones-vip');
+    if(!lista) return;
     lista.innerHTML = "<p style='color:#ccc; text-align:center;'>Buscando peticiones... 📡</p>";
 
     db.collection("pases_vip").where("autorizado", "==", false).onSnapshot((querySnapshot) => {
@@ -708,10 +762,13 @@ function ganarCubatas(cantidad) {
 function mostrarTextoFlotante(x, y, cantidad) { const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.innerText = `+${cantidad.toLocaleString('es-ES')}`; texto.style.left = `${x}px`; texto.style.top = `${y}px`; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000); }
 function mostrarAvisoFlotante(x, y, mensaje) { const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.style.color = "#ff4444"; texto.innerText = mensaje; texto.style.left = `${x}px`; texto.style.top = `${y}px`; texto.style.zIndex = "400"; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000); }
 function mostrarTextoFlotanteEpico(x, y, mensaje) { const texto = document.createElement('div'); texto.classList.add('floating-text-epic'); texto.innerText = mensaje; texto.style.left = `${x}px`; texto.style.top = `${y}px`; board.appendChild(texto); setTimeout(() => { texto.remove(); }, 1500); }
-
+function mostrarNotificacion(mensaje) {
+    alert(mensaje);
+}
 function actualizarCubatasPorSegundo() { 
-    const friends = document.querySelectorAll('.friend'); let ingresosTotales = 0; 
-    friends.forEach(f => { ingresosTotales += (parseInt(f.dataset.level) + 1); }); 
+    const friends = document.querySelectorAll('.friend'); 
+    let ingresosTotales = 0; 
+    friends.forEach(f => { ingresosTotales += calcularIngresoColega(parseInt(f.dataset.level)); }); 
     let cps = (ingresosTotales / (tiempoPasivo / 1000)) * multiplicadorPasivo; 
     const elCps = document.getElementById('cubatas-segundo');
     if (elCps) elCps.innerText = `${cps.toLocaleString('es-ES', {minimumFractionDigits: 1, maximumFractionDigits: 1})} cubatas/seg`; 
@@ -721,8 +778,9 @@ function iniciarBuclePasivo() {
     clearInterval(intervalPasivo); 
     intervalPasivo = setInterval(() => { 
         if (juegoPausado) return; 
-        const friends = document.querySelectorAll('.friend'); let ingresos = 0; 
-        friends.forEach(f => { ingresos += (parseInt(f.dataset.level) + 1); }); 
+        const friends = document.querySelectorAll('.friend'); 
+        let ingresos = 0; 
+        friends.forEach(f => { ingresos += calcularIngresoColega(parseInt(f.dataset.level)); }); 
         if (ingresos > 0) ganarCubatas(ingresos * multiplicadorPasivo); 
     }, tiempoPasivo); 
     actualizarCubatasPorSegundo(); 
@@ -730,16 +788,21 @@ function iniciarBuclePasivo() {
 
 function generarVomito() { 
     if (juegoPausado) return; 
-    document.querySelectorAll('.friend').forEach(f => { 
+    // 👇 Solo seleccionamos a los amigos de la pradera normal
+    document.querySelectorAll('#game-board .friend').forEach(f => { 
         const vomito = document.createElement('div'); vomito.classList.add('vomito'); vomito.innerText = '🤮'; 
         let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); let y = parseFloat(f.style.top) + 95; 
-        vomito.style.left = `${x}px`; vomito.style.top = `${y}px`; vomito.dataset.valor = (parseInt(f.dataset.level) + 1) * 2; 
+        vomito.style.left = `${x}px`; vomito.style.top = `${y}px`; 
+        vomito.dataset.valor = (parseInt(f.dataset.level) + 1) * 2; 
         vomito.addEventListener('pointerdown', (e) => { 
             e.stopPropagation(); e.preventDefault(); if (juegoPausado) return; if (navigator.vibrate) navigator.vibrate(40);
             const valorVomito = parseInt(vomito.dataset.valor); ganarCubatas(valorVomito); 
-            const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.innerText = `+${valorVomito}`; texto.style.left = `${x}px`; texto.style.top = `${y}px`; f.parentElement.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000);
+            const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.innerText = `+${valorVomito}`; 
+            texto.style.left = `${x}px`; texto.style.top = `${y}px`; 
+            f.parentElement.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000);
             vomito.remove(); estadisticasLogros.vomitosLipiados++; verificarLogro('estomago_hierro'); 
-        }); f.parentElement.appendChild(vomito); 
+        }); 
+        f.parentElement.appendChild(vomito); 
     }); 
 }
 
@@ -771,15 +834,26 @@ function crearCaja() {
         const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); const x = rect.left - boardRect.left; const y = rect.top - boardRect.top; caja.remove(); 
         
         if (esDorada) { 
-            let cps = 0; document.querySelectorAll('.friend').forEach(f => { cps += (parseInt(f.dataset.level) + 1); }); cps = (cps / (tiempoPasivo / 1000));
+            let cps = 0; 
+            document.querySelectorAll('.friend').forEach(f => { 
+                cps += calcularIngresoColega(parseInt(f.dataset.level)); 
+            }); 
+            cps = (cps / (tiempoPasivo / 1000));
             let premioDorado = Math.max(5000, Math.floor(cps * 120)); 
-            ganarCubatas(premioDorado); mostrarTextoFlotanteEpico(x - 20, y, "¡+" + premioDorado.toLocaleString('es-ES') + " 🥃!"); 
+            ganarCubatas(premioDorado); 
+            mostrarTextoFlotanteEpico(x - 20, y, "¡+" + premioDorado.toLocaleString('es-ES') + " 🥃!"); 
             
-            let suerte = Math.random(); let nivelDorado = 0;
-            if (suerte < 0.15) { nivelDorado = maxNivelDesbloqueado; } else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
-            createFriend(nivelDorado, x, y); 
-        } 
-        else { ganarCubatas(1 * multiplicadorClic); createFriend(nivelAparicion, x, y); }
+            // 👇 ESTO ES LO QUE FALTABA 👇
+            let suerte = Math.random(); 
+            let nivelDorado = 0;
+            if (suerte < 0.15) { nivelDorado = maxNivelDesbloqueado; } 
+            else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } 
+            else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
+            createFriend(nivelDorado, x, y);
+        } else { 
+            ganarCubatas(1 * multiplicadorClic); 
+            createFriend(calcularNivelCajaNormal(), x, y); 
+        }
         guardarPartida(); 
     }); 
 }
@@ -793,7 +867,8 @@ function crearCajaOffline() {
         if (juegoPausado) return; 
         if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } 
         const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); 
-        ganarCubatas(1 * multiplicadorClic); createFriend(nivelAparicion, rect.left - boardRect.left, rect.top - boardRect.top); 
+        ganarCubatas(1 * multiplicadorClic); 
+        createFriend(calcularNivelCajaNormal(), rect.left - boardRect.left, rect.top - boardRect.top); 
         estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); 
     }); 
 }
