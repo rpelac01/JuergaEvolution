@@ -44,79 +44,38 @@
             
             <div id="tab-mejoras" class="shop-items tienda-arcade" style="border: none; box-shadow: none; padding: 0 0 80px 0; flex-grow: 1; margin: 0; overflow-y: auto;">
                 
-                <div class="shop-seccion-titulo">⚡ RITMO BASE</div>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarVelocidad()">
-                    🚀 Cajas Rápidas<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Frenesí 30s + caída base más rápida (Perma)</span>
-                    <small><span id="coste-vel">50</span> 🥃</small>
-                </button>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarEvento()">
-                    🍻 Iñaki's Cachimba<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Durante 30s las cajas traen Nivel 2</span>
-                    <small>150 🥃</small>
-                </button>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarPasivo()">
-                    ⚡ El Kzurro<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Gana dinero pasivo más rápido (Perma)</span>
-                    <small><span id="coste-pasivo">100</span> 🥃</small>
-                </button>
-                <button class="btn-caro boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarLimpieza()">
-                    🧹 Serrín pal vómito<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Limpieza automática el doble de rápida (Perma)</span>
-                    <small><span id="coste-limpieza">500</span> 🥃</small>
+                <div class="shop-seccion-titulo">⭐ PERMANENTES</div>
+                
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarVelocidad()">
+                    🚀 Reparto Rápido<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Las cajas caen más rápido</span>
+                    <small><span id="coste-vel">100</span> 🥃</small>
                 </button>
                 
-                <div class="shop-seccion-titulo bajo">🟢 BOOSTS BAJOS</div>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostBajoRefresco()">
-                    🥤 Refresco de Maifrien<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Tus clics y vómitos valen x3 (10s)</span>
-                    <small>150 🥃</small>
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarCalidad()">
+                    💎 Juerguistas VIP<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Las cajas traen juerguistas de nivel superior<br>(Actual: Nivel <span id="nivel-caja-actual">1</span>)</span>
+                    <small><span id="coste-calidad">1000</span> 🥃</small>
                 </button>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostBajoTapa()">
-                    📦 Estanco de Carlos<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Caen 3 cajas de golpe al instante</span>
-                    <small>250 🥃</small>
-                </button>
-
-                <div class="shop-seccion-titulo medio">🟡 BOOSTS MEDIOS</div>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostMedioCharanga()">
-                    🎷 Charanga<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Dinero pasivo multiplicado x3 (30s)</span>
-                    <small>1200 🥃</small>
-                </button>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostMedioBarril()">
-                    👨🏼‍🌾 Llegó el Campesino<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un juerguista de Nivel 4</span>
-                    <small>2000 🥃</small>
+                
+                <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarTractor()">
+                    🚜 El Tractor del Kzurro<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Limpia vómitos solo y acelera el pasivo 10%</span>
+                    <small><span id="coste-tractor">500</span> 🥃</small>
                 </button>
 
-                <div class="shop-seccion-titulo epico">🔥 BOOSTS ÉPICOS</div>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarHoraLoca()">
-                    🌪️ HORA LOCA<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Lluvia extrema de cajas (15s)</span>
-                    <small>5000 🥃</small>
+                <div class="shop-seccion-titulo medio">⏳ CONSUMIBLES</div>
+                
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostCharanga()">
+                    🎷 La Charanga<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Dinero pasivo x3 (30s)</span>
+                    <small>3000 🥃</small>
                 </button>
-                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="comprarAmnesia()">
-                    🎧 DJ TINO<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Te da 15 minutos de dinero pasivo de golpe</span>
-                    <small><span id="coste-amnesia">8500</span> 🥃</small>
-                </button>
-                <button class="boton-arcade" style="grid-column: span 2; margin: 5px; padding: 10px 5px;" onclick="comprarAutobus()">
-                    🚌 La novia del Peri x2<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Llegan 2 juerguistas de Nivel 5 de refuerzo</span>
+                
+                <button class="boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostHoraLoca()">
+                    🌪️ Hora Loca<br>
+                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Frenesí de cajas (15s)</span>
                     <small>15000 🥃</small>
-                </button>
-
-                <div class="shop-seccion-titulo extremo">💀 EXTREMOS (REQ NVL 12)</div>
-                <button id="btn-extremo-chupinazo" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoChupinazo()">
-                    💥 CHUPINAZO<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Aparece directamente un juerguista de Nivel 9</span>
-                    <small>150000 🥃</small>
-                </button>
-                <button id="btn-extremo-barralibre" class="btn-lock boton-arcade" style="margin: 5px; padding: 10px 5px;" onclick="boostExtremoBarraLibre()">
-                    👑 BARRA LIBRE<br>
-                    <span style="font-size: 8px; color: #ccc; display: block; margin: 5px 0; line-height: 1.2;">Dinero pasivo multiplicado x10 (30s)</span>
-                    <small>120000 🥃</small>
                 </button>
             </div>
             
@@ -606,28 +565,17 @@
                 <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
                     <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">2. 🍹 ECONOMÍA</h4>
                     <p>• Tus personajes generan <b>Cubatas (🥃)</b> solos por segundo.</p>
-                    <p>• Ganarás cubatas incluso si sales del juego (hasta 8h).</p>
+                    <p>• En la tienda (🛒) puedes comprar el <b>Tractor</b> para que limpie solo o mejorar el nivel de las cajas.</p>
                 </div>
 
                 <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">3. 👑 ZONA VIP Y BAR</h4>
-                    <p>• Al llegar al <b>Nivel 9</b> se desbloquea el Reservado VIP y los Boosts Extremos.</p>
-                    <p>• En la tienda (🛒) puedes comprar mejoras permanentes y frenesí de cajas.</p>
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">3. 👑 ZONA VIP Y SOBRES</h4>
+                    <p>• Al llegar al <b>Nivel 9</b> se desbloquea el fondo del Reservado VIP.</p>
+                    <p>• El Pase VIP cuesta <b>2€ en la barra física</b>. Permite abrir los Sobres de la Peña para siempre.</p>
+                    <p>• Si ganas un premio físico en un sobre, ve a <b>🎟️ CUPONES</b> y enséñaselo al camarero.</p>
                 </div>
 
-                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">4. 🎁 SOBRES Y PREMIOS REALES</h4>
-                    <p>• <b>Pase VIP:</b> Cuesta 2€ en la barra física para desbloquear los sobres para siempre.</p>
-                    <p>• Compra sobres con cubatas del juego. ¡Pueden tocar consumiciones de verdad!</p>
-                    <p>• Si ganas un premio físico, se guardará en <b>🎟️ CUPONES</b>. Ve a la barra para que el camarero lo queme.</p>
-                </div>
-
-                <div style="margin-bottom: 10px; background: #1a1500; border: 1px solid #ffd700; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #ffd700; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">5. 🏆 COMPETICIÓN TICKET DORADO</h4>
-                    <p>Los primeros en llegar al nivel máximo (Nivel 19) ganan premio físico directo:</p>
-                    <p style="color: #ffd700; font-weight: bold; margin-top: 4px;">🥇 1º, 2º y 3º puesto ➔ 🍹 CUBATA GRATIS</p>
-                    <p style="color: #00ff00; font-weight: bold; margin-top: 2px;">🥈 4º y 5º puesto ➔ 🥂 CHUPITO GRATIS</p>
-                </div>
+            
                 
             </div>
 
@@ -767,6 +715,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=17"></script>
 </body>
 </html>
