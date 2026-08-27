@@ -202,6 +202,7 @@ function cargarPartida() {
         }
     } else { spawnAmigoInicial(); pedirNombre(); }
     ganarCubatas(0); sincronizarStockGlobal(); verificarEstadoVIPEnNube();
+    actualizaEstilosExtremos();
 }
 
 function spawnAmigoInicial() { 

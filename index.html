@@ -602,6 +602,16 @@
             </div>
         </div>
     </div>
+    <!-- 👇 PEGA ESTO AQUÍ 👇 -->
+    <!-- ==================== PANEL EN VIVO DEL CAMARERO ==================== -->
+    <div id="staff-modal" class="modal oculto" style="z-index: 9999;">
+        <div class="modal-content libreta" style="background: #111; border: 4px solid #ff00ff; text-align: center; max-height: 80vh; overflow-y: auto;">
+            <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
+            <h3 style="color: #ff00ff; border-bottom: 2px dashed #ff00ff; margin-bottom: 10px; font-size: 16px;">🕵️‍♂️ PANEL DE BARRA</h3>
+            <p style="font-size: 10px; color: #ccc; margin-bottom: 20px; line-height: 1.4;">Los jugadores que soliciten el VIP aparecerán aquí abajo en tiempo real.</p>
+            <div id="lista-peticiones-vip" style="text-align: left; display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+    </div>
 
     <!-- ==================== INVENTARIO DE CUPONES ==================== -->
     <div id="cupones-inventario-modal" class="modal oculto" style="z-index: 700;">
