@@ -67,16 +67,14 @@ let timeoutMultiplicador = null;
 let sobreAbriendo = false;
 let juegoPausado = false; 
 
-// Variables de la Tienda (Actualizadas)
-let tiempoSpawnBase = 2200; 
-let tiempoSpawnActual = 2200; 
-let costeVelocidad = 100;
+// Variables de la Tienda de Niveles
+let nivelVelocidad = 0; const maxNivelVelocidad = 10;
+let nivelAparicion = 0; const maxNivelCalidad = 6;
+let nivelTractor = 0;   const maxNivelTractor = 10;
 
-let nivelAparicion = 0; 
+let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 100;
 let costeCalidad = 1000;
-
-let tiempoPasivo = 3000; 
-let costeTractor = 500;
+let tiempoPasivo = 3000; let costeTractor = 500;
 let limpiezaActivada = false;
 let boostVelocidadActivo = false;
 
@@ -118,7 +116,7 @@ function verificarLogro(id) {
 }
 
 // ==========================================================================
-// 💾 SISTEMA DE GUARDADO (ARREGLADO PARA LA NUEVA TIENDA)
+// 💾 SISTEMA DE GUARDADO
 // ==========================================================================
 function guardarPartida() {
     if (juegoPausado && !boostVelocidadActivo) return; 
@@ -130,10 +128,9 @@ function guardarPartida() {
         sobresGratisEpico: sobresGratisEpico, regalosReclamados: regalosReclamados, 
         cuponesCanjeados: cuponesCanjeados, estadisticasLogros: estadisticasLogros, 
         logrosDesbloqueados: logrosDesbloqueados, 
-        // Nuevas variables
-        tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, 
+        tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, nivelVelocidad: nivelVelocidad,
         nivelAparicion: nivelAparicion, costeCalidad: costeCalidad,
-        tiempoPasivo: tiempoPasivo, costeTractor: costeTractor, limpiezaActivada: limpiezaActivada,
+        tiempoPasivo: tiempoPasivo, costeTractor: costeTractor, nivelTractor: nivelTractor, limpiezaActivada: limpiezaActivada,
         amigos: amigosEnTablero, inventarioCupones: inventarioCupones, timeStamp: Date.now() 
     };
 
@@ -170,24 +167,11 @@ function cargarPartida() {
             logrosDesbloqueados = estadoJuego.logrosDesbloqueados || logrosDesbloqueados;
             inventarioCupones = estadoJuego.inventarioCupones || [];
             
-            // Cargamos las nuevas variables de la tienda
             tiempoSpawnBase = estadoJuego.tiempoSpawnBase || 2200; tiempoSpawnActual = tiempoSpawnBase; 
-            costeVelocidad = estadoJuego.costeVelocidad || 100; 
-            nivelAparicion = estadoJuego.nivelAparicion || 0;
-            costeCalidad = estadoJuego.costeCalidad || 1000;
-            tiempoPasivo = estadoJuego.tiempoPasivo || 3000; 
-            costeTractor = estadoJuego.costeTractor || 500;
-            limpiezaActivada = estadoJuego.limpiezaActivada || false;
-            
-            const elVel = document.getElementById('coste-vel');
-            const elCal = document.getElementById('coste-calidad');
-            const elTrac = document.getElementById('coste-tractor');
-            const elNvl = document.getElementById('nivel-caja-actual');
-
-            if (elVel) elVel.innerText = costeVelocidad.toLocaleString('es-ES'); 
-            if (elCal) elCal.innerText = costeCalidad.toLocaleString('es-ES'); 
-            if (elTrac) elTrac.innerText = costeTractor.toLocaleString('es-ES');
-            if (elNvl) elNvl.innerText = nivelAparicion + 1;
+            costeVelocidad = estadoJuego.costeVelocidad || 100; nivelVelocidad = estadoJuego.nivelVelocidad || 0;
+            nivelAparicion = estadoJuego.nivelAparicion || 0; costeCalidad = estadoJuego.costeCalidad || 1000;
+            tiempoPasivo = estadoJuego.tiempoPasivo || 3000; costeTractor = estadoJuego.costeTractor || 500;
+            nivelTractor = estadoJuego.nivelTractor || 0; limpiezaActivada = estadoJuego.limpiezaActivada || false;
             
             if (estadoJuego.amigos && estadoJuego.amigos.length > 0) { 
                 estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); 
@@ -245,79 +229,137 @@ function actualizaEstilosExtremos() {
 }
 
 // ==========================================================================
-// 🛒 TIENDA Y BOOSTS 
+// 🛒 TIENDA Y BOOSTS (CON LISTA VERTICAL Y BARRAS DE PROGRESO)
 // ==========================================================================
 function abrirTienda() { 
     pausarJuego(); ocultarTodosModales(); 
-    document.getElementById('shop-modal').classList.remove('oculto'); actualizarTiendaPersonajes(); 
-    if(document.getElementById('coste-calidad')) document.getElementById('coste-calidad').innerText = costeCalidad.toLocaleString('es-ES');
-    if(document.getElementById('coste-tractor')) document.getElementById('coste-tractor').innerText = costeTractor.toLocaleString('es-ES');
-    if(document.getElementById('coste-vel')) document.getElementById('coste-vel').innerText = costeVelocidad.toLocaleString('es-ES');
-    if(document.getElementById('nivel-caja-actual')) document.getElementById('nivel-caja-actual').innerText = nivelAparicion + 1;
+    document.getElementById('shop-modal').classList.remove('oculto'); 
+    renderizarMejoras(); // 👈 ESTO ERA LO QUE FALTABA
+    actualizarTiendaPersonajes(); 
+}
+
+function renderizarMejoras() {
+    const tab = document.getElementById('tab-mejoras');
+    if(!tab) return;
+    let html = '<div class="shop-seccion-titulo" style="margin-top:0;">⭐ PERMANENTES</div>';
+    
+    // 1. CARTA: Velocidad
+    let pctVel = (nivelVelocidad / maxNivelVelocidad) * 100;
+    let btnVel = nivelVelocidad >= maxNivelVelocidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarVelocidad()">${costeVelocidad.toLocaleString('es-ES')} 🥃</button>`;
+    html += `<div class="upgrade-row"><div class="upgrade-icon">🚀</div><div class="upgrade-info"><h4>Reparto Rápido</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctVel}%;"></div><span class="barra-texto">NVL ${nivelVelocidad}/${maxNivelVelocidad}</span></div></div>${btnVel}</div>`;
+    
+    // 2. CARTA: Calidad
+    let pctCal = (nivelAparicion / maxNivelCalidad) * 100;
+    let btnCal = nivelAparicion >= maxNivelCalidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarCalidad()">${costeCalidad.toLocaleString('es-ES')} 🥃</button>`;
+    html += `<div class="upgrade-row"><div class="upgrade-icon">💎</div><div class="upgrade-info"><h4>Juerguista VIP</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctCal}%;"></div><span class="barra-texto">NVL ${nivelAparicion}/${maxNivelCalidad}</span></div></div>${btnCal}</div>`;
+
+    // 3. CARTA: Tractor
+    let pctTrac = (nivelTractor / maxNivelTractor) * 100;
+    let btnTrac = nivelTractor >= maxNivelTractor ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarTractor()">${costeTractor.toLocaleString('es-ES')} 🥃</button>`;
+    html += `<div class="upgrade-row"><div class="upgrade-icon">🚜</div><div class="upgrade-info"><h4>Tractor Kzurro</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctTrac}%;"></div><span class="barra-texto">NVL ${nivelTractor}/${maxNivelTractor}</span></div></div>${btnTrac}</div>`;
+
+    html += '<div class="shop-seccion-titulo medio">⏳ CONSUMIBLES</div>';
+
+    // 4. CARTA: Charanga
+    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">3.000 🥃</button></div>`;
+
+    // 5. CARTA: Hora Loca
+    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">15.000 🥃</button></div>`;
+
+    tab.innerHTML = html;
+}
+
+function actualizarTiendaPersonajes() { 
+    const tab = document.getElementById('tab-personajes'); 
+    if(!tab) return;
+    tab.innerHTML = ''; 
+    for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
+        if(i >= levels.length) break; 
+        let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
+        let nombreColega = nombresJuerguistas[i] || "Colega";
+        tab.innerHTML += `
+        <div class="upgrade-row">
+            <img src="${levels[i]}" style="width:40px; height:40px; object-fit:contain; filter: drop-shadow(0 0 5px #00ff00); flex-shrink:0;">
+            <div class="upgrade-info">
+                <h4>Nivel ${i + 1}</h4>
+                <p>${nombreColega}</p>
+            </div>
+            <button class="boton-arcade" onclick="comprarPersonaje(${i}, ${precioPersonaje})">${precioPersonaje.toLocaleString('es-ES')} 🥃</button>
+        </div>`; 
+    } 
+}
+
+function cambiarTab(pestana) { 
+    document.getElementById('tab-mejoras').classList.add('oculto'); document.getElementById('tab-personajes').classList.add('oculto'); 
+    document.getElementById('btn-tab-mejoras').style.background = '#000'; document.getElementById('btn-tab-mejoras').style.color = '#00ff00';
+    document.getElementById('btn-tab-personajes').style.background = '#000'; document.getElementById('btn-tab-personajes').style.color = '#00ff00';
+    document.getElementById(`tab-${pestana}`).classList.remove('oculto'); 
+    document.getElementById(`btn-tab-${pestana}`).style.background = '#00ff00'; document.getElementById(`btn-tab-${pestana}`).style.color = '#000';
+    if (pestana === 'mejoras') renderizarMejoras();
+    if (pestana === 'personajes') actualizarTiendaPersonajes(); 
 }
 
 function comprarVelocidad() {
-    if (tiempoSpawnBase <= 500) { alert("¡Ya has alcanzado la velocidad máxima!"); return; }
+    if (nivelVelocidad >= maxNivelVelocidad) return;
     if (cubatas >= costeVelocidad) {
-        cubatas -= costeVelocidad;
-        tiempoSpawnBase = Math.max(500, tiempoSpawnBase - 250); 
+        cubatas -= costeVelocidad; nivelVelocidad++;
+        tiempoSpawnBase = Math.max(500, 2200 - (nivelVelocidad * 170)); 
         tiempoSpawnActual = tiempoSpawnBase;
-        costeVelocidad = Math.floor(costeVelocidad * 2.5);
-        document.getElementById('coste-vel').innerText = costeVelocidad.toLocaleString('es-ES');
-        ganarCubatas(0); cerrarModales();
-        clearInterval(intervalCajas);
+        costeVelocidad = Math.floor(costeVelocidad * 2.2);
+        ganarCubatas(0); clearInterval(intervalCajas);
         if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual);
-        guardarPartida();
+        guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
 
 function comprarCalidad() {
-    if (nivelAparicion >= 6) { alert("¡Las cajas ya traen el nivel máximo permitido!"); return; }
+    if (nivelAparicion >= maxNivelCalidad) return;
     if (cubatas >= costeCalidad) {
-        cubatas -= costeCalidad;
-        nivelAparicion++; 
+        cubatas -= costeCalidad; nivelAparicion++; 
         costeCalidad = Math.floor(costeCalidad * 4); 
-        document.getElementById('coste-calidad').innerText = costeCalidad.toLocaleString('es-ES');
-        document.getElementById('nivel-caja-actual').innerText = nivelAparicion + 1;
-        ganarCubatas(0); cerrarModales(); guardarPartida();
+        ganarCubatas(0); guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
 
 function comprarTractor() {
-    if (tiempoPasivo <= 500) { alert("¡Tractor al máximo de potencia!"); return; }
+    if (nivelTractor >= maxNivelTractor) return;
     if (cubatas >= costeTractor) {
-        cubatas -= costeTractor;
+        cubatas -= costeTractor; nivelTractor++;
         if (!limpiezaActivada) {
             limpiezaActivada = true;
             if(!juegoPausado) intervalRecoger = setInterval(recogerVomitoAutomatico, 4000);
             verificarLogro('vip_barra'); 
         }
-        tiempoPasivo = Math.max(500, Math.floor(tiempoPasivo * 0.9)); 
+        tiempoPasivo = Math.max(500, 3000 - (nivelTractor * 250)); 
         costeTractor = Math.floor(costeTractor * 2.2); 
-        document.getElementById('coste-tractor').innerText = costeTractor.toLocaleString('es-ES');
-        ganarCubatas(0); cerrarModales(); iniciarBuclePasivo(); guardarPartida();
+        ganarCubatas(0); iniciarBuclePasivo(); guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
 
 function boostCharanga() {
     if (cubatas >= 3000) {
-        cubatas -= 3000; ganarCubatas(0); cerrarModales();
+        cubatas -= 3000; ganarCubatas(0);
         multiplicadorPasivo = 3; clearTimeout(timeoutMultiplicador); 
         timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
-        guardarPartida();
+        guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
 
 function boostHoraLoca() {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
     if (cubatas >= 15000) { 
-        cubatas -= 15000; ganarCubatas(0); cerrarModales(); 
+        cubatas -= 15000; ganarCubatas(0);
         boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 400; 
         clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
         estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); 
         setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); 
-        guardarPartida(); 
+        guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
+}
+
+function comprarPersonaje(nivel, precio) { 
+    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } 
+    if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); actualizarTiendaPersonajes(); } else alert("¡Te faltan cubatas!"); 
 }
 
 // ==========================================================================
@@ -379,8 +421,44 @@ function abrirCasino() {
 }
 
 // ==========================================================================
-// 🔒 GESTIÓN DEL PASE VIP DESDE LA NUBE Y STAFF
+// 🕵️‍♂️ PANEL DE STAFF EN TIEMPO REAL (JUST-EAT DE VIPS)
 // ==========================================================================
+let claveStaffActiva = ""; 
+
+function abrirPanelCamarero() {
+    if (claveStaffActiva === "") {
+        let pass = prompt("Contraseña Maestra de la Barra:");
+        if (pass !== "DeXTer_2007") { alert("❌ Contraseña incorrecta."); return; }
+        claveStaffActiva = pass;
+    }
+    ocultarTodosModales();
+    const modal = document.getElementById('staff-modal'); if(modal) modal.classList.remove('oculto');
+    cargarPeticionesVIP();
+}
+
+function cargarPeticionesVIP() {
+    if (!db) return;
+    const lista = document.getElementById('lista-peticiones-vip');
+    lista.innerHTML = "<p style='color:#ccc; text-align:center;'>Buscando peticiones... 📡</p>";
+
+    db.collection("pases_vip").where("autorizado", "==", false).onSnapshot((querySnapshot) => {
+          lista.innerHTML = ""; 
+          if (querySnapshot.empty) {
+              lista.innerHTML = "<div style='text-align:center; padding: 20px 0;'><span style='font-size:30px;'>🍻</span><p style='color:#00ff00; font-size:12px; margin-top:10px;'>Todo despejado.<br>Nadie esperando.</p></div>";
+              return;
+          }
+          querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              lista.innerHTML += `<div style="background:#222; padding:12px; border-radius:8px; border:2px dashed #ff00ff; display:flex; justify-content:space-between; align-items:center;"><span style="color:white; font-weight:bold; font-size:12px; font-family: Arial, sans-serif;">👤 ${data.jugador}</span><button onclick="autorizarJugadorRapido('${data.jugador}')" style="background:#00ff00; color:black; padding:8px 12px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #00ff00;">ACEPTAR</button></div>`;
+          });
+      });
+}
+
+function autorizarJugadorRapido(jugador) {
+    if (!db || claveStaffActiva === "") return;
+    db.collection("pases_vip").doc(jugador).set({ autorizado: true, claveStaff: claveStaffActiva }, { merge: true }).catch(err => { alert("❌ Error de conexión al autorizar."); });
+}
+
 function solicitarPaseVIP() {
     if (!db) { alert("Error de conexión a internet."); return; }
     if (nombreJugador === "Desconocido") { pedirNombre(); if (nombreJugador === "Desconocido") return; }
@@ -407,16 +485,6 @@ function verificarEstadoVIPEnNube() {
         else { casinoVIP = false; localStorage.setItem('casinoVIP', 'false'); }
         guardarPartida();
     }).catch(() => {});
-}
-
-function abrirPanelCamarero() {
-    let pass = prompt("Contraseña Maestra de la Barra:"); if (!pass) return;
-    let jugador = prompt("📝 Escribe el nombre exacto del jugador que ha pagado los 2€ para activar su VIP:");
-    if (jugador && db) {
-        db.collection("pases_vip").doc(jugador).set({ jugador: jugador, autorizado: true, claveStaff: pass }, { merge: true }).then(() => {
-            alert("✅ ¡ÉXITO! El jugador '" + jugador + "' ahora es VIP.");
-        }).catch(err => { alert("❌ ACCESO DENEGADO: Contraseña incorrecta."); });
-    }
 }
 
 // ==========================================================================
@@ -680,31 +748,6 @@ function recogerVomitoAutomatico() {
     if (totalRecolectado > 0) ganarCubatas(totalRecolectado); 
 }
 
-function cambiarTab(pestana) { 
-    document.getElementById('tab-mejoras').classList.add('oculto'); document.getElementById('tab-personajes').classList.add('oculto'); 
-    document.getElementById('btn-tab-mejoras').style.background = '#000'; document.getElementById('btn-tab-mejoras').style.color = '#00ff00';
-    document.getElementById('btn-tab-personajes').style.background = '#000'; document.getElementById('btn-tab-personajes').style.color = '#00ff00';
-    document.getElementById(`tab-${pestana}`).classList.remove('oculto'); 
-    document.getElementById(`btn-tab-${pestana}`).style.background = '#00ff00'; document.getElementById(`btn-tab-${pestana}`).style.color = '#000';
-    if (pestana === 'personajes') actualizarTiendaPersonajes(); 
-}
-
-function actualizarTiendaPersonajes() { 
-    const contenedor = document.getElementById('grid-personajes-inner'); 
-    if (!contenedor) return;
-    contenedor.innerHTML = ''; 
-    for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
-        if(i >= levels.length) break; 
-        let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
-        contenedor.innerHTML += `<button class="boton-arcade" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; margin: 5px;" onclick="comprarPersonaje(${i}, ${precioPersonaje})"><img src="${levels[i]}" style="width:50px; height:50px; object-fit:contain; margin-bottom:5px; filter: drop-shadow(0 0 5px #00ff00);">Nvl ${i + 1}<br><small style="color:#00ff00; font-size:9px; margin-top:5px; font-family: 'Press Start 2P', cursive;">${precioPersonaje.toLocaleString('es-ES')} 🥃</small></button>`; 
-    } 
-}
-
-function comprarPersonaje(nivel, precio) { 
-    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } 
-    if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); cerrarModales(); const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); } else alert("¡Te faltan cubatas!"); 
-}
-
 function mostrarCinematica(nivel) { 
     pausarJuego(); if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); 
     const cinematic = document.getElementById('unlock-cinematic'); document.getElementById('unlock-img').src = levels[nivel]; document.getElementById('unlock-desc').innerText = `¡NIVEL ${nivel + 1} ALCANZADO!`; 
@@ -854,7 +897,7 @@ function sincronizarStockGlobal() {
 }
 
 // ==========================================================================
-// 🚀 ARRANQUE OFICIAL (CON POP-UP DE CALENDARIO)
+// 🚀 ARRANQUE OFICIAL 
 // ==========================================================================
 cargarPartida(); 
 reanudarJuego(); 
