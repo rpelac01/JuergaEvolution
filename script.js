@@ -111,97 +111,6 @@ function calcularNivelCajaNormal() {
     }
     return info.prob[info.prob.length - 1].nvl;
 }
-let pasoTutorialActual = 0;
-const PASOS_TUTORIAL = [
-    {
-        icono: "📦",
-        texto: "¡Bienvenido a <b>Juerga Civil</b>! Caen cajas del cielo constantemente. Tócalas para que aparezcan colegas.",
-        target: null,
-        posicion: "center"
-    },
-    {
-        icono: "🔄",
-        texto: "Arrastra dos colegas del <b>mismo nivel</b> uno encima del otro para fusionarlos y desbloquear el siguiente.",
-        target: "#game-board",
-        posicion: "center"
-    },
-    {
-        icono: "🤮",
-        texto: "Tus colegas generan <b>cubatas pasivos</b> cada segundo y vómitos en el suelo para conseguir dinero extra al tocarlos.",
-        target: "#top-bar",
-        posicion: "bottom"
-    },
-    {
-        icono: "🛒",
-        texto: "En <b>El Bar (Tienda)</b> compras el Tractor automático, mejoras de cajas y frenesís temporales.",
-        target: "#bottom-bar button:nth-child(1)",
-        posicion: "top"
-    },
-    {
-        icono: "🎁",
-        texto: "En los <b>Sobres de la Peña</b> puedes ganar consumiciones físicas reales (¡chupitos y cubatas gratis en barra!).",
-        target: "#bottom-bar button:nth-child(2)",
-        posicion: "top"
-    },
-    {
-        icono: "📖",
-        texto: "En el <b>Menú</b> tienes el Ranking, los Logros y tu sobre gratis diario. ¡A disfrutar de las fiestas!",
-        target: "#bottom-bar button:nth-child(3)",
-        posicion: "top"
-    }
-];
-
-function iniciarTutorial() {
-    pasoTutorialActual = 0;
-    document.getElementById('tutorial-overlay').classList.remove('oculto');
-    mostrarPasoTutorial();
-}
-
-function mostrarPasoTutorial() {
-    // Quitar foco anterior
-    document.querySelectorAll('.tutorial-focus').forEach(el => el.classList.remove('tutorial-focus'));
-
-    const paso = PASOS_TUTORIAL[pasoTutorialActual];
-    const box = document.getElementById('tutorial-box');
-    document.getElementById('tutorial-icono').innerText = paso.icono;
-    document.getElementById('tutorial-texto').innerHTML = paso.texto;
-
-    if (pasoTutorialActual === PASOS_TUTORIAL.length - 1) {
-        document.getElementById('tutorial-btn').innerText = "¡A JUGAR! 🍻";
-    } else {
-        document.getElementById('tutorial-btn').innerText = "SIGUIENTE ➔";
-    }
-
-    // Posicionamiento dinámico del cartel
-    if (paso.posicion === "top") {
-        box.style.top = "auto";
-        box.style.bottom = "80px";
-    } else if (paso.posicion === "bottom") {
-        box.style.top = "70px";
-        box.style.bottom = "auto";
-    } else {
-        box.style.top = "50%";
-        box.style.bottom = "auto";
-        box.style.transform = "translateY(-50%)";
-    }
-
-    // Iluminar elemento objetivo si existe
-    if (paso.target) {
-        const el = document.querySelector(paso.target);
-        if (el) el.classList.add('tutorial-focus');
-    }
-}
-
-function avanzarTutorial() {
-    pasoTutorialActual++;
-    if (pasoTutorialActual >= PASOS_TUTORIAL.length) {
-        document.querySelectorAll('.tutorial-focus').forEach(el => el.classList.remove('tutorial-focus'));
-        document.getElementById('tutorial-overlay').classList.add('oculto');
-        localStorage.setItem('tutorialVisto', 'true');
-    } else {
-        mostrarPasoTutorial();
-    }
-}
 
 let regalosReclamados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
 let cuponesCanjeados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
@@ -1078,12 +987,7 @@ reanudarJuego();
 setInterval(guardarPartida, 3000);
 
 setTimeout(() => {
-    const tutorialVisto = localStorage.getItem('tutorialVisto') === 'true';
-    if (!tutorialVisto) {
-        iniciarTutorial();
-    } else {
-        const hoy = new Date(); hoy.setHours(hoy.getHours() - 5); 
-        const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
-        if (localStorage.getItem('recompensa-' + hoyStr) !== 'true') { abrirMenuDiario(); }
-    }
-}, 1200);
+    const hoy = new Date(); hoy.setHours(hoy.getHours() - 5); 
+    const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+    if (localStorage.getItem('recompensa-' + hoyStr) !== 'true') { abrirMenuDiario(); }
+}, 1500);
