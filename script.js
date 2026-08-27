@@ -978,13 +978,45 @@ function sincronizarStockGlobal() {
         if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
     }, () => {});
 }
+// ==========================================================================
+// 🌅 REINICIO DIARIO (4:00 AM) - BONO POR NIVEL MÁXIMO
+// ==========================================================================
+function comprobarReinicioDiario() {
+    // Le restamos 4 horas al reloj. 
+    // Así, si son las 03:59 AM, el juego sigue creyendo que es el "día anterior".
+    const hoy = new Date();
+    hoy.setHours(hoy.getHours() - 4);
+    const fechaString = hoy.toDateString(); // Ej: "Fri Sep 04 2026"
 
+    const ultimoReinicio = "ayer" ;
+//localStorage.getItem('ultimoReinicioJuerga');
+    if (ultimoReinicio !== fechaString) {
+        // El nivel máximo en el código es 18 (que equivale al Nivel 19 real).
+        // Calculamos el porcentaje: Nvl Máximo = 100% de 125.000
+        let recompensaMax = 125000;
+        let premio = Math.floor(recompensaMax * (maxNivelDesbloqueado / 18));
+        
+        // Si acaba de empezar a jugar, le damos 1.000 por cortesía para que no sea 0
+        if (premio < 1000) premio = 1000; 
+
+        ganarCubatas(premio);
+        localStorage.setItem('ultimoReinicioJuerga', fechaString);
+        
+        // Lo metemos en un pequeño delay para que la pantalla cargue antes de saltar
+        setTimeout(() => {
+            alert(`🌅 ¡NUEVO DÍA DE FIESTA!\n\nSe ha realizado el reinicio de las 04:00 AM.\n\nPor haber alcanzado el Nivel ${maxNivelDesbloqueado + 1}, la barra te obsequia con:\n\n🍹 +${premio.toLocaleString('es-ES')} cubatas para arrancar.`);
+        }, 800);
+    }
+}
 // ==========================================================================
 // 🚀 ARRANQUE OFICIAL 
 // ==========================================================================
 cargarPartida(); 
 reanudarJuego(); 
 setInterval(guardarPartida, 3000);
+
+// 👇 EL JUEGO COMPRUEBA SI HA PASADO DE LAS 4 AM PARA DAR EL PREMIO 👇
+comprobarReinicioDiario();
 
 setTimeout(() => {
     const hoy = new Date(); hoy.setHours(hoy.getHours() - 5); 
