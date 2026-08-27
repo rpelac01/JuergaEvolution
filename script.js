@@ -72,30 +72,49 @@ let nivelVelocidad = 0; const maxNivelVelocidad = 10;
 let nivelAparicion = 0; const maxNivelCalidad = 6;
 let nivelTractor = 0;   const maxNivelTractor = 10;
 
-let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 100;
-let tiempoPasivo = 3000; let costeTractor = 500;
+let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 250;
+let tiempoPasivo = 3000; let costeTractor = 1000;
 let limpiezaActivada = false;
 let boostVelocidadActivo = false;
 
+// 📊 TABLA FIJA DE INGRESOS PASIVOS (Tope estricto en 5.000 🥃)
+const INGRESOS_POR_NIVEL = [
+    1,       // Nvl 1: 1 🥃
+    3,       // Nvl 2: 3 🥃 (Rentable)
+    7,       // Nvl 3: 7 🥃 (Rentable)
+    15,      // Nvl 4: 15 🥃 (Rentable)
+    32,      // Nvl 5: 32 🥃 (Rentable)
+    65,      // Nvl 6: 65 🥃 (Rentable)
+    130,     // Nvl 7: 130 🥃 (Rentable)
+    260,     // Nvl 8: 260 🥃 (Rentable)
+    // --- ZONA VIP: Da menos del doble. El jugador fusiona para LIBERAR ESPACIO ---
+    480,     // Nvl 9: 480 🥃 
+    800,     // Nvl 10: 800 🥃
+    1200,    // Nvl 11: 1.200 🥃
+    1650,    // Nvl 12: 1.650 🥃
+    2100,    // Nvl 13: 2.100 🥃
+    2600,    // Nvl 14: 2.600 🥃
+    3100,    // Nvl 15: 3.100 🥃
+    3600,    // Nvl 16: 3.600 🥃
+    4100,    // Nvl 17: 4.100 🥃
+    4550,    // Nvl 18: 4.550 🥃
+    5000     // Nvl 19: 5.000 🥃 (Final)
+];
+
 function calcularIngresoColega(level) {
-    // 1. Pradera Normal (Nivel 1 al 8): Crecimiento rápido
-    if (level <= 7) {
-        return Math.floor(Math.pow(2.4, level));
-    }
+    if (level < 0) return 1;
+    if (level >= INGRESOS_POR_NIVEL.length) return 5000;
     
-    // 2. Zona VIP (Nivel 9 al 19): Crecimiento controlado anti-inflación
-    const baseNivel8 = Math.pow(2.4, 7); // ~458 🥃
-    const nivelesVIP = level - 7;
-    return Math.floor(baseNivel8 * Math.pow(2.05, nivelesVIP));
+    return INGRESOS_POR_NIVEL[level];
 }
-// 🎲 TABLA DE PROBABILIDADES VIP (TOPE ESTRICTO EN NIVEL 3)
+// 🎲 TABLA DE PROBABILIDADES VIP (PRECIOS AJUSTADOS A 5000/s)
 const TABLA_CALIDAD_VIP = [
-    { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 15000 },
-    { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 75000 },
-    { nivel: 2, prob: [{ nvl: 0, p: 0.75 }, { nvl: 1, p: 0.25 }], desc: "25% Nv.2", sig: "50% Nv.2", coste: 350000 },
-    { nivel: 3, prob: [{ nvl: 0, p: 0.50 }, { nvl: 1, p: 0.50 }], desc: "50% Nv.2", sig: "80% Nv.2 / 20% Nv.3", coste: 1500000 },
-    { nivel: 4, prob: [{ nvl: 1, p: 0.80 }, { nvl: 2, p: 0.20 }], desc: "20% Nv.3", sig: "50% Nv.3", coste: 8000000 },
-    { nivel: 5, prob: [{ nvl: 1, p: 0.50 }, { nvl: 2, p: 0.50 }], desc: "50% Nv.3", sig: "75% Nv.3 (Tope)", coste: 35000000 },
+    { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 2000 },
+    { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 10000 },
+    { nivel: 2, prob: [{ nvl: 0, p: 0.75 }, { nvl: 1, p: 0.25 }], desc: "25% Nv.2", sig: "50% Nv.2", coste: 35000 },
+    { nivel: 3, prob: [{ nvl: 0, p: 0.50 }, { nvl: 1, p: 0.50 }], desc: "50% Nv.2", sig: "80% Nv.2 / 20% Nv.3", coste: 120000 },
+    { nivel: 4, prob: [{ nvl: 1, p: 0.80 }, { nvl: 2, p: 0.20 }], desc: "20% Nv.3", sig: "50% Nv.3", coste: 450000 },
+    { nivel: 5, prob: [{ nvl: 1, p: 0.50 }, { nvl: 2, p: 0.50 }], desc: "50% Nv.3", sig: "75% Nv.3 (Tope)", coste: 1500000 },
     { nivel: 6, prob: [{ nvl: 1, p: 0.25 }, { nvl: 2, p: 0.75 }], desc: "75% Nv.3 / 25% Nv.2", sig: "MÁXIMO", coste: 0 }
 ];
 
@@ -317,11 +336,10 @@ function renderizarMejoras() {
     html += '<div class="shop-seccion-titulo medio">⏳ CONSUMIBLES</div>';
 
     // 4. CARTA: Charanga
-    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">3.000 🥃</button></div>`;
+    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">5.000 🥃</button></div>`;
 
     // 5. CARTA: Hora Loca
-    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">15.000 🥃</button></div>`;
-
+    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">25.000 🥃</button></div>`;
     tab.innerHTML = html;
 }
 
@@ -398,8 +416,8 @@ function comprarTractor() {
 }
 
 function boostCharanga() {
-    if (cubatas >= 3000) {
-        cubatas -= 3000; ganarCubatas(0);
+    if (cubatas >= 5000) {  // 👈 Nuevo precio
+        cubatas -= 5000; ganarCubatas(0);
         multiplicadorPasivo = 3; clearTimeout(timeoutMultiplicador); 
         timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida(); renderizarMejoras();
@@ -408,8 +426,8 @@ function boostCharanga() {
 
 function boostHoraLoca() {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
-    if (cubatas >= 15000) { 
-        cubatas -= 15000; ganarCubatas(0);
+    if (cubatas >= 25000) {  // 👈 Nuevo precio
+        cubatas -= 25000; ganarCubatas(0);
         boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 400; 
         clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
         estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); 
@@ -417,7 +435,6 @@ function boostHoraLoca() {
         guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
-
 function comprarPersonaje(nivel, precio) { 
     if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } 
     if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); actualizarTiendaPersonajes(); } else alert("¡Te faltan cubatas!"); 
@@ -979,32 +996,37 @@ function sincronizarStockGlobal() {
     }, () => {});
 }
 // ==========================================================================
-// 🌅 REINICIO DIARIO (4:00 AM) - BONO POR NIVEL MÁXIMO
+// 🌅 REINICIO DIARIO (4:00 AM) - WIPE DE PRADERA + BONO INICIAL
 // ==========================================================================
 function comprobarReinicioDiario() {
-    // Le restamos 4 horas al reloj. 
-    // Así, si son las 03:59 AM, el juego sigue creyendo que es el "día anterior".
     const hoy = new Date();
     hoy.setHours(hoy.getHours() - 4);
-    const fechaString = hoy.toDateString(); // Ej: "Fri Sep 04 2026"
+    const fechaString = hoy.toDateString(); 
 
-    const ultimoReinicio = "ayer" ;
-//localStorage.getItem('ultimoReinicioJuerga');
+    // 💡 RECUERDA: Si estás probando, cambia temporalmente "ultimoReinicioJuerga" por "ayer"
+    const ultimoReinicio = localStorage.getItem('ultimoReinicioJuerga');
+
     if (ultimoReinicio !== fechaString) {
-        // El nivel máximo en el código es 18 (que equivale al Nivel 19 real).
-        // Calculamos el porcentaje: Nvl Máximo = 100% de 125.000
         let recompensaMax = 125000;
         let premio = Math.floor(recompensaMax * (maxNivelDesbloqueado / 18));
-        
-        // Si acaba de empezar a jugar, le damos 1.000 por cortesía para que no sea 0
         if (premio < 1000) premio = 1000; 
 
+        // 1. Ponemos los cubatas a 0 y sumamos el bono del reinicio
+        cubatas = 0;
         ganarCubatas(premio);
+
+        // 2. Borramos todos los personajes, vómitos y cajas de los tableros
+        document.querySelectorAll('.friend, .vomito, .caja').forEach(el => el.remove());
+
+        // 3. Dejamos un colega inicial en el centro para volver a empezar
+        spawnAmigoInicial();
+
+        // 4. Guardamos la fecha y la partida limpia
         localStorage.setItem('ultimoReinicioJuerga', fechaString);
+        guardarPartida();
         
-        // Lo metemos en un pequeño delay para que la pantalla cargue antes de saltar
         setTimeout(() => {
-            alert(`🌅 ¡NUEVO DÍA DE FIESTA!\n\nSe ha realizado el reinicio de las 04:00 AM.\n\nPor haber alcanzado el Nivel ${maxNivelDesbloqueado + 1}, la barra te obsequia con:\n\n🍹 +${premio.toLocaleString('es-ES')} cubatas para arrancar.`);
+            alert(`🌅 ¡NUEVO DÍA DE FIESTA (4:00 AM)!\n\nLa pradera se ha reseteado por completo. Conservas tus logros y desbloqueos, ¡pero te toca volver a fusionar desde cero!\n\n🍹 Bono de arranque: +${premio.toLocaleString('es-ES')} cubatas.`);
         }, 800);
     }
 }
