@@ -690,10 +690,13 @@ function cambiarTab(pestana) {
 }
 
 function actualizarTiendaPersonajes() { 
-    const tabPersonajes = document.getElementById('tab-personajes'); tabPersonajes.innerHTML = ''; 
+    const contenedor = document.getElementById('grid-personajes-inner'); 
+    if (!contenedor) return;
+    contenedor.innerHTML = ''; 
     for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
-        if(i >= levels.length) break; let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
-        tabPersonajes.innerHTML += `<button class="boton-arcade" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; margin: 5px;" onclick="comprarPersonaje(${i}, ${precioPersonaje})"><img src="${levels[i]}" style="width:50px; height:50px; object-fit:contain; margin-bottom:5px; filter: drop-shadow(0 0 5px #00ff00);">Nvl ${i + 1}<br><small style="color:#00ff00; font-size:9px; margin-top:5px; font-family: 'Press Start 2P', cursive;">${precioPersonaje.toLocaleString('es-ES')} 🥃</small></button>`; 
+        if(i >= levels.length) break; 
+        let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
+        contenedor.innerHTML += `<button class="boton-arcade" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; margin: 5px;" onclick="comprarPersonaje(${i}, ${precioPersonaje})"><img src="${levels[i]}" style="width:50px; height:50px; object-fit:contain; margin-bottom:5px; filter: drop-shadow(0 0 5px #00ff00);">Nvl ${i + 1}<br><small style="color:#00ff00; font-size:9px; margin-top:5px; font-family: 'Press Start 2P', cursive;">${precioPersonaje.toLocaleString('es-ES')} 🥃</small></button>`; 
     } 
 }
 
