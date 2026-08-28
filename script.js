@@ -72,52 +72,33 @@ let nivelVelocidad = 0; const maxNivelVelocidad = 10;
 let nivelAparicion = 0; const maxNivelCalidad = 6;
 let nivelTractor = 0;   const maxNivelTractor = 10;
 
-let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 250;
-let tiempoPasivo = 3000; let costeTractor = 1000;
+let tiempoSpawnBase = 2200; let tiempoSpawnActual = 2200; let costeVelocidad = 1000;
+let tiempoPasivo = 3000; let costeTractor = 5000;
 let limpiezaActivada = false;
 let boostVelocidadActivo = false;
 
-// 📊 TABLA FIJA DE INGRESOS PASIVOS (Tope estricto en 5.000 🥃)
+// 📊 TABLA FIJA DE INGRESOS (Economía 5 Días - Max 1.000)
 const INGRESOS_POR_NIVEL = [
-    1,       // Nvl 1: 1 🥃
-    3,       // Nvl 2: 3 🥃 (Rentable)
-    7,       // Nvl 3: 7 🥃 (Rentable)
-    15,      // Nvl 4: 15 🥃 (Rentable)
-    32,      // Nvl 5: 32 🥃 (Rentable)
-    65,      // Nvl 6: 65 🥃 (Rentable)
-    130,     // Nvl 7: 130 🥃 (Rentable)
-    260,     // Nvl 8: 260 🥃 (Rentable)
-    // --- ZONA VIP: Da menos del doble. El jugador fusiona para LIBERAR ESPACIO ---
-    480,     // Nvl 9: 480 🥃 
-    800,     // Nvl 10: 800 🥃
-    1200,    // Nvl 11: 1.200 🥃
-    1650,    // Nvl 12: 1.650 🥃
-    2100,    // Nvl 13: 2.100 🥃
-    2600,    // Nvl 14: 2.600 🥃
-    3100,    // Nvl 15: 3.100 🥃
-    3600,    // Nvl 16: 3.600 🥃
-    4100,    // Nvl 17: 4.100 🥃
-    4550,    // Nvl 18: 4.550 🥃
-    5000     // Nvl 19: 5.000 🥃 (Final)
+    1, 3, 7, 15, 35, 75, 140, 220,  // Nvl 1 al 8 (Pradera Normal)
+    320, 430, 550, 670, 790, 890, 950, 975, 990, 995, 1000 // Nvl 9 al 19 (VIP)
 ];
 
 function calcularIngresoColega(level) {
     if (level < 0) return 1;
-    if (level >= INGRESOS_POR_NIVEL.length) return 5000;
-    
+    if (level >= INGRESOS_POR_NIVEL.length) return 1000;
     return INGRESOS_POR_NIVEL[level];
 }
-// 🎲 TABLA DE PROBABILIDADES VIP (PRECIOS AJUSTADOS A 5000/s)
+
+// 🎲 TABLA DE PROBABILIDADES VIP (Escalada para 5 días)
 const TABLA_CALIDAD_VIP = [
-    { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 2000 },
-    { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 10000 },
-    { nivel: 2, prob: [{ nvl: 0, p: 0.75 }, { nvl: 1, p: 0.25 }], desc: "25% Nv.2", sig: "50% Nv.2", coste: 35000 },
-    { nivel: 3, prob: [{ nvl: 0, p: 0.50 }, { nvl: 1, p: 0.50 }], desc: "50% Nv.2", sig: "80% Nv.2 / 20% Nv.3", coste: 120000 },
-    { nivel: 4, prob: [{ nvl: 1, p: 0.80 }, { nvl: 2, p: 0.20 }], desc: "20% Nv.3", sig: "50% Nv.3", coste: 450000 },
-    { nivel: 5, prob: [{ nvl: 1, p: 0.50 }, { nvl: 2, p: 0.50 }], desc: "50% Nv.3", sig: "75% Nv.3 (Tope)", coste: 1500000 },
+    { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 10000 },
+    { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 75000 },
+    { nivel: 2, prob: [{ nvl: 0, p: 0.75 }, { nvl: 1, p: 0.25 }], desc: "25% Nv.2", sig: "50% Nv.2", coste: 500000 },
+    { nivel: 3, prob: [{ nvl: 0, p: 0.50 }, { nvl: 1, p: 0.50 }], desc: "50% Nv.2", sig: "80% Nv.2 / 20% Nv.3", coste: 2000000 },
+    { nivel: 4, prob: [{ nvl: 1, p: 0.80 }, { nvl: 2, p: 0.20 }], desc: "20% Nv.3", sig: "50% Nv.3", coste: 8000000 },
+    { nivel: 5, prob: [{ nvl: 1, p: 0.50 }, { nvl: 2, p: 0.50 }], desc: "50% Nv.3", sig: "75% Nv.3 (Tope)", coste: 25000000 },
     { nivel: 6, prob: [{ nvl: 1, p: 0.25 }, { nvl: 2, p: 0.75 }], desc: "75% Nv.3 / 25% Nv.2", sig: "MÁXIMO", coste: 0 }
 ];
-
 function calcularNivelCajaNormal() {
     const info = TABLA_CALIDAD_VIP[nivelAparicion] || TABLA_CALIDAD_VIP[0];
     const r = Math.random();
@@ -237,11 +218,13 @@ function cargarPartida() {
                 if (tiempoFueraSegundos >= 14400) { verificarLogro('la_resaca'); }
                 if (tiempoFueraSegundos > 28800) { tiempoFueraSegundos = 28800; }
 
-                let ingresosPorBucle = 0; 
+                
+                let cpsOffline = 0; 
                 document.querySelectorAll('.friend').forEach(f => { 
-                    ingresosPorBucle += calcularIngresoColega(parseInt(f.dataset.level)); 
+                    cpsOffline += calcularIngresoColega(parseInt(f.dataset.level)); 
                 });
-                let cubatasGanadosOffline = Math.floor((ingresosPorBucle / (tiempoPasivo / 1000)) * tiempoFueraSegundos); 
+                
+                let cubatasGanadosOffline = Math.floor(cpsOffline * tiempoFueraSegundos); 
                 let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); 
                 if (cajasNuevasOffline > 6) cajasNuevasOffline = 6;
                 
@@ -336,11 +319,10 @@ function renderizarMejoras() {
     html += '<div class="shop-seccion-titulo medio">⏳ CONSUMIBLES</div>';
 
     // 4. CARTA: Charanga
-    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">5.000 🥃</button></div>`;
+    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">50.000 🥃</button></div>`;
 
     // 5. CARTA: Hora Loca
-    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">25.000 🥃</button></div>`;
-    tab.innerHTML = html;
+    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">350.000 🥃</button></div>`;
 }
 
 function actualizarTiendaPersonajes() { 
@@ -418,8 +400,8 @@ function comprarTractor() {
 }
 
 function boostCharanga() {
-    if (cubatas >= 5000) {  // 👈 Nuevo precio
-        cubatas -= 5000; ganarCubatas(0);
+    if (cubatas >= 50000) {  // 👈 Nuevo precio
+        cubatas -= 50000; ganarCubatas(0);
         multiplicadorPasivo = 3; clearTimeout(timeoutMultiplicador); 
         timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
         guardarPartida(); renderizarMejoras();
@@ -428,8 +410,8 @@ function boostCharanga() {
 
 function boostHoraLoca() {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
-    if (cubatas >= 25000) {  // 👈 Nuevo precio
-        cubatas -= 25000; ganarCubatas(0);
+    if (cubatas >= 350000) {  // 👈 Nuevo precio
+        cubatas -= 350000; ganarCubatas(0);
         boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 400; 
         clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
         estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); 
@@ -622,14 +604,28 @@ function procesarStock(premioElegido) {
 
 const SOBRES = {
     epico: {
-        nombre: "Sobre VIP", coste: 75000,
+        nombre: "Sobre VIP", 
+        coste: 10000000, // 👈 10 Millones reales
         premios: [
-            { tipo: 'cubatas',     peso: 90.5, min: 25000, max: 65000, texto: "🥃 +{x} cubatas" },
-            { tipo: 'chupito',     peso: 7, texto: "🥂 ¡CHUPITO GANADO!" },
-            { tipo: 'cubata_real', peso: 2.5, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
+            { tipo: 'cubatas',     peso: 96, min: 2000000, max: 6000000, texto: "🥃 +{x} cubatas" },
+            { tipo: 'chupito',     peso: 3, texto: "🥂 ¡CHUPITO GANADO!" },
+            { tipo: 'cubata_real', peso: 1, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
     }
 };
+
+function actualizarBotonesSobres() {
+    const etiquetas = document.querySelectorAll('.etiqueta-precio');
+    etiquetas.forEach(etiqueta => {
+        if (sobresGratisEpico > 0) {
+            etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>';
+            etiqueta.style.borderColor = '#00ff00';
+        } else {
+            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 10M';
+            etiqueta.style.borderColor = '#00ff00';
+        }
+    });
+}
 
 function abrirWalkout(elementoCarta, tier) {
     if (sobreAbriendo) return; const cfg = SOBRES[tier]; if (!cfg) return;
@@ -695,18 +691,7 @@ function cerrarWalkout() {
     if (btnCerrar.dataset.premioFisico) { entregarPremioFisico(btnCerrar.dataset.premioFisico); btnCerrar.dataset.premioFisico = ""; }
 }
 
-function actualizarBotonesSobres() {
-    const etiquetas = document.querySelectorAll('.etiqueta-precio');
-    etiquetas.forEach(etiqueta => {
-        if (sobresGratisEpico > 0) {
-            etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>';
-            etiqueta.style.borderColor = '#00ff00';
-        } else {
-            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 75.000';
-            etiqueta.style.borderColor = '#00ff00';
-        }
-    });
-}
+
 
 // ==========================================================================
 // ⚙️ NAVEGACIÓN Y MENÚS
@@ -793,11 +778,12 @@ function mostrarNotificacion(mensaje) {
 }
 function actualizarCubatasPorSegundo() { 
     const friends = document.querySelectorAll('.friend'); 
-    let ingresosTotales = 0; 
-    friends.forEach(f => { ingresosTotales += calcularIngresoColega(parseInt(f.dataset.level)); }); 
-    let cps = (ingresosTotales / (tiempoPasivo / 1000)) * multiplicadorPasivo; 
+    let cpsBase = 0; 
+    friends.forEach(f => { cpsBase += calcularIngresoColega(parseInt(f.dataset.level)); }); 
+    let cpsTotal = cpsBase * multiplicadorPasivo; 
+    
     const elCps = document.getElementById('cubatas-segundo');
-    if (elCps) elCps.innerText = `${cps.toLocaleString('es-ES', {minimumFractionDigits: 1, maximumFractionDigits: 1})} cubatas/seg`; 
+    if (elCps) elCps.innerText = `${cpsTotal.toLocaleString('es-ES')} cubatas/seg`; 
 }
 
 function iniciarBuclePasivo() { 
@@ -805,9 +791,13 @@ function iniciarBuclePasivo() {
     intervalPasivo = setInterval(() => { 
         if (juegoPausado) return; 
         const friends = document.querySelectorAll('.friend'); 
-        let ingresos = 0; 
-        friends.forEach(f => { ingresos += calcularIngresoColega(parseInt(f.dataset.level)); }); 
-        if (ingresos > 0) ganarCubatas(ingresos * multiplicadorPasivo); 
+        let cpsBase = 0; 
+        friends.forEach(f => { cpsBase += calcularIngresoColega(parseInt(f.dataset.level)); }); 
+        
+        let segundosBucle = tiempoPasivo / 1000;
+        let ganancia = Math.floor(cpsBase * multiplicadorPasivo * segundosBucle);
+        
+        if (ganancia > 0) ganarCubatas(ganancia); 
     }, tiempoPasivo); 
     actualizarCubatasPorSegundo(); 
 }
@@ -1057,9 +1047,9 @@ function comprobarReinicioDiario() {
     const ultimoReinicio = localStorage.getItem('ultimoReinicioJuerga');
 
     if (ultimoReinicio !== fechaString) {
-        let recompensaMax = 125000;
+        let recompensaMax = 10000000; // 👈 10 Millones (justo para 1 sobre)
         let premio = Math.floor(recompensaMax * (maxNivelDesbloqueado / 18));
-        if (premio < 1000) premio = 1000; 
+        if (premio < 5000) premio = 5000; 
 
         // 1. Ponemos los cubatas a 0 y sumamos el bono del reinicio
         cubatas = 0;
