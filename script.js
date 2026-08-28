@@ -349,7 +349,10 @@ function actualizarTiendaPersonajes() {
     tab.innerHTML = ''; 
     for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
         if(i >= levels.length) break; 
-        let precioPersonaje = Math.floor(100 * Math.pow(2.5, i)); 
+        
+        // 👇 AQUÍ ESTÁ EL CAMBIO (de 2.5 a 2.1) 👇
+        let precioPersonaje = Math.floor(100 * Math.pow(2.1, i)); 
+        
         let nombreColega = nombresJuerguistas[i] || "Colega";
         tab.innerHTML += `
         <div class="upgrade-row">
@@ -362,7 +365,6 @@ function actualizarTiendaPersonajes() {
         </div>`; 
     } 
 }
-
 function cambiarTab(pestana) { 
     document.getElementById('tab-mejoras').classList.add('oculto'); document.getElementById('tab-personajes').classList.add('oculto'); 
     document.getElementById('btn-tab-mejoras').style.background = '#000'; document.getElementById('btn-tab-mejoras').style.color = '#00ff00';
