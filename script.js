@@ -323,6 +323,9 @@ function renderizarMejoras() {
 
     // 5. CARTA: Hora Loca
     html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">350.000 🥃</button></div>`;
+
+    // 👇 ESTO ERA LO QUE SE HABÍA BORRADO 👇
+    tab.innerHTML = html;
 }
 
 function actualizarTiendaPersonajes() { 
@@ -837,45 +840,6 @@ function mostrarCinematica(nivel) {
 
 function crearCaja() { 
     if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
-    const esDorada = Math.random() < 0.05; const caja = document.createElement('div'); caja.classList.add('caja'); if (esDorada) caja.classList.add('caja-dorada');
-    let segundosCaida = 5.0; if (tiempoSpawnActual <= 4000) segundosCaida = 4.0; if (tiempoSpawnActual <= 2000) segundosCaida = 3.5; 
-    caja.style.transition = `top ${segundosCaida}s linear`; 
-    const randomX = Math.random() * (window.innerWidth - 95); const randomY = Math.random() * (window.innerHeight - 200) + 20; 
-    caja.style.left = `${randomX}px`; caja.style.top = `-95px`; board.appendChild(caja); 
-    setTimeout(() => { if(!juegoPausado) caja.style.top = `${randomY}px`; }, 50); 
-    
-    caja.addEventListener('pointerdown', () => { 
-        if (juegoPausado) return; if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
-        if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } 
-        const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); const x = rect.left - boardRect.left; const y = rect.top - boardRect.top; caja.remove(); 
-        
-        if (esDorada) { 
-            let cps = 0; 
-            document.querySelectorAll('.friend').forEach(f => { 
-                cps += calcularIngresoColega(parseInt(f.dataset.level)); 
-            }); 
-            cps = (cps / (tiempoPasivo / 1000));
-            let premioDorado = Math.max(5000, Math.floor(cps * 120)); 
-            ganarCubatas(premioDorado); 
-            mostrarTextoFlotanteEpico(x - 20, y, "¡+" + premioDorado.toLocaleString('es-ES') + " 🥃!"); 
-            
-            // 👇 ESTO ES LO QUE FALTABA 👇
-            let suerte = Math.random(); 
-            let nivelDorado = 0;
-            if (suerte < 0.15) { nivelDorado = maxNivelDesbloqueado; } 
-            else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } 
-            else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
-            createFriend(nivelDorado, x, y);
-        } else { 
-            ganarCubatas(1 * multiplicadorClic); 
-            createFriend(calcularNivelCajaNormal(), x, y); 
-        }
-        guardarPartida(); 
-    }); 
-}
-
-function crearCaja() { 
-    if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
     const esDorada = Math.random() < 0.05; 
     const caja = document.createElement('div'); 
     caja.classList.add('caja'); 
@@ -894,9 +858,11 @@ function crearCaja() {
     
     setTimeout(() => { if(!juegoPausado) caja.style.top = `${randomY}px`; }, 50); 
     
+    // Le añadimos { once: true } para evitar bugs si el jugador la toca con dos dedos a la vez
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
         if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
+        
         if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
             return; 
@@ -913,10 +879,10 @@ function crearCaja() {
             document.querySelectorAll('.friend').forEach(f => { 
                 cps += calcularIngresoColega(parseInt(f.dataset.level)); 
             }); 
-            // Calculamos los cubatas por segundo reales
-            cps = (cps / (tiempoPasivo / 1000)) * multiplicadorPasivo;
             
-            // 👇 NUEVA FÓRMULA BALANCEADA: 45 segundos de producción (mínimo 300) 👇
+            // 👇 EL ARREGLO MATEMÁTICO: CPS puros sincronizados con la pantalla 👇
+            cps = cps * multiplicadorPasivo;
+            
             let premioDorado = Math.max(300, Math.floor(cps * 45)); 
             
             ganarCubatas(premioDorado); 
@@ -934,9 +900,25 @@ function crearCaja() {
             createFriend(calcularNivelCajaNormal(), x, y); 
         }
         guardarPartida(); 
-    }); 
+    }, { once: true }); 
 }
 
+// 👇 RESTAURAMOS LA FUNCIÓN OFFLINE QUE SE HABÍA BORRADO 👇
+function crearCajaOffline() { 
+    if (document.querySelectorAll('.caja').length > 6) return; 
+    const caja = document.createElement('div'); caja.classList.add('caja'); caja.style.transition = "none"; 
+    const randomX = Math.random() * (window.innerWidth - 95); const randomY = Math.random() * (window.innerHeight - 200) + 20; 
+    caja.style.left = `${randomX}px`; caja.style.top = `${randomY}px`; board.appendChild(caja); 
+    
+    caja.addEventListener('pointerdown', () => { 
+        if (juegoPausado) return; 
+        if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } 
+        const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); 
+        ganarCubatas(1 * multiplicadorClic); 
+        createFriend(calcularNivelCajaNormal(), rect.left - boardRect.left, rect.top - boardRect.top); 
+        estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); 
+    }, { once: true }); 
+}
 function createFriend(level, x, y) { 
     const friend = document.createElement('div'); friend.classList.add('friend'); friend.style.animation = "pop 0.4s ease-in-out"; 
     friend.dataset.level = level; friend.style.backgroundImage = `url('${levels[level]}')`; 
