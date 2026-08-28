@@ -809,18 +809,32 @@ function generarVomito() {
     if (juegoPausado) return; 
     // 👇 Solo seleccionamos a los amigos de la pradera normal
     document.querySelectorAll('#game-board .friend').forEach(f => { 
-        const vomito = document.createElement('div'); vomito.classList.add('vomito'); vomito.innerText = '🤮'; 
-        let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); let y = parseFloat(f.style.top) + 95; 
-        vomito.style.left = `${x}px`; vomito.style.top = `${y}px`; 
+        const vomito = document.createElement('div'); 
+        vomito.classList.add('vomito'); 
+        vomito.innerText = '🤮'; 
+        let x = parseFloat(f.style.left) + (Math.random() * 40 - 10); 
+        let y = parseFloat(f.style.top) + 95; 
+        vomito.style.left = `${x}px`; 
+        vomito.style.top = `${y}px`; 
         vomito.dataset.valor = (parseInt(f.dataset.level) + 1) * 2; 
+        
         vomito.addEventListener('pointerdown', (e) => { 
-            e.stopPropagation(); e.preventDefault(); if (juegoPausado) return; if (navigator.vibrate) navigator.vibrate(40);
-            const valorVomito = parseInt(vomito.dataset.valor); ganarCubatas(valorVomito); 
-            const texto = document.createElement('div'); texto.classList.add('floating-text'); texto.innerText = `+${valorVomito}`; 
-            texto.style.left = `${x}px`; texto.style.top = `${y}px`; 
-            f.parentElement.appendChild(texto); setTimeout(() => { texto.remove(); }, 1000);
-            vomito.remove(); estadisticasLogros.vomitosLipiados++; verificarLogro('estomago_hierro'); 
+            e.stopPropagation(); e.preventDefault(); 
+            if (juegoPausado) return; 
+            if (navigator.vibrate) navigator.vibrate(40);
+            
+            const valorVomito = parseInt(vomito.dataset.valor); 
+            ganarCubatas(valorVomito); 
+            
+            // 👇 EL ARREGLO ESTÁ AQUÍ 👇
+            // Lanza el texto directamente al tablero (board), así no da error si el personaje ya no existe
+            mostrarTextoFlotante(x, y, valorVomito);
+            
+            vomito.remove(); 
+            estadisticasLogros.vomitosLipiados++; 
+            verificarLogro('estomago_hierro'); 
         }); 
+        
         f.parentElement.appendChild(vomito); 
     }); 
 }
