@@ -437,8 +437,25 @@ function boostHoraLoca() {
     } else alert("¡Te faltan cubatas!");
 }
 function comprarPersonaje(nivel, precio) { 
-    if (document.querySelectorAll('.friend').length >= 20) { alert("¡La pradera está a tope! (Máx 20)."); return; } 
-    if (cubatas >= precio) { cubatas -= precio; ganarCubatas(0); const xCentro = (window.innerWidth / 2) - 45; const yCentro = (window.innerHeight / 2) - 45; createFriend(nivel, xCentro, yCentro); guardarPartida(); actualizarTiendaPersonajes(); } else alert("¡Te faltan cubatas!"); 
+    // Detectamos a qué tablero va a ir (Normal o VIP)
+    let tableroDestino = nivel >= 8 ? document.getElementById('game-board-vip') : document.getElementById('game-board');
+    
+    // Solo miramos el límite de su tablero específico
+    if (tableroDestino.querySelectorAll('.friend').length >= 20) { 
+        alert(nivel >= 8 ? "¡El reservado VIP está a tope! (Máx 20)." : "¡La pradera está a tope! (Máx 20)."); 
+        return; 
+    } 
+    
+    if (cubatas >= precio) { 
+        cubatas -= precio; ganarCubatas(0); 
+        const xCentro = (window.innerWidth / 2) - 45; 
+        const yCentro = (window.innerHeight / 2) - 45; 
+        createFriend(nivel, xCentro, yCentro); 
+        guardarPartida(); 
+        actualizarTiendaPersonajes(); 
+    } else {
+        alert("¡Te faltan cubatas!"); 
+    }
 }
 
 // ==========================================================================
@@ -898,10 +915,15 @@ function crearCaja() {
         if (juegoPausado) return; 
         if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
         
-        if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
+        if (document.querySelectorAll('#game-board .friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
+            
+            // 👇 Disparamos el logro oculto al intentar abrir sin hueco
+            estadisticasLogros.ansiasActivado++; 
+            verificarLogro('el_ansias'); 
+            
             return; // Escapa sin borrar el botón, la caja sigue activa
-        } 
+        }
         
         caja.style.pointerEvents = "none"; // Evita bugs de doble pulsación al abrirla
         
@@ -949,8 +971,12 @@ function crearCajaOffline(esDorada = false, posX = null, posY = null) {
     
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
-        if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
+        if (document.querySelectorAll('#game-board .friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
+            
+            estadisticasLogros.ansiasActivado++; 
+            verificarLogro('el_ansias'); 
+            
             return; 
         } 
         
