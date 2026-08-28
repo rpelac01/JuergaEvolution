@@ -515,41 +515,42 @@
         </div>
     </div>
         <!-- ==================== MODAL MANUAL DIRECTO ARCADE ==================== -->
-    <div id="manual-modal" class="modal oculto" style="z-index: 650; touch-action: auto !important;">
-        <div class="modal-content tienda-arcade" style="width: 92%; max-width: 480px; height: 85vh; max-height: 750px; padding: 20px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); touch-action: auto !important; overflow: hidden;">
+    <div id="manual-modal" class="modal oculto" style="z-index: 650;">
+        <div class="modal-content tienda-arcade" style="width: 90%; max-width: 400px; height: auto; padding: 15px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);">
             
-            <button class="cerrar-btn" style="top: 15px; right: 15px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
+            <button class="cerrar-btn" style="top: 10px; right: 10px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 12px; padding: 6px 10px; box-shadow: none;" onclick="cerrarModales()">X</button>
             
-            <h3 style="color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; line-height: 1.4; flex-shrink: 0;">
-                📖 GUÍA DE LA JUERGA
+            <h3 style="color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: center; font-size: 13px; margin-top: 5px; margin-bottom: 12px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; line-height: 1.4;">
+                📖 GUÍA
             </h3>
             
-            <!-- 👇 MAGIA DE SCROLL PARA IOS AQUÍ 👇 -->
-            <div style="flex-grow: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; touch-action: pan-y !important; pointer-events: auto; padding-right: 8px; padding-bottom: 20px; text-align: left; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.6; color: #eee;">
+            <!-- 👇 Caja compacta sin scroll 👇 -->
+            <div style="text-align: left; font-family: 'Arial', sans-serif; font-size: 12px; line-height: 1.4; color: #eee; display: flex; flex-direction: column; gap: 10px;">
                 
-                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">1. 🎮 CÓMO JUGAR</h4>
-                    <p>• <b>Cajas:</b> Caen del cielo. Tócalas para revelar un juerguista.</p>
-                    <p>• <b>Fusión:</b> Arrastra dos colegas del mismo nivel para evolucionarlos.</p>
-                    <p>• <b>Vómitos:</b> Tócalos para limpiar la pradera y sumar cubatas extra.</p>
+                <div style="background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 9px; margin-bottom: 6px;">1. 🎮 JUGAR</h4>
+                    <p style="margin-bottom: 4px;">• <b>Cajas:</b> Tócalas para revelar un juerguista.</p>
+                    <p style="margin-bottom: 4px;">• <b>Fusión:</b> Arrastra dos iguales para evolucionar.</p>
+                    <p style="margin: 0;">• <b>Vómitos:</b> Tócalos para sumar cubatas extra.</p>
                 </div>
 
-                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">2. 🍹 ECONOMÍA</h4>
-                    <p>• Tus personajes generan <b>Cubatas (🥃)</b> solos por segundo.</p>
-                    <p>• En la tienda (🛒) puedes comprar el <b>Tractor</b> para que limpie solo o mejorar el nivel de las cajas.</p>
+                <div style="background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 9px; margin-bottom: 6px;">2. 🍹 ECONOMÍA</h4>
+                    <p style="margin-bottom: 4px;">• Tus personajes generan <b>Cubatas (🥃)</b> solos.</p>
+                    <p style="margin: 0;">• Compra el <b>Tractor</b> o mejora las cajas en la Tienda (🛒).</p>
                 </div>
 
-                <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
-                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">3. 👑 ZONA VIP Y SOBRES</h4>
-                    <p>• Al llegar al <b>Nivel 9</b> se desbloquea el fondo del Reservado VIP.</p>
-                    <p>• El Pase VIP cuesta <b>2€ en la barra física</b>. Permite abrir los Sobres de la Peña para siempre.</p>
-                    <p>• Si ganas un premio físico en un sobre, ve a <b>🎟️ CUPONES</b> y enséñaselo al camarero.</p>
+                <div style="background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
+                    <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 9px; margin-bottom: 6px;">3. 👑 ZONA VIP</h4>
+                    <p style="margin-bottom: 4px;">• Se desbloquea al llegar al <b>Nivel 9</b>.</p>
+                    <p style="margin-bottom: 4px;">• El Pase VIP cuesta <b>2€ en la barra</b> para los Sobres.</p>
+                    <p style="margin: 0;">• Si ganas algo, ve a <b>🎟️ CUPONES</b>.</p>
                 </div>
+                
             </div>
 
-            <button class="boton-arcade" style="width: 100%; margin: 10px 0 0 0; font-size: 11px; padding: 12px; flex-shrink: 0;" onclick="cerrarModales()">
-                ¡A SEGUIR JUGANDO! 🍻
+            <button class="boton-arcade" style="width: 100%; margin: 12px 0 0 0; font-size: 10px; padding: 12px;" onclick="cerrarModales()">
+                ¡A JUGAR! 🍻
             </button>
         </div>
     </div>
@@ -695,6 +696,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
-    <script src="script.js?v=28"></script>
+    <script src="script.js?v=35"></script>
 </body>
 </html>
