@@ -807,6 +807,7 @@ function iniciarBuclePasivo() {
 
 function generarVomito() { 
     if (juegoPausado) return; 
+    
     // 👇 Solo seleccionamos a los amigos de la pradera normal
     document.querySelectorAll('#game-board .friend').forEach(f => { 
         const vomito = document.createElement('div'); 
@@ -826,8 +827,6 @@ function generarVomito() {
             const valorVomito = parseInt(vomito.dataset.valor); 
             ganarCubatas(valorVomito); 
             
-            // 👇 EL ARREGLO ESTÁ AQUÍ 👇
-            // Lanza el texto directamente al tablero (board), así no da error si el personaje ya no existe
             mostrarTextoFlotante(x, y, valorVomito);
             
             vomito.remove(); 
@@ -836,9 +835,17 @@ function generarVomito() {
         }); 
         
         f.parentElement.appendChild(vomito); 
+        
+        // 👇 TEMPORIZADOR: Destrucción automática a los 10 segundos 👇
+        setTimeout(() => {
+            // Si el vómito sigue existiendo en el tablero (no lo han tocado ni lo recogió el Tractor)
+            if (vomito && vomito.parentElement) {
+                // Se limpia solo para no ensuciar la pantalla, pero NO da cubatas
+                vomito.remove(); 
+            }
+        }, 10000);
     }); 
 }
-
 function recogerVomitoAutomatico() { 
     if (juegoPausado) return; let totalRecolectado = 0; 
     document.querySelectorAll('.vomito').forEach(v => { const valor = parseInt(v.dataset.valor); totalRecolectado += valor; mostrarTextoFlotante(parseFloat(v.style.left), parseFloat(v.style.top), valor); v.remove(); }); 
