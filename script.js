@@ -608,9 +608,9 @@ function procesarStock(premioElegido) {
 const SOBRES = {
     epico: {
         nombre: "Sobre VIP", 
-        coste: 10000000, // 👈 10 Millones reales
+        coste: 2000000, // 👈 10 Millones reales
         premios: [
-            { tipo: 'cubatas',     peso: 96, min: 2000000, max: 6000000, texto: "🥃 +{x} cubatas" },
+            { tipo: 'cubatas',     peso: 96, min: 5000000, max: 10000000, texto: "🥃 +{x} cubatas" },
             { tipo: 'chupito',     peso: 3, texto: "🥂 ¡CHUPITO GANADO!" },
             { tipo: 'cubata_real', peso: 1, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
@@ -624,7 +624,7 @@ function actualizarBotonesSobres() {
             etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>';
             etiqueta.style.borderColor = '#00ff00';
         } else {
-            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 10M';
+            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 5M';
             etiqueta.style.borderColor = '#00ff00';
         }
     });
