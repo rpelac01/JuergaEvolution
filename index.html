@@ -515,16 +515,17 @@
         </div>
     </div>
         <!-- ==================== MODAL MANUAL DIRECTO ARCADE ==================== -->
-    <div id="manual-modal" class="modal oculto" style="z-index: 650;">
-        <div class="modal-content tienda-arcade" style="width: 92%; max-width: 480px; height: 85vh; max-height: 750px; padding: 20px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);">
+    <div id="manual-modal" class="modal oculto" style="z-index: 650; touch-action: auto !important;">
+        <div class="modal-content tienda-arcade" style="width: 92%; max-width: 480px; height: 85vh; max-height: 750px; padding: 20px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); touch-action: auto !important; overflow: hidden;">
             
             <button class="cerrar-btn" style="top: 15px; right: 15px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
             
-            <h3 style="color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; line-height: 1.4;">
+            <h3 style="color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: center; font-size: 14px; margin-top: 5px; margin-bottom: 15px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; line-height: 1.4; flex-shrink: 0;">
                 📖 GUÍA DE LA JUERGA
             </h3>
             
-            <div style="flex-grow: 1; overflow-y: auto; padding-right: 8px; text-align: left; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.6; color: #eee;">
+            <!-- 👇 MAGIA DE SCROLL PARA IOS AQUÍ 👇 -->
+            <div style="flex-grow: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; touch-action: pan-y !important; pointer-events: auto; padding-right: 8px; padding-bottom: 20px; text-align: left; font-family: 'Arial', sans-serif; font-size: 13px; line-height: 1.6; color: #eee;">
                 
                 <div style="margin-bottom: 16px; background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
                     <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; margin-bottom: 6px;">1. 🎮 CÓMO JUGAR</h4>
@@ -545,12 +546,9 @@
                     <p>• El Pase VIP cuesta <b>2€ en la barra física</b>. Permite abrir los Sobres de la Peña para siempre.</p>
                     <p>• Si ganas un premio físico en un sobre, ve a <b>🎟️ CUPONES</b> y enséñaselo al camarero.</p>
                 </div>
-
-            
-                
             </div>
 
-            <button class="boton-arcade" style="width: 100%; margin: 10px 0 0 0; font-size: 11px; padding: 12px;" onclick="cerrarModales()">
+            <button class="boton-arcade" style="width: 100%; margin: 10px 0 0 0; font-size: 11px; padding: 12px; flex-shrink: 0;" onclick="cerrarModales()">
                 ¡A SEGUIR JUGANDO! 🍻
             </button>
         </div>
