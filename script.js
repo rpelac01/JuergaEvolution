@@ -596,11 +596,11 @@ function procesarStock(premioElegido) {
     if (premioElegido.tipo === 'chupito') {
         if (stockChupitosHoy > 0) {
             stockChupitosHoy--; if(db) db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido;
-        } else return { tipo: 'cubatas', min: 50000, max: 50000, texto: "AGOTADO HOY: +50.000 🥃" };
+        } else return { tipo: 'cubatas', min: 5000000, max: 5000000, texto: "AGOTADO HOY: +5.000.000 🥃" };
     } else if (premioElegido.tipo === 'cubata_real') {
         if (stockCubatasHoy > 0) {
             stockCubatasHoy--; if(db) db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido;
-        } else return { tipo: 'cubatas', min: 100000, max: 100000, texto: "AGOTADO HOY: +100.000 🥃" };
+        } else return { tipo: 'cubatas', min: 100000, max: 100000, texto: "AGOTADO HOY: +10.000.000 🥃" };
     }
     return premioElegido;
 }
@@ -608,9 +608,9 @@ function procesarStock(premioElegido) {
 const SOBRES = {
     epico: {
         nombre: "Sobre VIP", 
-        coste: 2000000, // 👈 10 Millones reales
+        coste: 5000000, // 👈 10 Millones reales
         premios: [
-            { tipo: 'cubatas',     peso: 96, min: 5000000, max: 10000000, texto: "🥃 +{x} cubatas" },
+            { tipo: 'cubatas',     peso: 96, min: 2000000, max: 6000000, texto: "🥃 +{x} cubatas" },
             { tipo: 'chupito',     peso: 3, texto: "🥂 ¡CHUPITO GANADO!" },
             { tipo: 'cubata_real', peso: 1, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
