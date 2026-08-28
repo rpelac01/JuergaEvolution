@@ -157,6 +157,12 @@ function guardarPartida() {
     const amigosEnTablero = [];
     document.querySelectorAll('.friend').forEach(f => { amigosEnTablero.push({ level: f.dataset.level, x: f.style.left, y: f.style.top }); });
     
+    // 👇 ESCANEAMOS TODAS LAS CAJAS EN PANTALLA ANTES DE SALIR 👇
+    const cajasEnTablero = [];
+    document.querySelectorAll('.caja').forEach(c => {
+        cajasEnTablero.push({ dorada: c.classList.contains('caja-dorada'), x: c.style.left, y: c.style.top });
+    });
+
     const estadoJuego = {
         nombre: nombreJugador, cubatas: cubatas, maxNivelDesbloqueado: maxNivelDesbloqueado, 
         sobresGratisEpico: sobresGratisEpico, regalosReclamados: regalosReclamados, 
@@ -165,7 +171,8 @@ function guardarPartida() {
         tiempoSpawnBase: tiempoSpawnBase, costeVelocidad: costeVelocidad, nivelVelocidad: nivelVelocidad,
         nivelAparicion: nivelAparicion,
         tiempoPasivo: tiempoPasivo, costeTractor: costeTractor, nivelTractor: nivelTractor, limpiezaActivada: limpiezaActivada,
-        amigos: amigosEnTablero, inventarioCupones: inventarioCupones, timeStamp: Date.now() 
+        amigos: amigosEnTablero, inventarioCupones: inventarioCupones, timeStamp: Date.now(),
+        cajasGuardadas: cajasEnTablero // 👈 LO GUARDAMOS EN EL DISCO
     };
 
     const salt = "JuergaCivilSecret_2026_Key!";
@@ -211,6 +218,11 @@ function cargarPartida() {
                 estadoJuego.amigos.forEach(a => { createFriend(parseInt(a.level), parseFloat(a.x), parseFloat(a.y)); }); 
             } else { spawnAmigoInicial(); }
             
+            // 👇 RESTAURAMOS LAS CAJAS QUE DEJASTE SIN ABRIR 👇
+            if (estadoJuego.cajasGuardadas) {
+                estadoJuego.cajasGuardadas.forEach(c => { crearCajaOffline(c.dorada, c.x, c.y); });
+            }
+
             if (estadoJuego.timeStamp) {
                 const tiempoFueraMs = Date.now() - estadoJuego.timeStamp;
                 let tiempoFueraSegundos = tiempoFueraMs / 1000;
@@ -218,7 +230,6 @@ function cargarPartida() {
                 if (tiempoFueraSegundos >= 14400) { verificarLogro('la_resaca'); }
                 if (tiempoFueraSegundos > 28800) { tiempoFueraSegundos = 28800; }
 
-                
                 let cpsOffline = 0; 
                 document.querySelectorAll('.friend').forEach(f => { 
                     cpsOffline += calcularIngresoColega(parseInt(f.dataset.level)); 
@@ -226,13 +237,16 @@ function cargarPartida() {
                 
                 let cubatasGanadosOffline = Math.floor(cpsOffline * tiempoFueraSegundos); 
                 let cajasNuevasOffline = Math.floor(tiempoFueraMs / tiempoSpawnActual); 
-                if (cajasNuevasOffline > 6) cajasNuevasOffline = 6;
+                
+                // Calculamos cuántos huecos libres nos quedan para no saturar
+                let cajasActuales = document.querySelectorAll('.caja').length;
+                if (cajasNuevasOffline > (7 - cajasActuales)) cajasNuevasOffline = Math.max(0, 7 - cajasActuales);
                 
                 if (cubatasGanadosOffline > 0 || cajasNuevasOffline > 0) { 
                     cubatas += cubatasGanadosOffline; estadisticasLogros.cubatasTotalesGanados += cubatasGanadosOffline; 
                     setTimeout(() => { 
                         alert(`🍻 ¡DE VUELTA!\nHas estado fuera y tus colegas han seguido de fiesta.\n\nHan recolectado:\n🍹 +${cubatasGanadosOffline.toLocaleString('es-ES')} cubatas\n📦 +${cajasNuevasOffline} cajas`); 
-                        for (let i = 0; i < cajasNuevasOffline; i++) { crearCajaOffline(); } 
+                        for (let i = 0; i < cajasNuevasOffline; i++) { crearCajaOffline(false); } 
                     }, 600); 
                 }
             }
@@ -879,15 +893,17 @@ function crearCaja() {
     
     setTimeout(() => { if(!juegoPausado) caja.style.top = `${randomY}px`; }, 50); 
     
-    // Le añadimos { once: true } para evitar bugs si el jugador la toca con dos dedos a la vez
+    // 👇 Eliminamos el { once: true } para que si está lleno, te deje volver a clicarla luego 👇
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
         if (navigator.vibrate) navigator.vibrate(esDorada ? [100, 50, 100] : 30);
         
         if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
             mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
-            return; 
+            return; // Escapa sin borrar el botón, la caja sigue activa
         } 
+        
+        caja.style.pointerEvents = "none"; // Evita bugs de doble pulsación al abrirla
         
         const rect = caja.getBoundingClientRect(); 
         const boardRect = board.getBoundingClientRect(); 
@@ -897,15 +913,9 @@ function crearCaja() {
         
         if (esDorada) { 
             let cps = 0; 
-            document.querySelectorAll('.friend').forEach(f => { 
-                cps += calcularIngresoColega(parseInt(f.dataset.level)); 
-            }); 
-            
-            // 👇 EL ARREGLO MATEMÁTICO: CPS puros sincronizados con la pantalla 👇
+            document.querySelectorAll('.friend').forEach(f => { cps += calcularIngresoColega(parseInt(f.dataset.level)); }); 
             cps = cps * multiplicadorPasivo;
-            
             let premioDorado = Math.max(300, Math.floor(cps * 45)); 
-            
             ganarCubatas(premioDorado); 
             mostrarTextoFlotanteEpico(x - 20, y, "¡+" + premioDorado.toLocaleString('es-ES') + " 🥃!"); 
             
@@ -915,31 +925,60 @@ function crearCaja() {
             else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } 
             else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
             createFriend(nivelDorado, x, y);
-            
         } else { 
             ganarCubatas(1 * multiplicadorClic); 
             createFriend(calcularNivelCajaNormal(), x, y); 
         }
         guardarPartida(); 
-    }, { once: true }); 
+    }); 
 }
 
-// 👇 RESTAURAMOS LA FUNCIÓN OFFLINE QUE SE HABÍA BORRADO 👇
-function crearCajaOffline() { 
-    if (document.querySelectorAll('.caja').length > 6) return; 
-    const caja = document.createElement('div'); caja.classList.add('caja'); caja.style.transition = "none"; 
-    const randomX = Math.random() * (window.innerWidth - 95); const randomY = Math.random() * (window.innerHeight - 200) + 20; 
-    caja.style.left = `${randomX}px`; caja.style.top = `${randomY}px`; board.appendChild(caja); 
+function crearCajaOffline(esDorada = false, posX = null, posY = null) { 
+    if (document.querySelectorAll('.caja').length >= 7) return; 
+    const caja = document.createElement('div'); caja.classList.add('caja'); 
+    if (esDorada) caja.classList.add('caja-dorada');
+    caja.style.transition = "none"; 
+    
+    // Si viene de una partida guardada coge su X/Y, si no, lo hace aleatorio
+    let targetX = posX !== null ? parseFloat(posX) : Math.random() * (window.innerWidth - 95);
+    let targetY = posY !== null ? parseFloat(posY) : Math.random() * (window.innerHeight - 200) + 20;
+    
+    caja.style.left = `${targetX}px`; 
+    caja.style.top = `${targetY}px`; 
+    board.appendChild(caja); 
     
     caja.addEventListener('pointerdown', () => { 
         if (juegoPausado) return; 
-        if (document.querySelectorAll('.friend').length >= 20) { mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); return; } 
+        if (document.querySelectorAll('.friend').length >= 20 && !esDorada) { 
+            mostrarAvisoFlotante(parseFloat(caja.style.left), parseFloat(caja.style.top) - 20, "¡LLENO!"); 
+            return; 
+        } 
+        
+        caja.style.pointerEvents = "none";
         const rect = caja.getBoundingClientRect(); const boardRect = board.getBoundingClientRect(); caja.remove(); 
-        ganarCubatas(1 * multiplicadorClic); 
-        createFriend(calcularNivelCajaNormal(), rect.left - boardRect.left, rect.top - boardRect.top); 
+        
+        if (esDorada) {
+            let cps = 0; 
+            document.querySelectorAll('.friend').forEach(f => { cps += calcularIngresoColega(parseInt(f.dataset.level)); }); 
+            cps = cps * multiplicadorPasivo;
+            let premioDorado = Math.max(300, Math.floor(cps * 45)); 
+            ganarCubatas(premioDorado); 
+            mostrarTextoFlotanteEpico(rect.left - boardRect.left - 20, rect.top - boardRect.top, "¡+" + premioDorado.toLocaleString('es-ES') + " 🥃!"); 
+            
+            let suerte = Math.random(); 
+            let nivelDorado = 0;
+            if (suerte < 0.15) { nivelDorado = maxNivelDesbloqueado; } 
+            else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } 
+            else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
+            createFriend(nivelDorado, rect.left - boardRect.left, rect.top - boardRect.top);
+        } else {
+            ganarCubatas(1 * multiplicadorClic); 
+            createFriend(calcularNivelCajaNormal(), rect.left - boardRect.left, rect.top - boardRect.top); 
+        }
         estadisticasLogros.cajasAbiertas++; verificarLogro('lluvia_litros'); guardarPartida(); 
-    }, { once: true }); 
+    }); 
 }
+
 function createFriend(level, x, y) { 
     const friend = document.createElement('div'); friend.classList.add('friend'); friend.style.animation = "pop 0.4s ease-in-out"; 
     friend.dataset.level = level; friend.style.backgroundImage = `url('${levels[level]}')`; 
@@ -1050,7 +1089,7 @@ function comprobarReinicioDiario() {
     const ultimoReinicio = localStorage.getItem('ultimoReinicioJuerga');
 
     if (ultimoReinicio !== fechaString) {
-        let recompensaMax = 10000000; // 👈 10 Millones (justo para 1 sobre)
+        let recompensaMax = 5000000; // 👈 10 Millones (justo para 1 sobre)
         let premio = Math.floor(recompensaMax * (maxNivelDesbloqueado / 18));
         if (premio < 5000) premio = 5000; 
 
