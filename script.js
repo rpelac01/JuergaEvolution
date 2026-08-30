@@ -38,7 +38,9 @@ function subirPuntuacion() {
         fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(() => {});
 }
-setInterval(subirPuntuacion, 15000);
+setInterval(subirPuntuacion, 60000);
+// Que el juego compruebe si han dado las 4:00 AM cada 30 segundos, aunque tengan el móvil encendido
+setInterval(comprobarReinicioDiario, 30000);
 
 // ==========================================================================
 // 🎮 2. VARIABLES GLOBALES Y ECONOMÍA "COW EVOLUTION"
@@ -88,7 +90,20 @@ function calcularIngresoColega(level) {
     if (level >= INGRESOS_POR_NIVEL.length) return 1000;
     return INGRESOS_POR_NIVEL[level];
 }
-
+// 👇 NUEVA FUNCIÓN: Precio dinámico MUY ACCESIBLE (Sin penalizaciones) 👇
+function calcularPrecioSobre() {
+    let cpsActual = 0;
+    document.querySelectorAll('.friend').forEach(f => {
+        cpsActual += calcularIngresoColega(parseInt(f.dataset.level));
+    });
+    
+    // Multiplicamos por si tienen La Charanga activa
+    cpsActual = cpsActual * multiplicadorPasivo;
+    
+    // FÓRMULA: 2 minutos (120 seg) de su producción actual (Mínimo 15k)
+    let precio = Math.max(15000, Math.floor(cpsActual * 120));
+    return precio;
+}
 // 🎲 TABLA DE PROBABILIDADES VIP (Escalada para 5 días)
 const TABLA_CALIDAD_VIP = [
     { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 10000 },
@@ -264,11 +279,32 @@ function spawnAmigoInicial() {
 function pedirNombre() { 
     let nombre = prompt("Introduce tu nombre para el Ranking (Máx 15 letras):"); 
     if (!nombre || nombre.trim() === "") return;
-    nombreJugador = nombre.trim().substring(0, 15); guardarPartida(); 
+    nombre = nombre.trim().substring(0, 15);
+
+    // 👇 Preguntamos a la base de datos si ya existe alguien con ese nombre 👇
+    if (db) {
+        db.collection("ranking").doc(nombre).get().then((doc) => {
+            // Si el nombre existe y NO es el tuyo actualmente, lo rechazamos
+            if (doc.exists && doc.data().nombre !== nombreJugador) {
+                alert("❌ Ese nombre ya está pillado por otra persona. Elige otro por favor.");
+                pedirNombre(); // Vuelve a preguntar
+            } else {
+                nombreJugador = nombre; 
+                guardarPartida();
+                subirPuntuacion();
+                if(nombreJugador !== "Desconocido") alert("✅ Nombre registrado: " + nombreJugador);
+            }
+        }).catch(() => {
+            // Si no hay internet, te deja jugar localmente
+            nombreJugador = nombre; guardarPartida();
+        });
+    } else {
+        nombreJugador = nombre; guardarPartida();
+    }
 }
 
 function cambiarNombre() { 
-    pedirNombre(); if(nombreJugador !== "Desconocido") alert("Nombre actualizado a: " + nombreJugador); 
+    pedirNombre(); 
 }
 
 function borrarPartida() { 
@@ -332,14 +368,23 @@ function renderizarMejoras() {
 
     html += '<div class="shop-seccion-titulo medio">⏳ CONSUMIBLES</div>';
 
+    // 👇 Calculamos cuánto gana el jugador para adaptar los precios dinámicos 👇
+    let cpsActual = 0; 
+    document.querySelectorAll('.friend').forEach(f => { cpsActual += calcularIngresoColega(parseInt(f.dataset.level)); }); 
+    cpsActual = cpsActual * multiplicadorPasivo;
+    
+    // Mínimo de 25k y 150k, o el equivalente a su tiempo de producción en segundos
+    let precioCharanga = Math.max(25000, Math.floor(cpsActual * 120)); 
+    let precioHoraLoca = Math.max(150000, Math.floor(cpsActual * 600)); 
+
     // 4. CARTA: Charanga
-    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga()">50.000 🥃</button></div>`;
+    html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga(${precioCharanga})">${precioCharanga.toLocaleString('es-ES')} 🥃</button></div>`;
 
     // 5. CARTA: Hora Loca
-    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca()">350.000 🥃</button></div>`;
+    html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca(${precioHoraLoca})">${precioHoraLoca.toLocaleString('es-ES')} 🥃</button></div>`;
 
-    // 👇 ESTO ERA LO QUE SE HABÍA BORRADO 👇
     tab.innerHTML = html;
+
 }
 
 function actualizarTiendaPersonajes() { 
@@ -378,7 +423,10 @@ function comprarVelocidad() {
     if (nivelVelocidad >= maxNivelVelocidad) return;
     if (cubatas >= costeVelocidad) {
         cubatas -= costeVelocidad; nivelVelocidad++;
-        tiempoSpawnBase = Math.max(500, 2200 - (nivelVelocidad * 170)); 
+        
+        // 👇 Frena el límite máximo de 500 a 1000 y baja la escala a 120 👇
+        tiempoSpawnBase = Math.max(1000, 2200 - (nivelVelocidad * 120)); 
+        
         tiempoSpawnActual = tiempoSpawnBase;
         costeVelocidad = Math.floor(costeVelocidad * 2.2);
         ganarCubatas(0); clearInterval(intervalCajas);
@@ -416,23 +464,30 @@ function comprarTractor() {
     } else alert("¡Te faltan cubatas!");
 }
 
-function boostCharanga() {
-    if (cubatas >= 50000) {  // 👈 Nuevo precio
-        cubatas -= 50000; ganarCubatas(0);
+function boostCharanga(precio) {
+    if (cubatas >= precio) { 
+        cubatas -= precio; ganarCubatas(0);
         multiplicadorPasivo = 3; clearTimeout(timeoutMultiplicador); 
-        timeoutMultiplicador = setTimeout(() => { multiplicadorPasivo = 1; }, 30000);
-        guardarPartida(); renderizarMejoras();
+        timeoutMultiplicador = setTimeout(() => { 
+            multiplicadorPasivo = 1; 
+            actualizarCubatasPorSegundo(); 
+            renderizarMejoras(); // Refresca el precio en la tienda al acabar
+        }, 30000);
+        actualizarCubatasPorSegundo(); guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
 
-function boostHoraLoca() {
+function boostHoraLoca(precio) {
     if (boostVelocidadActivo) { alert("¡Frenesí ya activo!"); return; }
-    if (cubatas >= 350000) {  // 👈 Nuevo precio
-        cubatas -= 350000; ganarCubatas(0);
+    if (cubatas >= precio) { 
+        cubatas -= precio; ganarCubatas(0);
         boostVelocidadActivo = true; let backupSpawn = tiempoSpawnActual; tiempoSpawnActual = 400; 
         clearInterval(intervalCajas); intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
         estadisticasLogros.frenesisActivados++; verificarLogro('frenesi_loco'); 
-        setTimeout(() => { boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); }, 15000); 
+        setTimeout(() => { 
+            boostVelocidadActivo = false; tiempoSpawnActual = backupSpawn; 
+            clearInterval(intervalCajas); if(!juegoPausado) intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
+        }, 15000); 
         guardarPartida(); renderizarMejoras();
     } else alert("¡Te faltan cubatas!");
 }
@@ -546,7 +601,15 @@ function cargarPeticionesVIP() {
           }
           querySnapshot.forEach((doc) => {
               const data = doc.data();
-              lista.innerHTML += `<div style="background:#222; padding:12px; border-radius:8px; border:2px dashed #ff00ff; display:flex; justify-content:space-between; align-items:center;"><span style="color:white; font-weight:bold; font-size:12px; font-family: Arial, sans-serif;">👤 ${data.jugador}</span><button onclick="autorizarJugadorRapido('${data.jugador}')" style="background:#00ff00; color:black; padding:8px 12px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #00ff00;">ACEPTAR</button></div>`;
+              // 👇 Nuevo diseño con botón de DENEGAR y ACEPTAR 👇
+              lista.innerHTML += `
+              <div style="background:#222; padding:12px; border-radius:8px; border:2px dashed #ff00ff; display:flex; flex-direction:column; gap:10px;">
+                  <span style="color:white; font-weight:bold; font-size:12px; font-family: Arial, sans-serif; text-align:center;">👤 ${data.jugador}</span>
+                  <div style="display:flex; justify-content:space-between; gap:10px;">
+                      <button onclick="denegarJugadorRapido('${data.jugador}')" style="flex:1; background:#ff4444; color:white; padding:10px 0; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; font-family: 'Press Start 2P', cursive; font-size:10px; box-shadow: 2px 2px 0 #aa0000;">❌ NO</button>
+                      <button onclick="autorizarJugadorRapido('${data.jugador}')" style="flex:1; background:#00ff00; color:black; padding:10px 0; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; font-family: 'Press Start 2P', cursive; font-size:10px; box-shadow: 2px 2px 0 #009900;">✅ SÍ</button>
+                  </div>
+              </div>`;
           });
       });
 }
@@ -554,6 +617,17 @@ function cargarPeticionesVIP() {
 function autorizarJugadorRapido(jugador) {
     if (!db || claveStaffActiva === "") return;
     db.collection("pases_vip").doc(jugador).set({ autorizado: true, claveStaff: claveStaffActiva }, { merge: true }).catch(err => { alert("❌ Error de conexión al autorizar."); });
+}
+
+// 👇 NUEVA FUNCIÓN PARA DENEGAR 👇
+function denegarJugadorRapido(jugador) {
+    if (!db || claveStaffActiva === "") return;
+    if (confirm(`¿Seguro que quieres DENEGAR el acceso a ${jugador}?`)) {
+        // Borramos el documento de la nube para rechazar la petición
+        db.collection("pases_vip").doc(jugador).delete().catch(err => { 
+            alert("❌ Error al intentar denegar."); 
+        });
+    }
 }
 
 function solicitarPaseVIP() {
@@ -566,11 +640,21 @@ function solicitarPaseVIP() {
 
 function escucharAutorizacionVIP() {
     if (!db || nombreJugador === "Desconocido") return;
-    db.collection("pases_vip").doc(nombreJugador).onSnapshot((doc) => {
+    
+    // Guardamos el "listener" para poder apagarlo luego
+    let listener = db.collection("pases_vip").doc(nombreJugador).onSnapshot((doc) => {
         if (doc.exists && doc.data().autorizado === true) {
+            // ✅ EL CAMARERO DIJO SÍ
             casinoVIP = true; localStorage.setItem('casinoVIP', 'true'); guardarPartida(); subirPuntuacion();
             const modalPago = document.getElementById('pago-casino-modal'); if (modalPago) modalPago.classList.add('oculto');
             mostrarNotificacion("👑 ¡PASE VIP AUTORIZADO POR LA BARRA!"); abrirCasino();
+            listener(); // Apagamos la escucha
+            
+        } else if (!doc.exists) {
+            // ❌ EL CAMARERO DIJO NO (Borró el documento)
+            alert("❌ Tu solicitud VIP ha sido DENEGADA por la barra.");
+            const modalPago = document.getElementById('pago-casino-modal'); if (modalPago) modalPago.classList.add('oculto');
+            listener(); // Apagamos la escucha
         }
     });
 }
@@ -624,26 +708,49 @@ function quemarCupon() {
 
 function procesarStock(premioElegido) {
     const hoy = obtenerDiaDeFiesta();
+    
     if (premioElegido.tipo === 'chupito') {
+        
+        // 👇 LÍMITE PERSONAL: 2 Chupitos Máximo por cuenta 👇
+        if ((estadisticasLogros.chupitosGanados || 0) >= 2) {
+            return { tipo: 'cubatas', min: 3000000, max: 3000000, texto: "LÍMITE ALCANZADO: +3.000.000 🥃" };
+        }
+        
         if (stockChupitosHoy > 0) {
-            stockChupitosHoy--; if(db) db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido;
-        } else return { tipo: 'cubatas', min: 5000000, max: 5000000, texto: "AGOTADO HOY: +5.000.000 🥃" };
+            stockChupitosHoy--; 
+            if(db) db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido;
+        } else {
+            return { tipo: 'cubatas', min: 5000000, max: 5000000, texto: "AGOTADO HOY: +5.000.000 🥃" };
+        }
+        
     } else if (premioElegido.tipo === 'cubata_real') {
+        
+        // 👇 LÍMITE PERSONAL: 2 Cubatas Máximo por cuenta 👇
+        if ((estadisticasLogros.cubatasRealesGanados || 0) >= 2) {
+            return { tipo: 'cubatas', min: 8000000, max: 8000000, texto: "LÍMITE ALCANZADO: +8.000.000 🥃" };
+        }
+        
         if (stockCubatasHoy > 0) {
-            stockCubatasHoy--; if(db) db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido;
-        } else return { tipo: 'cubatas', min: 100000, max: 100000, texto: "AGOTADO HOY: +10.000.000 🥃" };
+            stockCubatasHoy--; 
+            if(db) db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido;
+        } else {
+            return { tipo: 'cubatas', min: 10000000, max: 10000000, texto: "AGOTADO HOY: +10.000.000 🥃" };
+        }
     }
+    
     return premioElegido;
 }
 
 const SOBRES = {
     epico: {
         nombre: "Sobre VIP", 
-        coste: 5000000, // 👈 10 Millones reales
         premios: [
-            { tipo: 'cubatas',     peso: 96, min: 2000000, max: 6000000, texto: "🥃 +{x} cubatas" },
-            { tipo: 'chupito',     peso: 3, texto: "🥂 ¡CHUPITO GANADO!" },
-            { tipo: 'cubata_real', peso: 1, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
+            // Ganan entre x0.4 y x1.5 lo que costó el sobre. Así la banca controla la economía.
+            { tipo: 'cubatas',     peso: 92, minMult: 0.4, maxMult: 1.5, texto: "🥃 +{x} cubatas" },
+            { tipo: 'chupito',     peso: 6, texto: "🥂 ¡CHUPITO GANADO!" },
+            { tipo: 'cubata_real', peso: 2, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
     }
 };
@@ -663,8 +770,22 @@ function actualizarBotonesSobres() {
 
 function abrirWalkout(elementoCarta, tier) {
     if (sobreAbriendo) return; const cfg = SOBRES[tier]; if (!cfg) return;
+    
     const esGratis = (tier === 'epico' && sobresGratisEpico > 0);
-    if (!esGratis) { if (cubatas < cfg.coste) { alert("¡Te faltan cubatas para este sobre!"); return; } cubatas -= cfg.coste; ganarCubatas(0); } else sobresGratisEpico--;
+    // 👇 Añadimos el cálculo del precio dinámico 👇
+    let precioDinamico = calcularPrecioSobre();
+    
+    if (!esGratis) { 
+        // 👇 Comprobamos y restamos el precioDinamico 👇
+        if (cubatas < precioDinamico) { 
+            alert("¡Te faltan cubatas para este sobre!"); 
+            return; 
+        } 
+        cubatas -= precioDinamico; 
+        ganarCubatas(0); 
+    } else {
+        sobresGratisEpico--;
+    }
     
     guardarPartida(); sobreAbriendo = true; document.getElementById('casino-modal').classList.add('oculto');
     const modal = document.getElementById('walkout-modal'); const camera = document.getElementById('walkout-camera');
@@ -709,7 +830,17 @@ function abrirWalkout(elementoCarta, tier) {
                 setTimeout(() => { doors.classList.add('doors-open');
                     setTimeout(() => {
                         rewardContainer.classList.remove('oculto'); rewardContainer.classList.add('card-fly-in');
-                        const cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min)); ganarCubatas(cantidad);
+                        
+                        // 👇 Calculamos el premio multiplicando lo pagado 👇
+                        let cantidad = 0;
+                        if (premio.minMult) {
+                            let costePagado = esGratis ? calcularPrecioSobre() : precioDinamico;
+                            cantidad = Math.floor(costePagado * premio.minMult + Math.random() * (costePagado * (premio.maxMult - premio.minMult)));
+                        } else {
+                            cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min));
+                        }
+                        
+                        ganarCubatas(cantidad);
                         premioTxt.style.color = "#00ff00"; premioTxt.innerText = premio.texto.replace('{x}', cantidad.toLocaleString('es-ES'));
                         setTimeout(() => { btnCerrar.classList.remove('oculto'); sobreAbriendo = false; actualizarBotonesSobres(); }, 1000);
                     }, 300);
@@ -755,14 +886,60 @@ function abrirRanking() {
     if (!db) { contenedor.innerHTML = "<p style='color:red;'>Ranking no disponible offline.</p>"; return; }
     contenedor.innerHTML = '<h3 style="color:#333; margin-top:20px;">Cargando... 📡</h3>';
     
-    db.collection("ranking").orderBy("nivelMaximo", "desc").limit(10).get().then((querySnapshot) => {
+    // 👇 Ahora ordenamos por el dinero histórico (cubatasTotales) para evitar empates por nivel 👇
+    db.collection("ranking").orderBy("cubatasTotales", "desc").limit(10).get().then((querySnapshot) => {
         let html = '<h3 style="margin-bottom:15px; color:#ff0055; font-family: \'Press Start 2P\', cursive; font-size:12px; text-shadow: 2px 2px 0px #ccc;">🏆 TOP 10 PEÑA 🏆</h3><div style="text-align:left; font-size: 14px;">';
         let i = 1; 
+        
         querySnapshot.forEach((doc) => { 
-            let p = doc.data(); let corona = p.esVIP ? '<span title="VIP" style="font-size:16px; margin-left:5px; filter: drop-shadow(0 0 2px gold);">👑</span>' : '';
+            let p = doc.data(); 
+            // Cambiamos la antigua corona de VIP por un diamante para no confundir con el Rey
+            let vipIcon = p.esVIP ? '<span title="VIP" style="font-size:12px; margin-left:5px;">💎</span>' : '';
+            
+            let colorNombre = "#111";
             let fondoFila = (i % 2 === 0) ? '#f5f5f5' : '#ffffff';
-            html += `<div style="padding: 12px; border-bottom: 3px solid #333; display:flex; justify-content:space-between; align-items:center; background: ${fondoFila}; border-radius: 6px; margin-bottom: 4px;"><div style="display:flex; flex-direction:column; gap:6px;"><span style="font-weight:bold; font-size:15px; color:#111;">${i}. ${p.nombre} ${corona}</span><span style="font-size:11px; color:#555; font-weight:bold; background: #eee; padding: 3px 6px; border-radius: 4px; border: 1px solid #ccc; width: fit-content;">🥂 ${p.chupitosReales || 0}  |  🍹 ${p.cubatasReales || 0}</span></div><div style="background:#ff0055; color:white; padding:6px 10px; border-radius:8px; font-weight:bold; font-size:12px; border:2px solid #333; box-shadow: 2px 2px 0 #000;">Nvl ${p.nivelMaximo}</div></div>`; i++; 
-        }); html += '</div>'; contenedor.innerHTML = html;
+            let medalla = "";
+            let estiloBorde = "border-bottom: 3px solid #333;";
+            let extraNombre = "";
+
+            // 👑 TOP 1: EL REY (Dorado)
+            if (i === 1) {
+                colorNombre = "#d4af37"; 
+                fondoFila = "#fffde7"; 
+                medalla = "👑";
+                estiloBorde = "border: 3px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.6);";
+                extraNombre = "text-shadow: 1px 1px 0px #000;";
+            } 
+            // 🥈 TOP 2: PLATA
+            else if (i === 2) {
+                colorNombre = "#7a7a7a"; 
+                fondoFila = "#f8f9fa";
+                medalla = "🥈";
+                estiloBorde = "border: 3px solid #a0a0a0;";
+            } 
+            // 🥉 TOP 3: BRONCE
+            else if (i === 3) {
+                colorNombre = "#a0522d"; 
+                fondoFila = "#fbe9e7";
+                medalla = "🥉";
+                estiloBorde = "border: 3px solid #cd7f32;";
+            }
+
+            html += `
+            <div style="padding: 12px; display:flex; justify-content:space-between; align-items:center; background: ${fondoFila}; border-radius: 8px; margin-bottom: 8px; ${estiloBorde}">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-weight:bold; font-size:15px; color:${colorNombre}; text-transform:uppercase; ${extraNombre}">${medalla} ${i}. ${p.nombre} ${vipIcon}</span>
+                    <span style="font-size:10px; color:#555; font-weight:bold; background: #eee; padding: 3px 6px; border-radius: 4px; border: 1px solid #ccc; width: fit-content;">🥂 ${p.chupitosReales || 0}  |  🍹 ${p.cubatasReales || 0}</span>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                    <div style="background:#ff0055; color:white; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:11px; border:2px solid #333; box-shadow: 2px 2px 0 #000;">Nvl ${p.nivelMaximo}</div>
+                    <div style="font-size:9px; color:#666; font-weight:bold;">${Math.floor(p.cubatasTotales || 0).toLocaleString('es-ES')} 🥃</div>
+                </div>
+            </div>`; 
+            i++; 
+        }); 
+        html += '</div>'; 
+        contenedor.innerHTML = html;
     }).catch(() => { contenedor.innerHTML = "<p style='color:red;'>Error de conexión.</p>"; });
 }
 
@@ -946,7 +1123,14 @@ function crearCaja() {
             if (suerte < 0.15) { nivelDorado = maxNivelDesbloqueado; } 
             else if (suerte < 0.50) { nivelDorado = Math.max(0, maxNivelDesbloqueado - 1); } 
             else { nivelDorado = Math.max(0, maxNivelDesbloqueado - 2); }
-            createFriend(nivelDorado, x, y);
+            // NUEVA COMPROBACIÓN ANTI-OVERFLOW
+            let tableroDestino = nivelDorado >= 8 ? '#game-board-vip' : '#game-board';
+            if (document.querySelectorAll(`${tableroDestino} .friend`).length < 20) {
+                createFriend(nivelDorado, x, y);
+        } else {
+            mostrarAvisoFlotante(x, y - 20, "¡SALA LLENA!");
+            ganarCubatas(premioDorado * 2); // Le damos el doble de dinero en compensación
+        }
         } else { 
             ganarCubatas(1 * multiplicadorClic); 
             createFriend(calcularNivelCajaNormal(), x, y); 
@@ -1095,12 +1279,24 @@ function comprobarGanadorGoldenTicket() {
 }
 
 function sincronizarStockGlobal() {
-    if (!db) return; const hoy = obtenerDiaDeFiesta();
+    if (!db) return; 
+    const hoy = obtenerDiaDeFiesta();
     db.collection("control_barra").doc(hoy).onSnapshot((doc) => {
-        if (doc.exists) { const data = doc.data(); stockChupitosHoy = data.chupitos !== undefined ? data.chupitos : 30; stockCubatasHoy = data.cubatas !== undefined ? data.cubatas : 10; } 
-        else { stockChupitosHoy = 30; stockCubatasHoy = 10; db.collection("control_barra").doc(hoy).set({ chupitos: 30, cubatas: 10 }); }
-        const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
-        if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
+        if (doc.exists) { 
+            const data = doc.data(); 
+            // 🛡️ PARCHE APLICADO: Math.max evita que el stock visual baje de 0
+            stockChupitosHoy = data.chupitos !== undefined ? Math.max(0, data.chupitos) : 30; 
+            stockCubatasHoy = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 10; 
+        } 
+        else { 
+            stockChupitosHoy = 30; 
+            stockCubatasHoy = 10; 
+            db.collection("control_barra").doc(hoy).set({ chupitos: 30, cubatas: 10 }); 
+        }
+        const visualChupis = document.getElementById('stock-visual-chupitos'); 
+        const visualCubas = document.getElementById('stock-visual-cubatas');
+        if (visualChupis) visualChupis.innerText = stockChupitosHoy; 
+        if (visualCubas) visualCubas.innerText = stockCubatasHoy;
     }, () => {});
 }
 // ==========================================================================
