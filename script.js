@@ -756,14 +756,37 @@ const SOBRES = {
 };
 
 function actualizarBotonesSobres() {
+    let precioActual = calcularPrecioSobre();
+    let precioTexto = "";
+    
+    // Formateamos para que el texto sea corto y quepa bien (Ej: 25K, 1.5M)
+    if (precioActual >= 1000000) {
+        precioTexto = (precioActual / 1000000).toFixed(1) + "M";
+    } else if (precioActual >= 1000) {
+        precioTexto = Math.floor(precioActual / 1000) + "K";
+    } else {
+        precioTexto = precioActual.toLocaleString('es-ES');
+    }
+
+    // 1. Actualizamos la etiqueta negra de debajo del sobre
     const etiquetas = document.querySelectorAll('.etiqueta-precio');
     etiquetas.forEach(etiqueta => {
         if (sobresGratisEpico > 0) {
             etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>';
             etiqueta.style.borderColor = '#00ff00';
         } else {
-            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> 5M';
+            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> ' + precioTexto;
             etiqueta.style.borderColor = '#00ff00';
+        }
+    });
+
+    // 2. Actualizamos el número interior de las cartas (Para que borre el 5M del HTML)
+    const numsInterior = document.querySelectorAll('.stat-num');
+    numsInterior.forEach(num => {
+        if (sobresGratisEpico > 0) {
+            num.innerText = "0";
+        } else {
+            num.innerText = precioTexto;
         }
     });
 }
