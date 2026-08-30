@@ -747,10 +747,12 @@ const SOBRES = {
     epico: {
         nombre: "Sobre VIP", 
         premios: [
-            // Ganan entre x0.4 y x1.5 lo que costó el sobre. Así la banca controla la economía.
-            { tipo: 'cubatas',     peso: 92, minMult: 0.4, maxMult: 1.5, texto: "🥃 +{x} cubatas" },
-            { tipo: 'chupito',     peso: 6, texto: "🥂 ¡CHUPITO GANADO!" },
-            { tipo: 'cubata_real', peso: 2, texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
+            // 98.5% de que toquen cubatas (Te devuelve entre la mitad y el doble de lo que te costó)
+            { tipo: 'cubatas',     peso: 98.5, minMult: 0.5, maxMult: 2.0, texto: "🥃 +{x} cubatas" },
+            // 1.2% de que toque Chupito (Aproximadamente 1 de cada 83 sobres)
+            { tipo: 'chupito',     peso: 1.2,  texto: "🥂 ¡CHUPITO GANADO!" },
+            // 0.3% de que toque Cubata real (Aproximadamente 1 de cada 333 sobres)
+            { tipo: 'cubata_real', peso: 0.3,  texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
     }
 };
