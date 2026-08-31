@@ -1,20 +1,17 @@
 # 🍻 Juerga Civil - Evolución
 
-Un videojuego web estilo "Merge / Idle" creado específicamente para amenizar y gamificar las fiestas de una peña. Los jugadores gestionan una discoteca virtual, ganan moneda del juego (Cubatas) y pueden gastarla en un sistema de lootboxes (Sobres) para **ganar premios físicos reales en la barra del bar**.
+El juego oficial web para la peña "Juerga Civil" durante las fiestas de Santa María del Páramo. Un juego incremental (tipo clicker/merge) con sistema de economía dinámica, casino online y premios en el mundo real.
 
-## ✨ Características Principales
+## 🎮 Mecánicas
+- **Fusión (Merge):** Arrastra juerguistas iguales para evolucionarlos hasta el Nivel 19.
+- **Economía Activa/Pasiva:** Gana cubatas virtuales pinchando cajas, limpiando vómitos o de forma automática.
+- **Mercado Dinámico:** El precio de los Sobres VIP y los potenciadores fluctúa en tiempo real según los ingresos del jugador.
+- **Casino y Premios Físicos:** Abre "Sobres de la Peña" virtuales con probabilidades controladas para ganar **Chupitos y Cubatas Reales** canjeables en la barra de la peña mediante códigos QR seguros.
+- **Protección Anti-Ruina:** Sistema en la nube para evitar trampas, controlar el stock físico disponible en el carro y verificar pagos reales.
 
-* **🧬 Mecánica Merge & Idle:** 19 niveles de evolución de "Juerguistas". Generación de ingresos pasivos (hasta 8 horas de farmeo offline).
-* **🛒 Tienda de Mejoras:** Compra de ritmo base, limpieza automática de eventos aleatorios (vómitos) y "Boosts" de un solo uso (frenesíes, saltos temporales).
-* **🔒 Sistema VIP Físico-Digital:** El acceso al Casino cuesta 2€ reales. El jugador paga en la barra física y el camarero introduce un código TOTP dinámico (cambia cada 20s) en el móvil del cliente para desbloquear la zona.
-* **🎁 Sobres con Control de Stock en la Nube:** Las lootboxes pueden dar premios virtuales o premios físicos (Chupitos, Cubatas). Todo conectado a **Firebase Firestore** mediante `onSnapshot`. Si la barra agota los chupitos físicos, el juego lo detecta en tiempo real y corta los premios en los móviles de todos los jugadores.
-* **🎟️ Cartera de Cupones Anti-Trampas:** Los premios ganados se guardan en un inventario. Para canjearlos, el cliente muestra el móvil al camarero. El ticket incluye un reloj en vivo (para evitar capturas de pantalla) y un botón de "Quemar" que borra el premio definitivamente.
-* **🏆 Golden Ticket (Transacciones Seguras):** Sistema competitivo donde los 5 primeros jugadores en pasarse el juego reciben un chupito gratis. Utiliza `db.runTransaction` en Firebase para evitar reclamaciones simultáneas.
+## 🛠️ Tecnologías
+- HTML5, CSS3, JavaScript Vainilla.
+- Firebase Firestore (BBDD en tiempo real, Ranking y verificación de Cupones).
+- Firebase App Check (Protección anti-bots).
 
-## 🛠️ Tecnologías Utilizadas
-
-* **Frontend:** HTML5, CSS3, JavaScript (Vanilla). No frameworks, puro rendimiento móvil.
-* **Backend / Base de datos:** Firebase Firestore (Reglas de seguridad, Transacciones, Listeners en tiempo real).
-* **Almacenamiento Local:** `localStorage` para el guardado de progreso offline.
-
-
+Desarrollado para las fiestas locales de 2026. ¡Prohibido Divertirse! ⚠️

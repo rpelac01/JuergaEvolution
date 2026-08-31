@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- ========================================== -->
+    <!-- 1. BARRA SUPERIOR (HEADER)                 -->
+    <!-- ========================================== -->
     <header id="top-bar">
         <div class="stats-container">
             <span class="icono-moneda">🥃</span>
@@ -15,62 +18,79 @@
                 <div id="cubatas-segundo">0.0 cubatas/seg</div>
             </div>
         </div>
-        
         <button id="btn-vip-room" style="display: none; position: absolute; right: 10px; margin: 0; padding: 8px 10px; font-size: 10px; border-color: #ff00ff; color: #ff00ff; background: #000; box-shadow: none;" onclick="toggleVIPRoom()">
             ZONA VIP
         </button>
     </header>
 
+    <!-- ========================================== -->
+    <!-- 2. TABLEROS DE JUEGO (PRADERA / VIP)       -->
+    <!-- ========================================== -->
     <main id="game-board" style="flex-grow: 1; height: 100%; width: 100%; position: relative; overflow: hidden; display: block;"></main>
-    
     <main id="game-board-vip" style="flex-grow: 1; height: 100%; width: 100%; position: relative; overflow: hidden; background-color: #1a001a; background-image: url('chis.jpg'); background-size: cover; background-position: center; display: none;"></main>
     
+    <!-- ========================================== -->
+    <!-- 3. BARRA INFERIOR (FOOTER / MENÚ)          -->
+    <!-- ========================================== -->
     <footer id="bottom-bar">
         <button class="btn-cuadrado boton-arcade" onclick="abrirTienda()">🛒</button>
         <button class="btn-cuadrado boton-arcade" style="color: #ff00ff; border-color: #ff00ff;" onclick="abrirCasino()">🎁</button>
         <button class="btn-cuadrado boton-arcade" onclick="abrirMenuPrincipal()">📖</button>
     </footer>
 
+    <!-- ========================================== -->
+    <!-- 4. MODALES PRINCIPALES DEL JUEGO           -->
+    <!-- ========================================== -->
+
     <!-- MODAL DE LA TIENDA -->
     <div id="shop-modal" class="modal oculto">
         <div class="modal-content" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; box-sizing: border-box; border-radius: 0; border: none; padding: 15px; padding-top: 25px; background: #000; display: flex; flex-direction: column; overflow: hidden; touch-action: auto !important;">
-            
             <button class="cerrar-btn" style="top: 20px; right: 20px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none;" onclick="cerrarModales()">X</button>
-            
             <h3 style="color: #00ff00; border-bottom: 2px dashed #00ff00; padding-bottom: 10px; font-family: 'Press Start 2P', cursive; font-size: 16px; text-shadow: 0 0 10px #00ff00; text-align: center; margin-top: 5px; flex-shrink: 0;">🛒 EL BAR</h3>
-            
             <div class="tienda-tabs" style="border-bottom: none; margin-bottom: 10px; display: flex; gap: 5px; flex-shrink: 0;">
                 <button id="btn-tab-mejoras" style="flex: 1; padding: 12px; background: #00ff00; color: #000; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('mejoras')">⚡ MEJORAS</button>
                 <button id="btn-tab-personajes" style="flex: 1; padding: 12px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 10px; border-radius: 4px;" onclick="cambiarTab('personajes')">👥 JUERGUISTAS</button>
             </div>
-            
             <div id="tab-mejoras" class="shop-vertical-list" style="flex: 1 1 0%; min-height: 0;"></div>
             <div id="tab-personajes" class="shop-vertical-list oculto" style="flex: 1 1 0%; min-height: 0;"></div>
         </div>
     </div>
 
-    <!-- MODAL DEL CASINO (CORREGIDO LOS MÁRGENES) -->
+    <!-- MODAL DEL CASINO (CARRUSEL DE SOBRES) -->
     <div id="casino-modal" class="modal oculto" style="z-index: 550;">
         <div class="modal-content tienda-arcade" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; border: none; padding: 15px; padding-top: 25px; display: flex; flex-direction: column; background: #000;">
-            
             <button class="cerrar-btn" style="top: 15px; right: 15px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 14px; box-shadow: none; z-index: 600;" onclick="cerrarModales()">X</button>
             
             <div style="flex-shrink: 0;">
                 <h3 style="color: #00ff00; text-shadow: 0px 0px 8px #00ff00; text-align: center; font-size: 14px; margin-top: 0; margin-bottom: 10px; border-bottom: 2px dashed #00ff00; padding-bottom: 10px;">🎁 SOBRES DE LA PEÑA</h3>
-                
                 <div id="panel-stock-vivo" style="background: #111; border: 2px solid #ffd700; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-family: 'Press Start 2P', cursive; font-size: 9px; color: white; text-align: center;">
                     ⏳ STOCK DE LA BARRA ⏳<br><br>
-                    🥂 Chupis: <span id="stock-visual-chupitos" style="color: #00ff00;">--</span> &nbsp;|&nbsp; 🍹 Cubatas: <span id="stock-visual-cubatas" style="color: #00ff00;">--</span>
+                    🥂 Chupitos: <span id="stock-visual-chupitos" style="color: #00ff00;">--</span> &nbsp;|&nbsp; 🍹 Cubatas: <span id="stock-visual-cubatas" style="color: #00ff00;">--</span>
                 </div>
-                
                 <div style="text-align: center; margin-bottom: 5px;">
                     <p id="sobre-resultado" style="font-size: 11px; font-family: 'Press Start 2P', cursive; color: #00ff00; margin: 0; text-shadow: 0 0 5px #00ff00;">¡DESLIZA Y ELIGE!</p>
                 </div>
             </div>
 
-            <!-- ZONA DESLIZABLE CENTRADA Y GIGANTE -->
+            <!-- Zona Deslizable Centrada y Gigante -->
             <div class="carrusel-fifa" style="flex-grow: 1; align-items: center; padding: 0 25vw;">
-                
+                <!-- PACK ESPECIAL: PROHIBIDO DIVERTIRSE (Solo visible con sobres gratis) -->
+                <div id="pack-prohibido" class="pack-container" style="display: none;">
+                    <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="border: 3px solid #ff0000; background: #202060; box-shadow: 0 0 15px rgba(255,0,0,0.4);">
+                        <div class="cinta-lateral" style="background: #ff0000; color: #ffffff; border-right: 3px solid #000000; font-size: 6px; font-weight: bold; letter-spacing: 1px;">BANDO MUNICIPAL</div>
+                        <div class="contenido-sobre" style="background: repeating-linear-gradient(45deg, #1a1a4b, #1a1a4b 10px, #202060 10px, #202060 20px);">
+                            <img src="prohibido_divertirse.jpg" alt="Prohibido Divertirse" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 0px 8px #ff0000); border: 2px solid #ff0000; border-radius: 4px; background: #fff;">
+                            <h4 class="titulo-sobre" style="font-size: 8px; color: #ffffff; text-shadow: 2px 2px 0px #ff0000; line-height: 1.4; margin: 0; font-weight: bold;">PROHIBIDO<br>DIVERTIRSE</h4>
+                        </div>
+                        <div class="stats-sobre" style="background: rgba(0, 0, 0, 0.9); border-top: 3px dashed #ff0000;">
+                            <div class="stat-col"><span class="stat-icono" style="color: #ff0000;">⚠️</span><span class="stat-lbl" style="color: #ffffff;">AYTO</span></div>
+                            <div class="stat-col"><span class="stat-num" style="color: #ffffff;">--</span><span class="stat-lbl" style="color: #ffffff;">COSTE</span></div>
+                        </div>
+                        <div class="borde-inferior" style="background: #ff0000;"></div>
+                    </div>
+                    <div class="etiqueta-precio"><span class="icono-moneda">🥃</span> --</div>
+                </div>
+
                 <!-- PACK 1: JUERGA CIVIL -->
                 <div class="pack-container">
                     <div class="sobre-fifa-23" onclick="abrirWalkout(this, 'epico')" style="background: #000000; box-shadow: 0 0 20px rgba(57, 255, 20, 0.3); border: 3px solid #39FF14;">
@@ -252,7 +272,6 @@
                     </div>
                     <div class="etiqueta-precio"><span class="icono-moneda">🥃</span> 5M</div>
                 </div>
-                
             </div>
 
             <div style="margin-top: auto; padding: 10px; background: #051405; border: 2px dashed #00ff00; border-radius: 8px; text-align: center;">
@@ -274,7 +293,7 @@
             </p>
             <div style="background: #111; padding:15px; border-radius:10px; border: 3px dashed #ff00ff; margin-bottom:15px;">
                 <p style="font-size: 16px; color: #00ff00; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
-                <p style="font-size: 12px; color: #ccc;">Ve a el carro de la peña, dale 2€ en mano al camarero y él tecleará la contraseña secreta en tu móvil.</p>
+                <p style="font-size: 12px; color: #ccc;">Ve al carro de la peña, pregunta por Rubén y él te cobrará los 2€.</p>
             </div>
             <button onclick="solicitarPaseVIP()" style="padding:15px; background:#ff00ff; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:13px; box-shadow: 2px 4px 0 #000; font-family: 'Press Start 2P', cursive;">
                 💶 PAGAR 2€ Y SOLICITAR
@@ -293,7 +312,7 @@
         </div>
     </div>
 
-    <!-- EL MENÚ PRINCIPAL QUE HABÍA DESAPARECIDO -->
+    <!-- EL MENÚ PRINCIPAL -->
     <div id="menu-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
@@ -324,7 +343,7 @@
         </div>
     </div>
 
-    <!-- DIARIO MODAL CORREGIDO (CON SCROLL INTERNO) -->
+    <!-- DIARIO MODAL (REGALO DIARIO) -->
     <div id="diario-modal" class="modal oculto">
         <div class="modal-content libreta" style="padding-bottom: 25px; display: flex; flex-direction: column; max-height: 85vh;">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
@@ -341,7 +360,7 @@
         </div>
     </div>
 
-    <!-- MANUAL MODAL COMPACTO -->
+    <!-- MANUAL MODAL -->
     <div id="manual-modal" class="modal oculto" style="z-index: 650;">
         <div class="modal-content tienda-arcade" style="width: 90%; max-width: 400px; height: auto; padding: 15px; display: flex; flex-direction: column; background: #000; border: 3px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);">
             <button class="cerrar-btn" style="top: 10px; right: 10px; background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: 'Press Start 2P', cursive; font-size: 12px; padding: 6px 10px; box-shadow: none;" onclick="cerrarModales()">X</button>
@@ -369,6 +388,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE LOGROS -->
     <div id="logros-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
@@ -378,6 +398,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE JUERGUISTAS (COLECCIÓN) -->
     <div id="juerguistas-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
@@ -387,6 +408,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE RANKING -->
     <div id="ranking-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
@@ -398,6 +420,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE OPCIONES -->
     <div id="opciones-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="atras-btn" onclick="volverAlMenu()">⬅️ Volver</button>
@@ -411,7 +434,7 @@
         </div>
     </div>
 
-    <!-- PANEL EN VIVO DEL CAMARERO -->
+    <!-- PANEL EN VIVO DEL CAMARERO (STAFF BARRA) -->
     <div id="staff-modal" class="modal oculto" style="z-index: 9999;">
         <div class="modal-content libreta" style="background: #111; border: 4px solid #ff00ff; text-align: center; max-height: 80vh; overflow-y: auto;">
             <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
@@ -421,6 +444,7 @@
         </div>
     </div>
 
+    <!-- INVENTARIO DE CUPONES (JUGADOR) -->
     <div id="cupones-inventario-modal" class="modal oculto" style="z-index: 700;">
         <div class="modal-content libreta" style="border-left-color: #00ff00; text-align: center; max-height: 80vh; overflow-y: auto;">
             <button class="cerrar-btn" style="background: #00ff00; color: black; border-color: #00ff00;" onclick="cerrarModales()">❌</button>
@@ -429,16 +453,7 @@
         </div>
     </div>
 
-    <div id="unlock-cinematic" class="oculto">
-        <div class="cone-light"></div>
-        <div class="cinematic-content">
-            <h2 class="unlock-title">¡NUEVO JUERGUISTA!</h2>
-            <img id="unlock-img" src="n1.png" alt="Nuevo Juerguista">
-            <div id="unlock-desc">¡NIVEL ALCANZADO!</div>
-            <p class="tap-to-continue">Toca cualquier parte para continuar</p>
-        </div>
-    </div>
-
+    <!-- CUPÓN INDIVIDUAL PARA QUEMAR -->
     <div id="cupon-modal" class="modal oculto" style="z-index: 9999;">
         <div id="cupon-fondo" class="modal-content libreta" style="width: 90%; max-width: 320px; padding: 20px 15px; border-left-color: #ff0000; background: #ffebee; text-align: center;">
             <button class="cerrar-btn" onclick="cerrarCupon()" style="top: 10px; right: 10px;">❌</button>
@@ -450,7 +465,22 @@
         </div>
     </div>
 
-    <!-- CINEMÁTICA FIFA 21 -->
+    <!-- ========================================== -->
+    <!-- 5. EFECTOS ESPECIALES Y ANIMACIONES        -->
+    <!-- ========================================== -->
+
+    <!-- CINEMÁTICA NUEVO JUERGUISTA -->
+    <div id="unlock-cinematic" class="oculto">
+        <div class="cone-light"></div>
+        <div class="cinematic-content">
+            <h2 class="unlock-title">¡NUEVO JUERGUISTA!</h2>
+            <img id="unlock-img" src="n1.png" alt="Nuevo Juerguista">
+            <div id="unlock-desc">¡NIVEL ALCANZADO!</div>
+            <p class="tap-to-continue">Toca cualquier parte para continuar</p>
+        </div>
+    </div>
+
+    <!-- CINEMÁTICA WALKOUT FIFA 21 (SOBRES) -->
     <div id="walkout-modal" class="oculto">
         <div id="walkout-camera">
             <div class="tunnel-wall left-wall">
@@ -475,9 +505,12 @@
         </div>
     </div>
     
+    <!-- ========================================== -->
+    <!-- 6. SCRIPTS                                 -->
+    <!-- ========================================== -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
-    <script src="script.js?v=50"></script>
+    <script src="script.js?v=55"></script>
 </body>
 </html>
