@@ -871,16 +871,31 @@ function comprobarGanadorGoldenTicket() {
 }
 
 function abrirPanelCamarero() {
-    if (claveStaffActiva === "") {
-        let pass = prompt("Contraseña Maestra de la Barra:");
-        
-        // 👇 AHORA SÍ: La contraseña exacta en Base64 👇
-        if (!pass || btoa(pass) !== "VDd4I3BROSF2TTQka0wyQGpXOHo=") { 
-            alert("❌ Contraseña incorrecta."); 
-            return; 
-        }
-        claveStaffActiva = pass;
+    // Si ya estamos autenticados con Firebase en esta sesión, abrimos directo
+    if (firebase.auth().currentUser || claveStaffActiva !== "") {
+        mostrarModalStaff();
+        return;
     }
+
+    let pass = prompt("Contraseña Maestra de la Barra:");
+    if (!pass) return;
+
+    // 👇 VALIDACIÓN EN EL BACKEND DE FIREBASE 👇
+    // Enviamos la petición al servidor. Firebase compara el hash y devuelve un JWT seguro.
+    firebase.auth().signInWithEmailAndPassword("staff@juergacivil.com", pass)
+        .then((userCredential) => {
+            // ¡Éxito! El servidor confirmó la contraseña
+            claveStaffActiva = "autorizado"; 
+            mostrarModalStaff();
+        })
+        .catch((error) => {
+            // El servidor denegó el acceso
+            alert("❌ Contraseña incorrecta o error de conexión.");
+        });
+}
+
+// Función auxiliar para mantener el código limpio
+function mostrarModalStaff() {
     ocultarTodosModales(); 
     const modal = document.getElementById('staff-modal'); 
     if(modal) modal.classList.remove('oculto'); 
