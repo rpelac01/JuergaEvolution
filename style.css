@@ -546,3 +546,32 @@ html, body {
     display: flex; align-items: center; justify-content: center; 
     font-size: 8px; color: #fff; font-family: 'Press Start 2P', cursive; text-shadow: 1px 1px 0 #000;
 }
+/* ESTILOS DEL BLOQUEO PARA PC */
+#bloqueo-pc {
+    display: none; /* Oculto por defecto en móviles */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 999999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Si la pantalla tiene más de 768px (Ordenadores y Tablets grandes) */
+@media (min-width: 768px) {
+    #bloqueo-pc {
+        display: flex;
+    }
+    
+    /* Ocultamos el resto de elementos del juego para que no puedan hacer trampas */
+    #top-bar, #game-board, #game-board-vip, #bottom-bar, .modal {
+        display: none !important;
+    }
+}

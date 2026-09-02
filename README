@@ -1,17 +1,53 @@
-# 🍻 Juerga Civil - Evolución
+# 🍻 Juerga Civil - Evolución 🎮
 
-El juego oficial web para la peña "Juerga Civil" durante las fiestas de Santa María del Páramo. Un juego incremental (tipo clicker/merge) con sistema de economía dinámica, casino online y premios en el mundo real.
+¡Bienvenidos al repositorio oficial de **Juerga Civil**! 
+Un videojuego web para móviles (estilo *Merge* e *Idle Clicker*) desarrollado específicamente para animar las fiestas de la peña "Juerga Civil". El juego mezcla una economía virtual adictiva con **premios físicos reales** que los jugadores pueden reclamar en la barra de la carpa.
 
-## 🎮 Mecánicas
-- **Fusión (Merge):** Arrastra juerguistas iguales para evolucionarlos hasta el Nivel 19.
-- **Economía Activa/Pasiva:** Gana cubatas virtuales pinchando cajas, limpiando vómitos o de forma automática.
-- **Mercado Dinámico:** El precio de los Sobres VIP y los potenciadores fluctúa en tiempo real según los ingresos del jugador.
-- **Casino y Premios Físicos:** Abre "Sobres de la Peña" virtuales con probabilidades controladas para ganar **Chupitos y Cubatas Reales** canjeables en la barra de la peña mediante códigos QR seguros.
-- **Protección Anti-Ruina:** Sistema en la nube para evitar trampas, controlar el stock físico disponible en el carro y verificar pagos reales.
+---
 
-## 🛠️ Tecnologías
-- HTML5, CSS3, JavaScript Vainilla.
-- Firebase Firestore (BBDD en tiempo real, Ranking y verificación de Cupones).
-- Firebase App Check (Protección anti-bots).
+## 🚀 Sobre el Proyecto
 
-Desarrollado para las fiestas locales de 2026. ¡Prohibido Divertirse! ⚠️
+El objetivo del juego es simple: fusionar juerguistas para subirlos de nivel y generar "cubatas" (la moneda del juego) de forma pasiva[cite: 5]. Lo que lo hace único es su integración en tiempo real con la barra física de la fiesta:
+Los jugadores pueden pagar 2€ en la vida real para que el camarero les desbloquee el **Pase VIP** desde un panel de control oculto[cite: 4, 5]. Esto les permite abrir sobres sorpresa y ganar consumiciones físicas reales (chupitos y cubatas) que se descuentan del inventario global en tiempo real[cite: 5].
+
+## ✨ Características Principales
+
+*   **Mecánica Merge & Idle:** Arrastra y fusiona juerguistas idénticos para evolucionarlos (19 niveles disponibles)[cite: 5]. Genera cubatas virtuales automáticamente, incluso con el juego cerrado[cite: 5].
+*   **Casino VIP y Premios Reales:** Al llegar al Nivel 9, se desbloquea la Zona VIP[cite: 4, 5]. Con el pase de 2€, los jugadores abren "Sobres de la Peña" para ganar multiplicadores de dinero virtual o premios canjeables en la barra[cite: 4, 5].
+*   **Economía Dinámica:** El precio de los sobres escala automáticamente calculando 2 minutos de la producción actual del jugador, evitando el "dinero infinito"[cite: 5].
+*   **Panel de Staff en Tiempo Real:** Un menú oculto protegido por `Firebase Auth` que permite a los camareros autorizar pases VIP y validar cupones de premio[cite: 5].
+*   **Evento "Hora Loca":** El staff puede activar un evento global de 1 hora que multiplica x5 las probabilidades de ganar premios físicos, mostrando el stock restante en la pantalla de todos los jugadores en directo[cite: 5].
+*   **Anti-Cheat y Seguridad:** Firmas Hash locales para evitar modificaciones de memoria[cite: 5], validación backend y bloqueo de pantalla para navegadores de PC (forzando la experiencia móvil)[cite: 4].
+*   **Reinicio Diario:** Cada día de las fiestas a las 11:00 AM la pradera se limpia, pero los jugadores conservan sus desbloqueos y mejoras de tienda[cite: 5].
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+*   **Frontend:** HTML5, CSS3, JavaScript (Vanilla). Animaciones CSS personalizadas e interfaz adaptada 100% a móviles con bloqueo de gestos indeseados[cite: 4, 5].
+*   **Backend & Base de Datos:** Firebase Cloud Firestore (sincronización de stock, peticiones VIP y ranking global en tiempo real)[cite: 5].
+*   **Seguridad:** Firebase Authentication (protección del panel de Staff)[cite: 5] y Firebase App Check[cite: 5].
+*   **Almacenamiento:** `localStorage` codificado para partidas sin conexión[cite: 5].
+
+---
+
+## 🕹️ Cómo Jugar (Reglas Básicas)
+
+1.  Toca las cajas que caen del cielo para revelar juerguistas[cite: 5].
+2.  Arrastra dos juerguistas del mismo nivel para fusionarlos en uno superior[cite: 5].
+3.  Compra mejoras en la tienda (Reparto Rápido, Tractor de limpieza, Juerguista VIP)[cite: 5].
+4.  Llega al Nivel 9, paga los 2€ del bote en la barra y abre sobres ilimitados[cite: 4, 5].
+5.  Si te toca un chupito o cubata real, se genera un código único. ¡Enséñalo al camarero para que lo queme y te sirva![cite: 5]
+
+---
+
+## 🔒 Notas de Seguridad para Despliegue
+
+Este repositorio contiene el código cliente. Para que funcione en un entorno de producción, es necesario:
+1. Configurar un proyecto propio en **Firebase** y sustituir las credenciales en `firebaseConfig`[cite: 5].
+2. Configurar Firestore Database con colecciones para `control_barra`, `cupones_validos`, `pases_vip` y `ranking`[cite: 5].
+3. Crear un usuario de administrador en Firebase Auth para el panel de camareros.
+
+---
+
+*Desarrollado con ❤️ (y mucha fiesta) para las fiestas patronales de 2026.*

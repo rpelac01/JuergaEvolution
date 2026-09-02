@@ -1258,7 +1258,24 @@ function pedirNombre() {
 }
 
 function cambiarNombre() { pedirNombre(); }
-function borrarPartida() { if(confirm("¿Seguro que quieres borrar todo el progreso?")) { localStorage.removeItem('juergaSave2026'); location.reload(); } }
+function borrarPartida() { 
+    if (confirm("¿Seguro que quieres borrar todo el progreso y liberar tu nombre del ranking?")) { 
+        if (db && nombreJugador !== "Desconocido") {
+            // Borramos al jugador del ranking y de las peticiones VIP en la nube
+            db.collection("ranking").doc(nombreJugador).delete().catch(() => {});
+            db.collection("pases_vip").doc(nombreJugador).delete().catch(() => {});
+            
+            // Damos medio segundo a Firebase para enviar la orden antes de recargar la página
+            setTimeout(() => {
+                localStorage.removeItem('juergaSave2026'); 
+                location.reload(); 
+            }, 500);
+        } else {
+            localStorage.removeItem('juergaSave2026'); 
+            location.reload(); 
+        }
+    } 
+}
 function actualizaEstilosExtremos() { const btnVip = document.getElementById('btn-vip-room'); if(maxNivelDesbloqueado >= 8) { if(btnVip) btnVip.style.display = 'block'; } else { if(btnVip) btnVip.style.display = 'none'; } }
 
 function comprobarReinicioDiario() {
