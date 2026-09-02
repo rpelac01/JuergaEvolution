@@ -2,14 +2,6 @@
  * ============================================================================
  * JUERGA CIVIL - EVOLUCIÓN
  * Archivo Principal JavaScript (script.js)
- * 
- * Este archivo controla la lógica completa del juego, incluyendo:
- * - Conexión a Firebase (Base de datos y anti-bots).
- * - Motor físico y de fusión (arrastrar y soltar).
- * - Economía del juego (ingresos pasivos y activos).
- * - Tienda, mejoras y potenciadores.
- * - Sistema de Casino (Sobres VIP) y control de stock real.
- * - Guardado local y reinicios diarios.
  * ============================================================================
  */
 
@@ -38,22 +30,32 @@ try {
         appCheck.activate('6Lcc05ktAAAAALl7v4Zcw806WegjhVel9DUQ1Ryu', true);
     }
 } catch (e) {
-    console.warn("Firebase bloqueado o sin conexión. Jugando en modo local/offline.");
+    console.warn("Firebase bloqueado o sin conexión. Jugando en local.");
 }
 
+function subirPuntuacion() {
+    if (!db || nombreJugador === "Desconocido") return; 
+    db.collection("ranking").doc(nombreJugador).set({
+        nombre: nombreJugador,
+        nivelMaximo: maxNivelDesbloqueado + 1,
+        cubatasTotales: estadisticasLogros.cubatasTotalesGanados || cubatas,
+        esVIP: casinoVIP,
+        chupitosReales: estadisticasLogros.chupitosGanados || 0,
+        cubatasReales: estadisticasLogros.cubatasRealesGanados || 0,
+        fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).catch(() => {});
+}
+setInterval(subirPuntuacion, 15000);
 
 // ============================================================================
 // 2. VARIABLES GLOBALES Y ESTADO DEL JUEGO
 // ============================================================================
-// Evitar comportamientos indeseados en móviles (doble tap zoom, etc.)
 document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
 document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
 
-// Referencias al DOM
 const board = document.getElementById('game-board');
 const contadorCubatas = document.getElementById('contador-cubatas');
 
-// Activos del juego (Imágenes de los juerguistas)
 const levels = [
     'n1.png', 'n2.png', 'n3.png', 'n4.png', 'n5.png', 'n6.png', 'n7.png', 
     'n8.png', 'n9.png', 'n10.png', 'n11.png', 'n12.png', 'n125.png', 'n13.png', 
@@ -66,23 +68,18 @@ const nombresJuerguistas = [
     "Natalia Armendariz", "Elena Vivas", "Naroa Chamorro", "Gerardo Pascual", "Pablo Martinez"
 ];
 
-// Variables de jugador
 let nombreJugador = "Desconocido";
 let cubatas = 0; 
 let maxNivelDesbloqueado = 0; 
-
-// Variables de interacción (Drag & Drop)
 let dragItem = null; 
 let offsetX = 0; 
 let offsetY = 0;
 
-// Estado y Economía
 let multiplicadorPasivo = 1;
 let multiplicadorClic = 1; 
 let timeoutMultiplicador = null;
 let juegoPausado = false; 
 
-// Variables de Tienda y Mejoras
 let nivelVelocidad = 0; const maxNivelVelocidad = 10;
 let nivelAparicion = 0; const maxNivelCalidad = 6;
 let nivelTractor = 0;   const maxNivelTractor = 10;
@@ -92,33 +89,33 @@ let tiempoPasivo = 3000;    let costeTractor = 5000;
 let limpiezaActivada = false;
 let boostVelocidadActivo = false;
 
-// Variables de Casino y Eventos
 let casinoVIP = localStorage.getItem('casinoVIP') === 'true';
 let sobresGratisEpico = 0; 
 let sobreAbriendo = false;
 let inventarioCupones = []; 
 let cuponActivoIndex = -1;  
-let stockChupitosHoy = 15; // Antes 30
-let stockCubatasHoy = 5;   // Antes 10  
+let stockChupitosHoy = 15;
+let stockCubatasHoy = 5;
 let claveStaffActiva = ""; 
+// 👇 VARIABLES DE EVENTO 👇
+let eventoHoraLocaGlobal = false;
+let finEventoHoraLoca = 0;
+let stockChupitosEvento = 0;
+let stockCubatasEvento = 0;
 
 let regalosReclamados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
 let cuponesCanjeados = { '2026-09-03': false, '2026-09-04': false, '2026-09-05': false, '2026-09-06': false, '2026-09-07': false };
 
-// Timers del juego
 let intervalCajas, intervalVomitar, intervalRecoger, intervalPasivo;
-
 
 // ============================================================================
 // 3. TABLAS DE DATOS (ECONOMÍA Y PROBABILIDADES)
 // ============================================================================
-// 📊 TABLA FIJA DE INGRESOS (Economía 5 Días - Max 1.000 CPS)
 const INGRESOS_POR_NIVEL = [
-    1, 3, 7, 15, 35, 75, 140, 220,  // Nvl 1 al 8 (Pradera Normal)
-    320, 430, 550, 670, 790, 890, 950, 975, 990, 995, 1000 // Nvl 9 al 19 (VIP)
+    1, 3, 7, 15, 35, 75, 140, 220, 
+    320, 430, 550, 670, 790, 890, 950, 975, 990, 995, 1000
 ];
 
-// 🎲 TABLA DE PROBABILIDADES CAJAS VIP (Escalada para 5 días)
 const TABLA_CALIDAD_VIP = [
     { nivel: 0, prob: [{ nvl: 0, p: 1.0 }], desc: "100% Nv.1", sig: "90% Nv.1 / 10% Nv.2", coste: 10000 },
     { nivel: 1, prob: [{ nvl: 0, p: 0.90 }, { nvl: 1, p: 0.10 }], desc: "10% Nv.2", sig: "25% Nv.2", coste: 75000 },
@@ -133,15 +130,15 @@ const TABLA_CALIDAD_VIP = [
 const SOBRES = {
     epico: {
         nombre: "Sobre VIP", 
+        // 👇 Coste fijo eliminado. El juego usa calcularPrecioSobre() 👇
         premios: [
-            { tipo: 'cubatas',     peso: 98.5, minMult: 0.5, maxMult: 2.0, texto: "🥃 +{x} cubatas" },
+            { tipo: 'cubatas',     peso: 98.5, minMult: 0.2, maxMult: 1.25, texto: "🥃 +{x} cubatas" },
             { tipo: 'chupito',     peso: 1.2,  texto: "🥂 ¡CHUPITO GANADO!" },
             { tipo: 'cubata_real', peso: 0.3,  texto: "🍹 ¡CUBATA GRATIS EN LA BARRA!" }
         ]
     }
 };
 
-// 📅 EVENTO DE INICIO DE SESIÓN DIARIO
 const DIAS_EVENTO = [
     { fecha: '2026-09-03', nombre: 'Jueves 3', premioDesc: '3 🎁 Sobres', cantidad: 3 },
     { fecha: '2026-09-04', nombre: 'Viernes 4', premioDesc: '4 🎁 Sobres', cantidad: 4 },
@@ -149,7 +146,6 @@ const DIAS_EVENTO = [
     { fecha: '2026-09-06', nombre: 'Domingo 6', premioDesc: '6 🎁 Sobres', cantidad: 6 },
     { fecha: '2026-09-07', nombre: 'Lunes 7 (El Gordo)', premioDesc: '7 🎁 Sobres', cantidad: 7, esFinal: true }
 ];
-
 
 // ============================================================================
 // 4. SISTEMA DE LOGROS
@@ -172,7 +168,7 @@ const infoLogros = {
     'vip_barra': { titulo: "🚜 VIP de la Barra", desc: "Compra el Tractor del Kzurro.", premio: 505 },
     'frenesi_loco': { titulo: "🚀 Frenesí Descontrolado", desc: "Activa la Hora Loca 5 veces.", premio: 800, meta: 5, campo: "frenesisActivados" },
     'el_ansias': { titulo: "💥 El Ansias (Oculto)", desc: "Intenta abrir cajas con la pradera llena (20/20).", premio: 100, meta: 1, campo: "ansiasActivado" },
-    'la_resaca': { titulo: "🛌 La Resaca", desc: "Vuelve al juego tras pasar 4 horas fuera.", premio: 500 },
+    'la_resaca': { titulo: "🛌 La Resaca", desc: "Vuelve al juego tras pasar 4 hours fuera.", premio: 500 },
     'coleccionista': { titulo: "🃏 Álbum Completado", desc: "Abre un sobre de cada diseño (12 distintos).", premio: 0, premioSobre: 1, meta: 12, campo: "tiposSobres" }
 };
 
@@ -182,29 +178,17 @@ function verificarLogro(id) {
     
     if (l.meta !== undefined) { 
         if (estadisticasLogros[l.campo] >= l.meta) cumple = true; 
-    } else { 
-        cumple = true; 
-    }
+    } else { cumple = true; }
     
     if (cumple) { 
         logrosDesbloqueados[id] = true; 
-        
         let textoPremio = "";
-        if (l.premio > 0) {
-            ganarCubatas(l.premio); 
-            textoPremio = `+${l.premio.toLocaleString('es-ES')} 🍹 cubatas`;
-        }
-        if (l.premioSobre > 0) {
-            sobresGratisEpico += l.premioSobre;
-            actualizarBotonesSobres();
-            textoPremio = `+${l.premioSobre} 🎁 Sobre VIP Gratis`;
-        }
-        
+        if (l.premio > 0) { ganarCubatas(l.premio); textoPremio = `+${l.premio.toLocaleString('es-ES')} 🍹 cubatas`; }
+        if (l.premioSobre > 0) { sobresGratisEpico += l.premioSobre; actualizarBotonesSobres(); textoPremio = `+${l.premioSobre} 🎁 Sobre VIP Gratis`; }
         setTimeout(() => { alert(`🏆 ¡LOGRO DESBLOQUEADO! 🏆\n\n🎯 ${l.titulo}\n🎁 Premio: ${textoPremio}`); }, 10); 
         guardarPartida(); 
     }
 }
-
 
 // ============================================================================
 // 5. NÚCLEO DEL JUEGO: MATEMÁTICAS Y CÁLCULOS
@@ -217,11 +201,9 @@ function calcularIngresoColega(level) {
 
 function calcularPrecioSobre() {
     let cpsActual = 0;
-    document.querySelectorAll('.friend').forEach(f => {
-        cpsActual += calcularIngresoColega(parseInt(f.dataset.level));
-    });
+    document.querySelectorAll('.friend').forEach(f => { cpsActual += calcularIngresoColega(parseInt(f.dataset.level)); });
     cpsActual = cpsActual * multiplicadorPasivo;
-    return Math.max(15000, Math.floor(cpsActual * 120)); // 2 minutos de producción (Mínimo 15k)
+    return Math.max(15000, Math.floor(cpsActual * 120)); 
 }
 
 function calcularNivelCajaNormal() {
@@ -236,9 +218,7 @@ function calcularNivelCajaNormal() {
 }
 
 function obtenerDiaDeFiesta() {
-    let fecha = new Date(); 
-    fecha.setHours(fecha.getHours() - 5); // El día de fiesta cambia a las 5:00 AM
-    return fecha.toDateString(); 
+    let fecha = new Date(); fecha.setHours(fecha.getHours() - 5); return fecha.toDateString(); 
 }
 
 function ganarCubatas(cantidad) { 
@@ -253,7 +233,6 @@ function actualizarCubatasPorSegundo() {
     let cpsBase = 0; 
     friends.forEach(f => { cpsBase += calcularIngresoColega(parseInt(f.dataset.level)); }); 
     let cpsTotal = cpsBase * multiplicadorPasivo; 
-    
     const elCps = document.getElementById('cubatas-segundo');
     if (elCps) elCps.innerText = `${cpsTotal.toLocaleString('es-ES')} cubatas/seg`; 
 }
@@ -265,7 +244,6 @@ function iniciarBuclePasivo() {
         const friends = document.querySelectorAll('.friend'); 
         let cpsBase = 0; 
         friends.forEach(f => { cpsBase += calcularIngresoColega(parseInt(f.dataset.level)); }); 
-        
         let segundosBucle = tiempoPasivo / 1000;
         let ganancia = Math.floor(cpsBase * multiplicadorPasivo * segundosBucle);
         if (ganancia > 0) ganarCubatas(ganancia); 
@@ -273,9 +251,8 @@ function iniciarBuclePasivo() {
     actualizarCubatasPorSegundo(); 
 }
 
-
 // ============================================================================
-// 6. CONTROL DE ESTADOS: PAUSAR, REANUDAR Y TEXTOS FLOTANTES
+// 6. CONTROL DE ESTADOS Y TEXTOS FLOTANTES
 // ============================================================================
 function pausarJuego() { 
     juegoPausado = true; 
@@ -287,7 +264,6 @@ function reanudarJuego() {
     juegoPausado = false; 
     clearInterval(intervalCajas); clearInterval(intervalVomitar); 
     clearInterval(intervalRecoger); clearInterval(intervalPasivo);
-    
     intervalCajas = setInterval(crearCaja, tiempoSpawnActual); 
     intervalVomitar = setInterval(generarVomito, 3500); 
     if (limpiezaActivada) intervalRecoger = setInterval(recogerVomitoAutomatico, 4000); 
@@ -311,9 +287,8 @@ function mostrarTextoFlotanteEpico(x, y, mensaje) {
 }
 function mostrarNotificacion(mensaje) { alert(mensaje); }
 
-
 // ============================================================================
-// 7. MECÁNICAS EN PANTALLA: SPAWNS Y FUSIÓN (DRAG & DROP)
+// 7. MECÁNICAS EN PANTALLA: SPAWNS Y FUSIÓN
 // ============================================================================
 function crearCaja() { 
     if (juegoPausado || document.querySelectorAll('.caja').length > 7) return; 
@@ -433,7 +408,6 @@ function createFriend(level, x, y) {
     actualizarCubatasPorSegundo(); 
 }
 
-// Lógica Drag & Drop
 function startDrag(e) { 
     if (juegoPausado) return; dragItem = e.target; const rect = dragItem.getBoundingClientRect(); 
     let clientX = e.clientX !== undefined ? e.clientX : e.touches[0].clientX; 
@@ -469,7 +443,6 @@ function limpiarEventos() {
     for (let other of friends) { 
         if (other !== dragItem) { 
             const rect2 = other.getBoundingClientRect(); 
-            // Comprobar Colisión
             if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) { 
                 if (dragItem.dataset.level === other.dataset.level) { 
                     const currentLevel = parseInt(dragItem.dataset.level); 
@@ -494,9 +467,8 @@ function limpiarEventos() {
     actualizarCubatasPorSegundo(); guardarPartida(); 
 }
 
-
 // ============================================================================
-// 8. MECÁNICAS DE CLICKER SECUNDARIAS (VÓMITOS)
+// 8. MECÁNICAS DE CLICKER SECUNDARIAS
 // ============================================================================
 function generarVomito() { 
     if (juegoPausado) return; 
@@ -530,7 +502,6 @@ function recogerVomitoAutomatico() {
     if (totalRecolectado > 0) ganarCubatas(totalRecolectado); 
 }
 
-
 // ============================================================================
 // 9. TIENDA DE MEJORAS Y PERSONAJES
 // ============================================================================
@@ -554,19 +525,16 @@ function renderizarMejoras() {
     const tab = document.getElementById('tab-mejoras'); if(!tab) return;
     let html = '<div class="shop-seccion-titulo" style="margin-top:0;">⭐ PERMANENTES</div>';
     
-    // Velocidad
     let pctVel = (nivelVelocidad / maxNivelVelocidad) * 100;
     let btnVel = nivelVelocidad >= maxNivelVelocidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarVelocidad()">${costeVelocidad.toLocaleString('es-ES')} 🥃</button>`;
     html += `<div class="upgrade-row"><div class="upgrade-icon">🚀</div><div class="upgrade-info"><h4>Reparto Rápido</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctVel}%;"></div><span class="barra-texto">NVL ${nivelVelocidad}/${maxNivelVelocidad}</span></div></div>${btnVel}</div>`;
     
-    // Juerguista VIP
     const datosVIP = TABLA_CALIDAD_VIP[nivelAparicion] || TABLA_CALIDAD_VIP[0];
     let pctCal = (nivelAparicion / maxNivelCalidad) * 100;
     let btnCal = nivelAparicion >= maxNivelCalidad ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarCalidad()">${datosVIP.coste.toLocaleString('es-ES')} 🥃</button>`;
     let textoProgresoVIP = nivelAparicion >= maxNivelCalidad ? `<p style="font-size:7.5px; color:#00ff00;">Prob: ${datosVIP.desc} (Tope)</p>` : `<p style="font-size:7.5px; color:#ccc;">Prob: <span style="color:#fff;">${datosVIP.desc}</span> ➔ <span style="color:#ffd700;">${datosVIP.sig}</span></p>`;
     html += `<div class="upgrade-row"><div class="upgrade-icon">💎</div><div class="upgrade-info"><h4>Juerguista VIP</h4>${textoProgresoVIP}<div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctCal}%;"></div><span class="barra-texto">NVL ${nivelAparicion}/${maxNivelCalidad}</span></div></div>${btnCal}</div>`;
 
-    // Tractor
     let pctTrac = (nivelTractor / maxNivelTractor) * 100;
     let btnTrac = nivelTractor >= maxNivelTractor ? `<button class="boton-arcade desactivado" disabled>MÁX</button>` : `<button class="boton-arcade" onclick="comprarTractor()">${costeTractor.toLocaleString('es-ES')} 🥃</button>`;
     html += `<div class="upgrade-row"><div class="upgrade-icon">🚜</div><div class="upgrade-info"><h4>Tractor Kzurro</h4><div class="barra-progreso-bg"><div class="barra-progreso-fill" style="width:${pctTrac}%;"></div><span class="barra-texto">NVL ${nivelTractor}/${maxNivelTractor}</span></div></div>${btnTrac}</div>`;
@@ -577,7 +545,6 @@ function renderizarMejoras() {
     let precioCharanga = Math.max(25000, Math.floor((cpsActual * multiplicadorPasivo) * 120)); 
     let precioHoraLoca = Math.max(150000, Math.floor((cpsActual * multiplicadorPasivo) * 600)); 
 
-    // Charanga y Hora Loca
     html += `<div class="upgrade-row" style="border-color:#ffd700;"><div class="upgrade-icon">🎷</div><div class="upgrade-info"><h4 style="color:#ffd700;">La Charanga</h4><p>Dinero pasivo x3 (30s)</p></div><button class="boton-arcade" style="border-color:#ffd700; color:#ffd700;" onclick="boostCharanga(${precioCharanga})">${precioCharanga.toLocaleString('es-ES')} 🥃</button></div>`;
     html += `<div class="upgrade-row" style="border-color:#ff0055;"><div class="upgrade-icon">🌪️</div><div class="upgrade-info"><h4 style="color:#ff0055;">Hora Loca</h4><p>Frenesí de cajas (15s)</p></div><button class="boton-arcade" style="border-color:#ff0055; color:#ff0055;" onclick="boostHoraLoca(${precioHoraLoca})">${precioHoraLoca.toLocaleString('es-ES')} 🥃</button></div>`;
 
@@ -589,13 +556,12 @@ function actualizarTiendaPersonajes() {
     tab.innerHTML = ''; 
     for (let i = 0; i <= maxNivelDesbloqueado; i++) { 
         if(i >= levels.length) break; 
-        let precioPersonaje = Math.floor(100 * Math.pow(2.1, i)); 
+        let precioPersonaje = Math.floor(100 * Math.pow(2.45, i)); 
         let nombreColega = nombresJuerguistas[i] || "Colega";
         tab.innerHTML += `<div class="upgrade-row"><img src="${levels[i]}" style="width:40px; height:40px; object-fit:contain; filter: drop-shadow(0 0 5px #00ff00); flex-shrink:0;"><div class="upgrade-info"><h4>Nivel ${i + 1}</h4><p>${nombreColega}</p></div><button class="boton-arcade" onclick="comprarPersonaje(${i}, ${precioPersonaje})">${precioPersonaje.toLocaleString('es-ES')} 🥃</button></div>`; 
     } 
 }
 
-// Funciones de Compra
 function comprarVelocidad() {
     if (nivelVelocidad >= maxNivelVelocidad) return;
     if (cubatas >= costeVelocidad) {
@@ -656,7 +622,6 @@ function comprarPersonaje(nivel, precio) {
     } else alert("¡Te faltan cubatas!"); 
 }
 
-
 // ============================================================================
 // 10. EL CASINO (SOBRES VIP Y WALKOUTS)
 // ============================================================================
@@ -676,11 +641,18 @@ function actualizarBotonesSobres() {
     if (packProhibido) { if (sobresGratisEpico > 0) packProhibido.style.display = 'flex'; else packProhibido.style.display = 'none'; }
 
     document.querySelectorAll('.etiqueta-precio').forEach(etiqueta => {
-        if (sobresGratisEpico > 0) { etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>'; etiqueta.style.borderColor = '#00ff00'; } 
-        else { etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> ' + precioTexto; etiqueta.style.borderColor = '#00ff00'; }
+        if (sobresGratisEpico > 0) { 
+            etiqueta.innerHTML = '<span style="color:#00ff00; text-shadow:none;">GRATIS (' + sobresGratisEpico + ')</span>'; 
+            etiqueta.style.borderColor = '#00ff00'; 
+        } else { 
+            etiqueta.innerHTML = '<span class="icono-moneda">🥃</span> ' + precioTexto; 
+            etiqueta.style.borderColor = '#00ff00'; 
+        }
     });
 
-    document.querySelectorAll('.stat-num').forEach(num => { num.innerText = (sobresGratisEpico > 0) ? "0" : precioTexto; });
+    document.querySelectorAll('.stat-num').forEach(num => { 
+        num.innerText = (sobresGratisEpico > 0) ? "0" : precioTexto; 
+    });
 }
 
 function abrirWalkout(elementoCarta, tier) {
@@ -694,7 +666,6 @@ function abrirWalkout(elementoCarta, tier) {
         cubatas -= precioDinamico; ganarCubatas(0); 
     } else { sobresGratisEpico--; }
 
-    // Registro Logro Coleccionista
     let tituloDOM = elementoCarta.querySelector('.titulo-sobre');
     if (tituloDOM) {
         let nombreSobre = tituloDOM.innerText.trim();
@@ -717,9 +688,18 @@ function abrirWalkout(elementoCarta, tier) {
 
     modal.classList.remove('oculto'); camera.classList.remove('camera-moving'); doors.classList.remove('doors-glowing', 'doors-open'); flares.classList.remove('flares-on'); flash.classList.remove('flash-boom'); neones.forEach(n => n.classList.remove('on')); if(neonCaminante) neonCaminante.classList.remove('on'); rewardContainer.classList.add('oculto'); rewardContainer.classList.remove('card-fly-in'); rewardImg.classList.add('oculto'); btnCerrar.classList.add('oculto');
 
+    let premiosCalculados = JSON.parse(JSON.stringify(cfg.premios));
+    if (eventoHoraLocaGlobal) {
+        premiosCalculados.forEach(p => {
+            if (p.tipo === 'chupito') p.peso = p.peso * 5;      
+            if (p.tipo === 'cubata_real') p.peso = p.peso * 5;  
+            if (p.tipo === 'cubatas') p.peso = 92.5;            
+        });
+    }
+
     let tirada = Math.random() * 100; let premioBase;
-    for (const p of cfg.premios) { if (tirada < p.peso) { premioBase = p; break; } tirada -= p.peso; }
-    if(!premioBase) premioBase = cfg.premios[0];
+    for (const p of premiosCalculados) { if (tirada < p.peso) { premioBase = p; break; } tirada -= p.peso; }
+    if(!premioBase) premioBase = premiosCalculados[0];
     
     let premio = procesarStock(premioBase);
     const esPremioFisico = (premio.tipo === 'chupito' || premio.tipo === 'cubata_real');
@@ -748,11 +728,15 @@ function abrirWalkout(elementoCarta, tier) {
                 setTimeout(() => { doors.classList.add('doors-open');
                     setTimeout(() => {
                         rewardContainer.classList.remove('oculto'); rewardContainer.classList.add('card-fly-in');
+                        
                         let cantidad = 0;
                         if (premio.minMult) {
                             let costePagado = esGratis ? calcularPrecioSobre() : precioDinamico;
                             cantidad = Math.floor(costePagado * premio.minMult + Math.random() * (costePagado * (premio.maxMult - premio.minMult)));
-                        } else cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min));
+                        } else {
+                            cantidad = Math.floor(premio.min + Math.random() * (premio.max - premio.min));
+                        }
+                        
                         ganarCubatas(cantidad);
                         premioTxt.style.color = "#00ff00"; premioTxt.innerText = premio.texto.replace('{x}', cantidad.toLocaleString('es-ES'));
                         setTimeout(() => { btnCerrar.classList.remove('oculto'); sobreAbriendo = false; actualizarBotonesSobres(); }, 1000);
@@ -771,21 +755,49 @@ function cerrarWalkout() {
 
 function procesarStock(premioElegido) {
     const hoy = obtenerDiaDeFiesta();
+    
     if (premioElegido.tipo === 'chupito') {
         if ((estadisticasLogros.chupitosGanados || 0) >= 2) return { tipo: 'cubatas', min: 3000000, max: 3000000, texto: "LÍMITE ALCANZADO: +3.000.000 🥃" };
-        if (stockChupitosHoy > 0) { stockChupitosHoy--; if(db) db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido; } 
-        else return { tipo: 'cubatas', min: 5000000, max: 5000000, texto: "AGOTADO HOY: +5.000.000 🥃" };
+        
+        // 1. Tira primero del stock del evento
+        if (eventoHoraLocaGlobal && stockChupitosEvento > 0) { 
+            stockChupitosEvento--; 
+            if(db) db.collection("control_barra").doc("evento_global").update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido; 
+        } 
+        // 2. Si no hay del evento, tira del stock diario normal
+        else if (stockChupitosHoy > 0) { 
+            stockChupitosHoy--; 
+            if(db) db.collection("control_barra").doc(hoy).update({ chupitos: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido; 
+        } 
+        // 3. Si no hay de nada, da dinero
+        else { 
+            return { tipo: 'cubatas', min: 5000000, max: 5000000, texto: "AGOTADO HOY: +5.000.000 🥃" }; 
+        }
+        
     } else if (premioElegido.tipo === 'cubata_real') {
         if ((estadisticasLogros.cubatasRealesGanados || 0) >= 2) return { tipo: 'cubatas', min: 8000000, max: 8000000, texto: "LÍMITE ALCANZADO: +8.000.000 🥃" };
-        if (stockCubatasHoy > 0) { stockCubatasHoy--; if(db) db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); return premioElegido; } 
-        else return { tipo: 'cubatas', min: 10000000, max: 10000000, texto: "AGOTADO HOY: +10.000.000 🥃" };
+        
+        if (eventoHoraLocaGlobal && stockCubatasEvento > 0) { 
+            stockCubatasEvento--; 
+            if(db) db.collection("control_barra").doc("evento_global").update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido; 
+        } 
+        else if (stockCubatasHoy > 0) { 
+            stockCubatasHoy--; 
+            if(db) db.collection("control_barra").doc(hoy).update({ cubatas: firebase.firestore.FieldValue.increment(-1) }).catch(()=>{}); 
+            return premioElegido; 
+        } 
+        else { 
+            return { tipo: 'cubatas', min: 10000000, max: 10000000, texto: "AGOTADO HOY: +10.000.000 🥃" }; 
+        }
     }
     return premioElegido;
 }
 
-
 // ============================================================================
-// 11. SISTEMA DE CUPONES, STAFF Y PASE VIP
+// 11. SISTEMA DE CUPONES Y STAFF VIP
 // ============================================================================
 function abrirInventarioCupones() {
     ocultarTodosModales(); document.getElementById('cupones-inventario-modal').classList.remove('oculto');
@@ -858,14 +870,21 @@ function comprobarGanadorGoldenTicket() {
     }).catch(() => {});
 }
 
-// Funciones de Staff y Autorización
 function abrirPanelCamarero() {
     if (claveStaffActiva === "") {
         let pass = prompt("Contraseña Maestra de la Barra:");
-        if (pass !== "DeXTer_2007") { alert("❌ Contraseña incorrecta."); return; }
+        
+        // 👇 AHORA SÍ: La contraseña exacta en Base64 👇
+        if (!pass || btoa(pass) !== "VDd4I3BROSF2TTQka0wyQGpXOHo=") { 
+            alert("❌ Contraseña incorrecta."); 
+            return; 
+        }
         claveStaffActiva = pass;
     }
-    ocultarTodosModales(); const modal = document.getElementById('staff-modal'); if(modal) modal.classList.remove('oculto'); cargarPeticionesVIP();
+    ocultarTodosModales(); 
+    const modal = document.getElementById('staff-modal'); 
+    if(modal) modal.classList.remove('oculto'); 
+    cargarPeticionesVIP();
 }
 
 function cargarPeticionesVIP() {
@@ -897,7 +916,7 @@ function solicitarPaseVIP() {
     if (!db) { alert("Error de conexión a internet."); return; }
     if (nombreJugador === "Desconocido") { pedirNombre(); if (nombreJugador === "Desconocido") return; }
     db.collection("pases_vip").doc(nombreJugador).set({ jugador: nombreJugador, solicitadoEn: firebase.firestore.FieldValue.serverTimestamp(), autorizado: false }).then(() => {
-        alert("📩 Solicitud enviada.\n\nEnseña tu pantalla en barra, paga 2€ y el camarero autorizará tu cuenta."); escucharAutorizacionVIP();
+        alert("📩 Solicitud enviada.\n\nPaga 5€ y se te autorizará tu cuenta."); escucharAutorizacionVIP();
     }).catch((err) => { console.error("Error al solicitar VIP:", err); });
 }
 
@@ -926,23 +945,88 @@ function verificarEstadoVIPEnNube() {
 
 function sincronizarStockGlobal() {
     if (!db) return; const hoy = obtenerDiaDeFiesta();
+    
+    // 1. Escuchar el Stock normal del día
     db.collection("control_barra").doc(hoy).onSnapshot((doc) => {
         if (doc.exists) { 
             const data = doc.data(); 
             stockChupitosHoy = data.chupitos !== undefined ? Math.max(0, data.chupitos) : 15; 
             stockCubatasHoy = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 5; 
         } else { 
-            stockChupitosHoy = 15; stockCubatasHoy = 5; 
-            db.collection("control_barra").doc(hoy).set({ chupitos: 15, cubatas: 5 }); 
+            stockChupitosHoy = 10; stockCubatasHoy = 5; 
+            db.collection("control_barra").doc(hoy).set({ chupitos: 10, cubatas: 5 }); 
         }
         const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
         if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
     }, () => {});
+
+    // 2. Escuchar el Stock y tiempo de la Hora Loca
+    db.collection("control_barra").doc("evento_global").onSnapshot((doc) => {
+        if (doc.exists) { 
+            const data = doc.data();
+            finEventoHoraLoca = data.activoHasta || 0; 
+            stockChupitosEvento = data.chupitos !== undefined ? Math.max(0, data.chupitos) : 0;
+            stockCubatasEvento = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 0;
+        }
+        chequearEstadoEvento();
+    });
+}
+
+setInterval(chequearEstadoEvento, 5000);
+
+function chequearEstadoEvento() {
+    let ahora = Date.now();
+    if (finEventoHoraLoca > ahora) {
+        eventoHoraLocaGlobal = true;
+        let quedanMin = Math.ceil((finEventoHoraLoca - ahora) / 60000);
+        
+        // Actualiza el cartel del casino con el stock en tiempo real
+        let banner = document.getElementById('banner-evento-casino');
+        if (banner) { 
+            banner.style.display = 'block'; 
+            banner.innerText = `🔥 HORA LOCA VIP (${quedanMin}m) | Quedan: ${stockChupitosEvento}🥂 ${stockCubatasEvento}🍹 🔥`; 
+        }
+        
+        // Actualiza el panel del staff
+        let estadoStaff = document.getElementById('staff-estado-evento');
+        if (estadoStaff) estadoStaff.innerText = `ACTIVO: ${quedanMin}m | Stock: ${stockChupitosEvento}🥂 ${stockCubatasEvento}🍹`;
+    } else {
+        eventoHoraLocaGlobal = false;
+        let banner = document.getElementById('banner-evento-casino');
+        if (banner) banner.style.display = 'none';
+        let estadoStaff = document.getElementById('staff-estado-evento');
+        if (estadoStaff) estadoStaff.innerText = `Estado: APAGADO`;
+    }
+}
+
+function activarEventoGlobal() {
+    if (!db || claveStaffActiva === "") return;
+    
+    // 👇 PREGUNTA A LA BARRA EL STOCK 👇
+    let chupis = prompt("¿Cuántos CHUPITOS quieres sortear en esta Hora Loca?", "10");
+    if (chupis === null) return; 
+    
+    let cubas = prompt("¿Cuántos CUBATAS quieres sortear en esta Hora Loca?", "2");
+    if (cubas === null) return; 
+    
+    chupis = parseInt(chupis) || 0;
+    cubas = parseInt(cubas) || 0;
+
+    if (confirm(`⚠️ ¿ACTIVAR HORA LOCA VIP?\n\nProbabilidad x5 durante 1 HORA con este stock extra:\n🥂 ${chupis} Chupitos\n🍹 ${cubas} Cubatas`)) {
+        let unaHoraEnMs = 60 * 60 * 1000;
+        db.collection("control_barra").doc("evento_global").set({
+            activoHasta: Date.now() + unaHoraEnMs,
+            activadoPor: claveStaffActiva,
+            chupitos: chupis,
+            cubatas: cubas
+        }).then(() => { alert("✅ ¡Hora Loca VIP activada con éxito!"); }).catch(err => { alert("❌ Error al activar."); });
+    }
 }
 
 
+
 // ============================================================================
-// 12. MENÚS, INTERFAZ Y RECLAMO DE RECOMPENSAS
+// 12. MENÚS E INTERFAZ
 // ============================================================================
 function abrirLogros() { 
     ocultarTodosModales(); document.getElementById('logros-modal').classList.remove('oculto'); 
@@ -1047,7 +1131,6 @@ function abrirRanking() {
         html += '</div>'; contenedor.innerHTML = html;
     }).catch(() => { contenedor.innerHTML = "<p style='color:red;'>Error de conexión.</p>"; });
 }
-
 
 // ============================================================================
 // 13. SISTEMA DE GUARDADO LOCAL Y REINICIOS DIARIOS
@@ -1165,7 +1248,8 @@ function actualizaEstilosExtremos() { const btnVip = document.getElementById('bt
 
 function comprobarReinicioDiario() {
     const hoy = new Date();
-    hoy.setHours(hoy.getHours() - 4);
+    hoy.setHours(hoy.getHours() - 11);
+    
     const fechaString = hoy.toDateString(); 
     const ultimoReinicio = localStorage.getItem('ultimoReinicioJuerga');
 
@@ -1180,25 +1264,19 @@ function comprobarReinicioDiario() {
         
         localStorage.setItem('ultimoReinicioJuerga', fechaString); guardarPartida();
         
-        setTimeout(() => { alert(`🌅 ¡NUEVO DÍA DE FIESTA (4:00 AM)!\n\nLa pradera se ha reseteado por completo. Conservas tus logros y desbloqueos, ¡pero te toca volver a fusionar desde cero!\n\n🍹 Bono de arranque: +${premio.toLocaleString('es-ES')} cubatas.`); }, 800);
+        setTimeout(() => { alert(`🌅 ¡NUEVO DÍA DE FIESTA (11:00 AM)!\n\nLa pradera se ha reseteado por completo. Conservas tus logros y desbloqueos, ¡pero te toca volver a fusionar desde cero!\n\n🍹 Bono de arranque: +${premio.toLocaleString('es-ES')} cubatas.`); }, 800);
     }
 }
-
 
 // ============================================================================
 // 14. ARRANQUE OFICIAL DEL JUEGO
 // ============================================================================
 cargarPartida(); 
 reanudarJuego(); 
-setInterval(guardarPartida, 3000); // Guardado automático cada 3 segundos
-comprobarReinicioDiario();
+setInterval(guardarPartida, 3000);
 
-// Comprobar recompensa diaria a los 1.5 segundos de entrar
 setTimeout(() => {
     const hoy = new Date(); hoy.setHours(hoy.getHours() - 5); 
     const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
     if (localStorage.getItem('recompensa-' + hoyStr) !== 'true') { abrirMenuDiario(); }
 }, 1500);
-
-
-//He encapsulado las grandes secciones con cabeceras visuales para que sea súper fácil localizar cualquier cosa. ¡Queda muy profesional para subirlo a tu repositorio!

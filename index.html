@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- MODAL DEL CASINO (CORREGIDO LOS MÁRGENES) -->
+    <!-- MODAL DEL CASINO -->
     <div id="casino-modal" class="modal oculto" style="z-index: 550;">
         <div class="modal-content tienda-arcade" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; border: none; padding: 15px; padding-top: 25px; display: flex; flex-direction: column; background: #000;">
             
@@ -63,10 +63,16 @@
                     🥂 Chupitos: <span id="stock-visual-chupitos" style="color: #00ff00;">--</span> &nbsp;|&nbsp; 🍹 Cubatas: <span id="stock-visual-cubatas" style="color: #00ff00;">--</span>
                 </div>
                 
+                <div id="banner-evento-casino" style="display: none; background: #ff0055; color: white; text-align: center; padding: 8px; font-family: 'Press Start 2P', cursive; font-size: 8px; border: 2px solid #fff; border-radius: 6px; margin: 0 0 10px 0; box-shadow: 0 0 10px #ff0055;">
+                    🔥 HORA LOCA VIP: PREMIOS x5 🔥
+                </div>
+                
                 <div style="text-align: center; margin-bottom: 5px;">
                     <p id="sobre-resultado" style="font-size: 11px; font-family: 'Press Start 2P', cursive; color: #00ff00; margin: 0; text-shadow: 0 0 5px #00ff00;">¡DESLIZA Y ELIGE!</p>
                 </div>
             </div>
+
+            <!-- ZONA DESLIZABLE CENTRADA Y GIGANTE -->
 
             <!-- ZONA DESLIZABLE CENTRADA Y GIGANTE -->
             <div class="carrusel-fifa" style="flex-grow: 1; align-items: center; padding: 0 25vw;">
@@ -285,14 +291,14 @@
             <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
             <h2 style="color:#ff00ff; margin-bottom: 10px; font-size: 22px; text-shadow: 0 0 5px #ff00ff;">🎁 ACCESO VIP</h2>
             <p style="font-size: 14px; color: #333; margin-bottom: 15px; font-weight: bold;">
-                Los Sobres VIP requieren 2€ para el Bote de la Peña. Pago único de por vida.
+                Los Sobres VIP requieren 5€ para el Bote de la Peña. Pago único para todas las fiestas.
             </p>
             <div style="background: #111; padding:15px; border-radius:10px; border: 3px dashed #ff00ff; margin-bottom:15px;">
                 <p style="font-size: 16px; color: #00ff00; font-weight: bold; margin-bottom: 5px;">💶 PAGO EN BARRA 💶</p>
-                <p style="font-size: 12px; color: #ccc;">Ve al carro de la peña,pregunta por Rubén y el te cobrara los 2€.</p>
+                <p style="font-size: 12px; color: #ccc;">Ve al carro de la peña, pregunta por Rubén y él te cobrará los 5€.</p>
             </div>
             <button onclick="solicitarPaseVIP()" style="padding:15px; background:#ff00ff; color:white; font-weight:bold; border:4px solid #333; border-radius:10px; cursor:pointer; width:100%; font-size:13px; box-shadow: 2px 4px 0 #000; font-family: 'Press Start 2P', cursive;">
-                💶 PAGAR 2€ Y SOLICITAR
+                💶 PAGAR 5€ PARA TODAS LAS FIESTAS Y SOLICITAR
             </button>
         </div>
     </div>
@@ -304,11 +310,11 @@
             <h3 style="color: #ff00ff; border-bottom: 2px dashed #ff00ff;">🍸 STAFF PEÑA</h3>
             <p style="font-size: 11px; color: #aaa; margin-top: 10px;">CÓDIGO VIP ACTUAL (Válido 20s):</p>
             <div id="codigo-vivo" style="font-size: 45px; margin: 20px 0; font-family: 'Press Start 2P', cursive; color: #00ff00; text-shadow: 0 0 10px #00ff00;">0000</div>
-            <p style="font-size: 10px; color: #666;">Teclea este código en el móvil del jugador cuando te enseñe el pago de los 2€.</p>
+            <p style="font-size: 10px; color: #666;">Teclea este código en el móvil del jugador cuando te enseñe el pago de los 5€.</p>
         </div>
     </div>
 
-    <!-- EL MENÚ PRINCIPAL QUE HABÍA DESAPARECIDO -->
+    <!-- EL MENÚ PRINCIPAL -->
     <div id="menu-modal" class="modal oculto">
         <div class="modal-content libreta">
             <button class="cerrar-btn" onclick="cerrarModales()">❌</button>
@@ -335,6 +341,12 @@
                 <button class="menu-card" onclick="abrirManualDirecto()">
                     <div class="menu-icon bg-verde" style="margin-bottom:4px; width:40px; height:40px; font-size:20px;">📖</div><span>MANUAL</span>
                 </button>
+                
+                <!-- 👇 AQUÍ TIENES EL NUEVO BOTÓN DE STAFF SEPARADO 👇 -->
+                <button class="menu-card" onclick="abrirPanelCamarero()" style="border-color: #ff00ff; background: #111;">
+                    <div class="menu-icon" style="background: #000; color: #ff00ff; border-color: #ff00ff; margin-bottom:4px; width:40px; height:40px; font-size:20px;">🕵️‍♂️</div><span style="color: #ff00ff;">STAFF</span>
+                </button>
+
             </div>
         </div>
     </div>
@@ -376,7 +388,7 @@
                 <div style="background: #051405; border: 1px solid #00ff00; padding: 10px; border-radius: 6px;">
                     <h4 style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 9px; margin-bottom: 6px;">3. 👑 ZONA VIP</h4>
                     <p style="margin-bottom: 4px;">• Se desbloquea al llegar al <b>Nivel 9</b>.</p>
-                    <p style="margin-bottom: 4px;">• El Pase VIP cuesta <b>2€ en la barra</b> para los Sobres.</p>
+                    <p style="margin-bottom: 4px;">• El Pase VIP cuesta <b>5€ en la barra</b> para los Sobres.</p>
                     <p style="margin: 0;">• Si ganas algo, ve a <b>🎟️ CUPONES</b>.</p>
                 </div>
             </div>
@@ -421,17 +433,28 @@
             <div style="text-align:center; padding: 20px;">
                 <button onclick="cambiarNombre()" style="padding: 12px; font-weight: bold; width: 100%; margin-bottom:12px; border: 2px solid #333; border-radius:8px; cursor:pointer;">✏️ Cambiar Nombre / Trucos</button>
                 <button onclick="borrarPartida()" style="padding: 12px; font-weight: bold; width: 100%; background: #ff4444; color: white; border: 2px solid #333; border-radius:8px; cursor:pointer;">🚨 Borrar Partida</button>
-                <button onclick="abrirPanelCamarero()" style="padding: 12px; font-weight: bold; width: 100%; margin-top: 15px; background: #000; color: #ff00ff; border: 2px dashed #ff00ff; border-radius:8px; cursor:pointer;">🕵️‍♂️ Panel de Staff</button>
             </div>
         </div>
     </div>
 
     <!-- PANEL EN VIVO DEL CAMARERO -->
+    <!-- PANEL EN VIVO DEL CAMARERO -->
     <div id="staff-modal" class="modal oculto" style="z-index: 9999;">
-        <div class="modal-content libreta" style="background: #111; border: 4px solid #ff00ff; text-align: center; max-height: 80vh; overflow-y: auto;">
+        <div class="modal-content libreta" style="background: #111; border: 4px solid #ff00ff; text-align: center; max-height: 85vh; overflow-y: auto;">
             <button class="cerrar-btn" style="background: #ff00ff; color: black; border-color: #ff00ff;" onclick="cerrarModales()">❌</button>
             <h3 style="color: #ff00ff; border-bottom: 2px dashed #ff00ff; margin-bottom: 10px; font-size: 16px;">🕵️‍♂️ PANEL DE BARRA</h3>
-            <p style="font-size: 10px; color: #ccc; margin-bottom: 20px; line-height: 1.4;">Los jugadores que soliciten el VIP aparecerán aquí abajo en tiempo real.</p>
+            
+            <!-- SECCIÓN 1: EVENTOS HORA LOCA -->
+            <div style="background: #331111; border: 2px solid #ff4444; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+                <h4 style="color:#ff4444; font-size: 11px; margin-bottom: 8px; font-family: 'Press Start 2P', cursive; text-shadow: 0 0 5px #ff0000;">🔥 HORA LOCA VIP</h4>
+                <p style="font-size: 9px; color: #ccc; margin-bottom: 10px;">Multiplica x5 la probabilidad de premios reales para todo el mundo.</p>
+                <div id="staff-estado-evento" style="font-size: 10px; color: #ffd700; margin-bottom: 10px; font-weight:bold;">Estado: APAGADO</div>
+                <button onclick="activarEventoGlobal()" style="background:#ff4444; color:white; padding:12px 10px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; width:100%; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #aa0000;">ACTIVAR EVENTO (1H)</button>
+            </div>
+
+            <!-- SECCIÓN 2: VIPS EN ESPERA -->
+            <h4 style="color: #ff00ff; font-size: 11px; margin-bottom: 10px; font-family: 'Press Start 2P', cursive; border-top: 2px dashed #ff00ff; padding-top: 15px;">👑 PETICIONES VIP</h4>
+            <p style="font-size: 9px; color: #ccc; margin-bottom: 15px; line-height: 1.4;">Jugadores en espera de pagar 5€.</p>
             <div id="lista-peticiones-vip" style="text-align: left; display: flex; flex-direction: column; gap: 10px;"></div>
         </div>
     </div>
@@ -493,6 +516,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
-    <script src="script.js?v=55"></script>
+    <script src="script.js?v=70"></script>
 </body>
 </html>
