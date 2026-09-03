@@ -45,7 +45,7 @@ function subirPuntuacion() {
         fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(() => {});
 }
-setInterval(subirPuntuacion, 15000);
+setInterval(subirPuntuacion, 120000);
 
 // ============================================================================
 // 2. VARIABLES GLOBALES Y ESTADO DEL JUEGO
