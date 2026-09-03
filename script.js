@@ -991,8 +991,8 @@ function sincronizarStockGlobal() {
             stockChupitosHoy = data.chupitos !== undefined ? Math.max(0, data.chupitos) : 15; 
             stockCubatasHoy = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 5; 
         } else { 
-            stockChupitosHoy = 10; stockCubatasHoy = 5; 
-            db.collection("control_barra").doc(hoy).set({ chupitos: 10, cubatas: 5 }); 
+            stockChupitosHoy = 3; stockCubatasHoy = 2; 
+            db.collection("control_barra").doc(hoy).set({ chupitos: 3, cubatas: 2 }); 
         }
         const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
         if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
