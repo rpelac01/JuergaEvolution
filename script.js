@@ -1125,7 +1125,14 @@ function abrirRanking() {
     if (!db) { contenedor.innerHTML = "<p style='color:red;'>Ranking no disponible offline.</p>"; return; }
     contenedor.innerHTML = '<h3 style="color:#333; margin-top:20px;">Cargando... 📡</h3>';
     
-    db.collection("ranking").orderBy("cubatasTotales", "desc").limit(10).get().then((querySnapshot) => {
+    // 👇 Petición a Firebase ordenando por los 3 campos a la vez 👇
+    db.collection("ranking")
+      .orderBy("cubatasReales", "desc")
+      .orderBy("chupitosReales", "desc")
+      .orderBy("cubatasTotales", "desc")
+      .limit(10)
+      .get()
+      .then((querySnapshot) => {
         let html = '<h3 style="margin-bottom:15px; color:#ff0055; font-family: \'Press Start 2P\', cursive; font-size:12px; text-shadow: 2px 2px 0px #ccc;">🏆 TOP 10 PEÑA 🏆</h3><div style="text-align:left; font-size: 14px;">';
         let i = 1; 
         
@@ -1143,7 +1150,10 @@ function abrirRanking() {
             i++; 
         }); 
         html += '</div>'; contenedor.innerHTML = html;
-    }).catch(() => { contenedor.innerHTML = "<p style='color:red;'>Error de conexión.</p>"; });
+    }).catch((error) => { 
+        console.error("Error cargando ranking:", error);
+        contenedor.innerHTML = "<p style='color:red;'>⚠️ Creando índices en Firebase (tarda ~10 min). Revisa la consola del PC.</p>"; 
+    });
 }
 
 // ============================================================================
