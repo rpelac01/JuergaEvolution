@@ -45,7 +45,7 @@ function subirPuntuacion() {
         fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(() => {});
 }
-setInterval(subirPuntuacion, 120000);
+setInterval(subirPuntuacion, 15000);
 
 // ============================================================================
 // 2. VARIABLES GLOBALES Y ESTADO DEL JUEGO
@@ -991,15 +991,11 @@ function sincronizarStockGlobal() {
             stockChupitosHoy = data.chupitos !== undefined ? Math.max(0, data.chupitos) : 15; 
             stockCubatasHoy = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 5; 
         } else { 
-            stockChupitosHoy = 3; stockCubatasHoy = 2; 
-            db.collection("control_barra").doc(hoy).set({ chupitos: 3, cubatas: 2 }).catch(()=>{}); 
+            stockChupitosHoy = 10; stockCubatasHoy = 5; 
+            db.collection("control_barra").doc(hoy).set({ chupitos: 10, cubatas: 5 }); 
         }
         const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
         if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
-        
-        // Actualizamos los textos en el panel del camarero
-        const staffChupis = document.getElementById('staff-stock-chupitos'); const staffCubas = document.getElementById('staff-stock-cubatas');
-        if (staffChupis) staffChupis.innerText = stockChupitosHoy; if (staffCubas) staffCubas.innerText = stockCubatasHoy;
     }, () => {});
 
     // 2. Escuchar el Stock y tiempo de la Hora Loca
@@ -1012,55 +1008,6 @@ function sincronizarStockGlobal() {
         }
         chequearEstadoEvento();
     });
-
-    // 3. Escuchar Probabilidades Dinámicas
-    db.collection("control_barra").doc("probabilidades").onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            const pChupito = data.chupito !== undefined ? data.chupito : 1.2;
-            const pCubata = data.cubata !== undefined ? data.cubata : 0.3;
-            const pDinero = 100 - (pChupito + pCubata);
-
-            if (typeof SOBRES !== 'undefined' && SOBRES.epico && SOBRES.epico.premios) {
-                SOBRES.epico.premios[0].peso = pDinero; 
-                SOBRES.epico.premios[1].peso = pChupito;
-                SOBRES.epico.premios[2].peso = pCubata;
-            }
-
-            let txtChup = document.getElementById('prob-chupito-txt');
-            let txtCub = document.getElementById('prob-cubata-txt');
-            if (txtChup) txtChup.innerText = pChupito;
-            if (txtCub) txtCub.innerText = pCubata;
-        }
-    });
-}
-
-function cambiarStockDiario() {
-    if (!db) return;
-    let hoy = obtenerDiaDeFiesta();
-
-    let nuevoChupitos = prompt(`¿Cuántos CHUPITOS TOTALES hay ahora mismo en stock? (Actual: ${stockChupitosHoy})`, stockChupitosHoy);
-    if (nuevoChupitos === null) return;
-    let nuevoCubatas = prompt(`¿Cuántos CUBATAS TOTALES hay ahora mismo en stock? (Actual: ${stockCubatasHoy})`, stockCubatasHoy);
-    if (nuevoCubatas === null) return;
-
-    let numChup = parseInt(nuevoChupitos);
-    let numCub = parseInt(nuevoCubatas);
-
-    if (isNaN(numChup) || isNaN(numCub) || numChup < 0 || numCub < 0) {
-        alert("❌ Cantidad inválida. Escribe números enteros."); return;
-    }
-
-    if (confirm(`⚠️ Vas a sobreescribir el stock de hoy.\n¿Confirmas que la nevera virtual tendrá:\n🥂 ${numChup} Chupitos\n🍹 ${numCub} Cubatas?`)) {
-        db.collection("control_barra").doc(hoy).set({
-            chupitos: numChup,
-            cubatas: numCub
-        }, { merge: true }).then(() => {
-            alert("✅ Stock de la nevera actualizado para todo el mundo.");
-        }).catch(err => { 
-            alert("❌ Error. Firebase bloqueó la acción. Asegúrate de haber iniciado sesión como camarero."); 
-        });
-    }
 }
 
 setInterval(chequearEstadoEvento, 5000);
@@ -1178,14 +1125,7 @@ function abrirRanking() {
     if (!db) { contenedor.innerHTML = "<p style='color:red;'>Ranking no disponible offline.</p>"; return; }
     contenedor.innerHTML = '<h3 style="color:#333; margin-top:20px;">Cargando... 📡</h3>';
     
-    // 👇 Petición a Firebase ordenando por los 3 campos a la vez 👇
-    db.collection("ranking")
-      .orderBy("cubatasReales", "desc")
-      .orderBy("chupitosReales", "desc")
-      .orderBy("cubatasTotales", "desc")
-      .limit(10)
-      .get()
-      .then((querySnapshot) => {
+    db.collection("ranking").orderBy("cubatasTotales", "desc").limit(10).get().then((querySnapshot) => {
         let html = '<h3 style="margin-bottom:15px; color:#ff0055; font-family: \'Press Start 2P\', cursive; font-size:12px; text-shadow: 2px 2px 0px #ccc;">🏆 TOP 10 PEÑA 🏆</h3><div style="text-align:left; font-size: 14px;">';
         let i = 1; 
         
@@ -1203,10 +1143,7 @@ function abrirRanking() {
             i++; 
         }); 
         html += '</div>'; contenedor.innerHTML = html;
-    }).catch((error) => { 
-        console.error("Error cargando ranking:", error);
-        contenedor.innerHTML = "<p style='color:red;'>⚠️ Creando índices en Firebase (tarda ~10 min). Revisa la consola del PC.</p>"; 
-    });
+    }).catch(() => { contenedor.innerHTML = "<p style='color:red;'>Error de conexión.</p>"; });
 }
 
 // ============================================================================
@@ -1360,6 +1297,45 @@ function comprobarReinicioDiario() {
         
         setTimeout(() => { alert(`🌅 ¡NUEVO DÍA DE FIESTA (11:00 AM)!\n\nLa pradera se ha reseteado por completo. Conservas tus logros y desbloqueos, ¡pero te toca volver a fusionar desde cero!\n\n🍹 Bono de arranque: +${premio.toLocaleString('es-ES')} cubatas.`); }, 800);
     }
+}
+
+function abrirRanking() { 
+    ocultarTodosModales(); document.getElementById('ranking-modal').classList.remove('oculto'); 
+    if (nombreJugador === "Desconocido") { pedirNombre(); subirPuntuacion(); } 
+    const contenedor = document.getElementById('ranking-content');
+    if (!db) { contenedor.innerHTML = "<p style='color:red;'>Ranking no disponible offline.</p>"; return; }
+    contenedor.innerHTML = '<h3 style="color:#333; margin-top:20px;">Cargando... 📡</h3>';
+    
+    // 👇 Cambiamos el límite a 100 jugadores 👇
+    db.collection("ranking")
+      .orderBy("cubatasReales", "desc")
+      .orderBy("chupitosReales", "desc")
+      .orderBy("cubatasTotales", "desc")
+      .limit(100) 
+      .get()
+      .then((querySnapshot) => {
+        let html = '<h3 style="margin-bottom:15px; color:#ff0055; font-family: \'Press Start 2P\', cursive; font-size:12px; text-shadow: 2px 2px 0px #ccc;">🏆 RANKING PEÑA 🏆</h3><div style="text-align:left; font-size: 14px;">';
+        let i = 1; 
+        
+        querySnapshot.forEach((doc) => { 
+            let p = doc.data(); 
+            let vipIcon = p.esVIP ? '<span title="VIP" style="font-size:12px; margin-left:5px;">💎</span>' : '';
+            let colorNombre = "#111"; let fondoFila = (i % 2 === 0) ? '#f5f5f5' : '#ffffff';
+            let medalla = ""; let estiloBorde = "border-bottom: 3px solid #333;"; let extraNombre = "";
+
+            if (i === 1) { colorNombre = "#d4af37"; fondoFila = "#fffde7"; medalla = "👑"; estiloBorde = "border: 3px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.6);"; extraNombre = "text-shadow: 1px 1px 0px #000;"; } 
+            else if (i === 2) { colorNombre = "#7a7a7a"; fondoFila = "#f8f9fa"; medalla = "🥈"; estiloBorde = "border: 3px solid #a0a0a0;"; } 
+            else if (i === 3) { colorNombre = "#a0522d"; fondoFila = "#fbe9e7"; medalla = "🥉"; estiloBorde = "border: 3px solid #cd7f32;"; }
+            else { medalla = `<span style="font-size:11px; color:#777; width:15px; display:inline-block;">${i}º</span>`; }
+
+            html += `<div style="padding: 12px; display:flex; justify-content:space-between; align-items:center; background: ${fondoFila}; border-radius: 8px; margin-bottom: 8px; ${estiloBorde}"><div style="display:flex; flex-direction:column; gap:6px;"><span style="font-weight:bold; font-size:15px; color:${colorNombre}; text-transform:uppercase; ${extraNombre}">${medalla} ${p.nombre} ${vipIcon}</span><span style="font-size:10px; color:#555; font-weight:bold; background: #eee; padding: 3px 6px; border-radius: 4px; border: 1px solid #ccc; width: fit-content;">🥂 ${p.chupitosReales || 0}  |  🍹 ${p.cubatasReales || 0}</span></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;"><div style="background:#ff0055; color:white; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:11px; border:2px solid #333; box-shadow: 2px 2px 0 #000;">Nvl ${p.nivelMaximo}</div><div style="font-size:9px; color:#666; font-weight:bold;">${Math.floor(p.cubatasTotales || 0).toLocaleString('es-ES')} 🥃</div></div></div>`; 
+            i++; 
+        }); 
+        html += '</div>'; contenedor.innerHTML = html;
+    }).catch((error) => { 
+        console.error("Error cargando ranking:", error);
+        contenedor.innerHTML = "<p style='color:red;'>⚠️ Error al cargar el ranking.</p>"; 
+    });
 }
 
 // ============================================================================
