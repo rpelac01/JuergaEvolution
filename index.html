@@ -461,6 +461,18 @@
                 <div id="staff-estado-evento" style="font-size: 10px; color: #ffd700; margin-bottom: 10px; font-weight:bold;">Estado: APAGADO</div>
                 <button onclick="activarEventoGlobal()" style="background:#ff4444; color:white; padding:12px 10px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; width:100%; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #aa0000;">ACTIVAR EVENTO (1H)</button>
             </div>
+            <!-- SECCIÓN PROBABILIDADES EN VIVO -->
+            <div style="background: #002200; border: 2px solid #00ff00; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+                <h4 style="color:#00ff00; font-size: 11px; margin-bottom: 8px; font-family: 'Press Start 2P', cursive; text-shadow: 0 0 5px #00ff00;">🎲 PROBABILIDAD (SOBRES)</h4>
+                <p style="font-size: 9px; color: #ccc; margin-bottom: 10px;">Chupito: <span id="prob-chupito-txt">1.2</span>% | Cubata: <span id="prob-cubata-txt">0.3</span>%</p>
+                <button onclick="cambiarProbabilidades()" style="background:#009900; color:white; padding:12px 10px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; width:100%; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #005500;">MODIFICAR % BASE</button>
+            </div>
+            <!-- SECCIÓN 1.6: RECARGAR NEVERA (STOCK DIARIO) -->
+            <div style="background: #001133; border: 2px solid #00aaff; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+                <h4 style="color:#00aaff; font-size: 11px; margin-bottom: 8px; font-family: 'Press Start 2P', cursive; text-shadow: 0 0 5px #00aaff;">📦 AÑADIR STOCK HOY</h4>
+                <p style="font-size: 9px; color: #ccc; margin-bottom: 10px;">Quedan -> Chupitos: <span id="staff-stock-chupitos">--</span> | Cubatas: <span id="staff-stock-cubatas">--</span></p>
+                <button onclick="cambiarStockDiario()" style="background:#0055aa; color:white; padding:12px 10px; font-weight:bold; border:3px solid #000; border-radius:6px; cursor:pointer; width:100%; font-family: 'Press Start 2P', cursive; font-size:9px; box-shadow: 2px 2px 0 #002255;">RECARGAR NEVERA</button>
+            </div>
 
             <!-- SECCIÓN 2: VIPS EN ESPERA -->
             <h4 style="color: #ff00ff; font-size: 11px; margin-bottom: 10px; font-family: 'Press Start 2P', cursive; border-top: 2px dashed #ff00ff; padding-top: 15px;">👑 PETICIONES VIP</h4>
@@ -528,7 +540,7 @@
     <!-- 👇 AÑADE ESTA LÍNEA PARA EL BACKEND DE CONTRASEÑAS 👇 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
-    <script src="script.js?v=79"></script>
+    <script src="script.js?v=83"></script>
 </body>
 </html> 
 </body>

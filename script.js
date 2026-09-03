@@ -992,10 +992,14 @@ function sincronizarStockGlobal() {
             stockCubatasHoy = data.cubatas !== undefined ? Math.max(0, data.cubatas) : 5; 
         } else { 
             stockChupitosHoy = 3; stockCubatasHoy = 2; 
-            db.collection("control_barra").doc(hoy).set({ chupitos: 3, cubatas: 2 }); 
+            db.collection("control_barra").doc(hoy).set({ chupitos: 3, cubatas: 2 }).catch(()=>{}); 
         }
         const visualChupis = document.getElementById('stock-visual-chupitos'); const visualCubas = document.getElementById('stock-visual-cubatas');
         if (visualChupis) visualChupis.innerText = stockChupitosHoy; if (visualCubas) visualCubas.innerText = stockCubatasHoy;
+        
+        // Actualizamos los textos en el panel del camarero
+        const staffChupis = document.getElementById('staff-stock-chupitos'); const staffCubas = document.getElementById('staff-stock-cubatas');
+        if (staffChupis) staffChupis.innerText = stockChupitosHoy; if (staffCubas) staffCubas.innerText = stockCubatasHoy;
     }, () => {});
 
     // 2. Escuchar el Stock y tiempo de la Hora Loca
@@ -1008,6 +1012,55 @@ function sincronizarStockGlobal() {
         }
         chequearEstadoEvento();
     });
+
+    // 3. Escuchar Probabilidades Dinámicas
+    db.collection("control_barra").doc("probabilidades").onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            const pChupito = data.chupito !== undefined ? data.chupito : 1.2;
+            const pCubata = data.cubata !== undefined ? data.cubata : 0.3;
+            const pDinero = 100 - (pChupito + pCubata);
+
+            if (typeof SOBRES !== 'undefined' && SOBRES.epico && SOBRES.epico.premios) {
+                SOBRES.epico.premios[0].peso = pDinero; 
+                SOBRES.epico.premios[1].peso = pChupito;
+                SOBRES.epico.premios[2].peso = pCubata;
+            }
+
+            let txtChup = document.getElementById('prob-chupito-txt');
+            let txtCub = document.getElementById('prob-cubata-txt');
+            if (txtChup) txtChup.innerText = pChupito;
+            if (txtCub) txtCub.innerText = pCubata;
+        }
+    });
+}
+
+function cambiarStockDiario() {
+    if (!db) return;
+    let hoy = obtenerDiaDeFiesta();
+
+    let nuevoChupitos = prompt(`¿Cuántos CHUPITOS TOTALES hay ahora mismo en stock? (Actual: ${stockChupitosHoy})`, stockChupitosHoy);
+    if (nuevoChupitos === null) return;
+    let nuevoCubatas = prompt(`¿Cuántos CUBATAS TOTALES hay ahora mismo en stock? (Actual: ${stockCubatasHoy})`, stockCubatasHoy);
+    if (nuevoCubatas === null) return;
+
+    let numChup = parseInt(nuevoChupitos);
+    let numCub = parseInt(nuevoCubatas);
+
+    if (isNaN(numChup) || isNaN(numCub) || numChup < 0 || numCub < 0) {
+        alert("❌ Cantidad inválida. Escribe números enteros."); return;
+    }
+
+    if (confirm(`⚠️ Vas a sobreescribir el stock de hoy.\n¿Confirmas que la nevera virtual tendrá:\n🥂 ${numChup} Chupitos\n🍹 ${numCub} Cubatas?`)) {
+        db.collection("control_barra").doc(hoy).set({
+            chupitos: numChup,
+            cubatas: numCub
+        }, { merge: true }).then(() => {
+            alert("✅ Stock de la nevera actualizado para todo el mundo.");
+        }).catch(err => { 
+            alert("❌ Error. Firebase bloqueó la acción. Asegúrate de haber iniciado sesión como camarero."); 
+        });
+    }
 }
 
 setInterval(chequearEstadoEvento, 5000);
