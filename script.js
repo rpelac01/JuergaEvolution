@@ -916,14 +916,37 @@ function cargarPeticionesVIP() {
 }
 
 function autorizarJugadorRapido(jugador) {
-    if (!db || claveStaffActiva === "") return;
-    db.collection("pases_vip").doc(jugador).set({ autorizado: true, claveStaff: claveStaffActiva }, { merge: true }).catch(err => { alert("❌ Error de conexión al autorizar."); });
+    if (!db) return; // Quitamos el bloqueo de claveStaffActiva
+    db.collection("pases_vip").doc(jugador).set({ autorizado: true, claveStaff: "autorizado" }, { merge: true }).catch(err => { alert("❌ Error de conexión al autorizar."); });
 }
 
 function denegarJugadorRapido(jugador) {
-    if (!db || claveStaffActiva === "") return;
+    if (!db) return; // Quitamos el bloqueo
     if (confirm(`¿Seguro que quieres DENEGAR el acceso a ${jugador}?`)) {
         db.collection("pases_vip").doc(jugador).delete().catch(err => { alert("❌ Error al intentar denegar."); });
+    }
+}
+
+function activarEventoGlobal() {
+    if (!db) return; // Quitamos el bloqueo aquí también para que puedas iniciar la Hora Loca
+    
+    let chupis = prompt("¿Cuántos CHUPITOS quieres sortear en esta Hora Loca?", "10");
+    if (chupis === null) return; 
+    
+    let cubas = prompt("¿Cuántos CUBATAS quieres sortear en esta Hora Loca?", "2");
+    if (cubas === null) return; 
+    
+    chupis = parseInt(chupis) || 0;
+    cubas = parseInt(cubas) || 0;
+
+    if (confirm(`⚠️ ¿ACTIVAR HORA LOCA VIP?\n\nProbabilidad x5 durante 1 HORA con este stock extra:\n🥂 ${chupis} Chupitos\n🍹 ${cubas} Cubatas`)) {
+        let unaHoraEnMs = 60 * 60 * 1000;
+        db.collection("control_barra").doc("evento_global").set({
+            activoHasta: Date.now() + unaHoraEnMs,
+            activadoPor: "staff",
+            chupitos: chupis,
+            cubatas: cubas
+        }).then(() => { alert("✅ ¡Hora Loca VIP activada con éxito!"); }).catch(err => { alert("❌ Error al activar."); });
     }
 }
 
@@ -1011,30 +1034,6 @@ function chequearEstadoEvento() {
         if (banner) banner.style.display = 'none';
         let estadoStaff = document.getElementById('staff-estado-evento');
         if (estadoStaff) estadoStaff.innerText = `Estado: APAGADO`;
-    }
-}
-
-function activarEventoGlobal() {
-    if (!db || claveStaffActiva === "") return;
-    
-    // 👇 PREGUNTA A LA BARRA EL STOCK 👇
-    let chupis = prompt("¿Cuántos CHUPITOS quieres sortear en esta Hora Loca?", "10");
-    if (chupis === null) return; 
-    
-    let cubas = prompt("¿Cuántos CUBATAS quieres sortear en esta Hora Loca?", "2");
-    if (cubas === null) return; 
-    
-    chupis = parseInt(chupis) || 0;
-    cubas = parseInt(cubas) || 0;
-
-    if (confirm(`⚠️ ¿ACTIVAR HORA LOCA VIP?\n\nProbabilidad x5 durante 1 HORA con este stock extra:\n🥂 ${chupis} Chupitos\n🍹 ${cubas} Cubatas`)) {
-        let unaHoraEnMs = 60 * 60 * 1000;
-        db.collection("control_barra").doc("evento_global").set({
-            activoHasta: Date.now() + unaHoraEnMs,
-            activadoPor: claveStaffActiva,
-            chupitos: chupis,
-            cubatas: cubas
-        }).then(() => { alert("✅ ¡Hora Loca VIP activada con éxito!"); }).catch(err => { alert("❌ Error al activar."); });
     }
 }
 
